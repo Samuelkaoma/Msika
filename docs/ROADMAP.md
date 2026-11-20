@@ -225,14 +225,25 @@ Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
   The `ConsoleSmsGateway` adapter feeds it.
 - Done: the whole deposit flow can be shown in a browser with no real phone.
 
-**☐ M-21 Android SMS gateway** · TM · M-18 · `feature/M-21-android-gateway`
-- Do: pick an open-source Android SMS-gateway app that can forward incoming SMS to a webhook and
-  send outgoing SMS through an API. Write `docs/SMS-GATEWAY-SETUP.md` (install, SIM, settings,
-  keeping the phone awake and charged). Add the `AndroidSmsGateway` adapter and the
-  `/api/v1/sms/inbound/android` mapping. Reaching the laptop from the phone needs a tunnel or a
-  hosted server; document the one we use.
-- Done: a real text from a team member's phone shows up in `sms_inbound` and gets a reply on the
-  phone. Recorded as a short video for the pitch.
+**☐ M-21 SMS relay to the VPS** · TM · M-18, M-45 · `feature/M-21-sms-relay`
+- Do: ARCHITECTURE §7, "Getting SMS to a cloud server". Msika runs on a cloud VPS, which cannot hold
+  a SIM, so a **relay** in Lusaka holds the Zamtel SIM and talks to the VPS over HTTPS, always
+  connecting out (no open ports at the relay's end). Build:
+  - the relay's two endpoints on the VPS: inbound `POST /api/v1/sms/inbound` (already from M-18) and
+    `GET /api/v1/sms/relay/outbox` plus `POST /api/v1/sms/relay/outbox/{id}/result`, where the relay
+    collects replies to send and reports each one sent or failed. Both signed with the relay's own
+    HMAC secret, and each relay sees only its own messages;
+  - `RelaySmsGateway`, the adapter that queues replies for the relay instead of sending them itself;
+  - the relay itself, two options sharing that protocol, documented in `docs/SMS-GATEWAY-SETUP.md`:
+    (a) a small script on a Raspberry Pi or old laptop with a USB GSM modem, using Gammu's SMS
+    daemon to read and send texts; (b) an Android phone running an open-source SMS-gateway app,
+    with a small mapping endpoint if its webhook format differs. Option (a) is preferred because it
+    restarts by itself after a power cut;
+  - relay health on `/health`: last contact time, and messages waiting more than 2 minutes.
+- Done: an integration test plays the relay (inbound, then collecting and acknowledging the reply)
+  with a duplicate inbound and a reply reported failed and retried. A real text from a team
+  member's phone reaches `sms_inbound` on the VPS and gets a reply (people's work: needs the SIM and
+  the device), recorded as a short video for the pitch.
 
 ## Phase 4: Levy and the eLevy simulator (weeks 4 to 5)
 
@@ -454,10 +465,19 @@ person (never the one who raised it), and changes the register only when approve
 - Do: dependency audit in `scripts/check`, a review of auth, webhooks, RLS and secrets handling.
 - Done: findings fixed or written down with a reason.
 
-**☐ M-45 Hosting** · KK · v0.1.0 · `feature/M-45-hosting`
-- Do: choose where the pilot runs (a small VPS with docker compose is enough), backups, and HTTPS so
-  the SMS gateway can reach it. Manual deploy script for now.
-- Done: the demo runs on the hosted server from a tag.
+**☐ M-45 Hosting on Dokploy** · KK · M-04 · `feature/M-45-hosting`
+- Built early, before M-21, because the SMS relay needs a public HTTPS address to post to.
+- Do: run Msika on the team's VPS under Dokploy, as a Docker Compose app: `msika-api`, `zamsim`,
+  `elevysim`, Postgres and the two web apps. Dokploy's Traefik gives each public service a domain
+  with HTTPS. Every secret (database passwords, JWT secret, callback and relay secrets, the seal
+  signing key) is set in Dokploy's environment settings, never in the repo (the repo is public).
+  Only `msika-api` and the web apps are public; Postgres, zamsim and elevysim stay on the internal
+  network. Daily Postgres backups to storage off the VPS, and one restore tried for real. Dokploy
+  deploys `main` when it changes, which gives us deployment without spending GitHub Actions
+  minutes. Write `docs/DEPLOY.md`.
+- Done: the demo runs on the VPS from `main`. `/health` answers over HTTPS. A port scan from outside
+  shows only 80 and 443 (and SSH). A backup has been restored into a fresh database and the seal
+  verifier passes on it (a written manual check).
 
 **☐ M-46 Real integration notes** · KK + MP · v0.1.0 · `feature/M-46-integration-notes`
 - Do: for Zamtel and eLevy, what we need from them (sandbox, keys, callback format), mapped to our

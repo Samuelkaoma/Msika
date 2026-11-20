@@ -87,8 +87,9 @@ If Actions is ever unavailable, in order of preference:
 3. **Another CI service** with a free tier, running the same `scripts/check.sh`. Because all the
    logic is in the script, switching costs one config file.
 
-There is no automatic deployment for now. The demo runs from `docker compose` on a laptop or a small
-server (card M-45), deployed by hand from a tag.
+Deployment does not use GitHub Actions either. Msika runs on the team's VPS under Dokploy, which
+redeploys `main` when it changes (card M-45). So merging a release into `main` is what deploys it,
+and nothing reaches the server without going through `develop`, a release branch and its checks.
 
 ## Code rules
 
