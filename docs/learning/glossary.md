@@ -142,3 +142,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Atomic status change** | `update ... where status = old`: only one of two competing changes finds the old status. |
 | **Wallet registry** | Msika's list of which payments-system wallet belongs to which stall, agent or supplier. |
 | **`SECURITY DEFINER` function** | A database function that runs with its owner's rights, used for one narrow lookup across the security wall. |
+| **Poison message** | A message that fails every time. Answering "try again" makes the sender retry it forever; answer 400 instead. |
+| **Write, then check** | Insert, then check, in one transaction, so a failed check rolls the insert back and nothing is stored. |

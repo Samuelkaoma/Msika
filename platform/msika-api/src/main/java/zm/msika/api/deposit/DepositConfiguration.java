@@ -13,8 +13,11 @@ import zm.msika.core.deposit.DepositRepository;
 import zm.msika.core.deposit.RequestDeposit;
 import zm.msika.core.payments.PaymentOutcomes;
 import zm.msika.core.payments.PaymentRequestRepository;
+import zm.msika.core.stall.StallAllocationRepository;
 import zm.msika.core.stall.StallRepository;
+import zm.msika.core.trader.TraderRepository;
 import zm.msika.core.wallet.RegisterWallet;
+import zm.msika.core.wallet.VerifyWalletOwnership;
 import zm.msika.core.wallet.WalletRegistry;
 
 /** Creates the deposit and wallet use cases from msika-core. */
@@ -42,5 +45,11 @@ class DepositConfiguration {
     @Bean
     RegisterWallet registerWallet(WalletRegistry wallets, StallRepository stalls, AgentRepository agents) {
         return new RegisterWallet(wallets, stalls, agents);
+    }
+
+    @Bean
+    VerifyWalletOwnership verifyWalletOwnership(StallAllocationRepository allocations, TraderRepository traders,
+            AgentRepository agents) {
+        return new VerifyWalletOwnership(allocations, traders, agents);
     }
 }

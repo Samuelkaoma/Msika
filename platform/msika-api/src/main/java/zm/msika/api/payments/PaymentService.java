@@ -88,6 +88,15 @@ public class PaymentService {
         tenant.inCouncil(request.councilId(), () -> requests.attachTransaction(request.councilId(), request.id(), txn));
     }
 
+    /**
+     * Asks the payments system about one wallet. Outside any database transaction, like every call to it.
+     *
+     * @throws zm.msika.core.payments.PaymentsUnavailableException if the payments system could not be asked
+     */
+    public Optional<zm.msika.core.payments.PaymentsWallet> findWallet(String walletId) {
+        return payments.findWallet(walletId);
+    }
+
     public Optional<PaymentRequest> find(UUID councilId, UUID requestId) {
         return tenant.inCouncil(councilId, () -> requests.find(councilId, requestId));
     }
@@ -106,7 +115,12 @@ public class PaymentService {
     public HandlePaymentEvent.Outcome handle(PaymentEvent event) {
         Optional<PaymentReference.Parts> parts = PaymentReference.parse(event.reference());
         if (parts.isPresent()) {
-            return tenant.inCouncil(parts.get().councilId(), () -> handler.execute(event));
+            HandlePaymentEvent.Outcome outcome = tenant.inCouncil(parts.get().councilId(), () -> handler.execute(event));
+            if (outcome != HandlePaymentEvent.Outcome.UNMATCHED) {
+                return outcome;
+            }
+            // Shaped like one of Msika's references but not one of its requests: the reference is free text the
+            // payer typed, so this may still be a customer paying a stall. Fall through and look at the wallets.
         }
         Optional<RecordWalletPayment.Classified> classified = walletPayments.classify(event);
         if (classified.isEmpty()) {

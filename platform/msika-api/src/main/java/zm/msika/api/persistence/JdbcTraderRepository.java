@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -48,6 +49,15 @@ class JdbcTraderRepository implements TraderRepository {
             // Two requests registered the same number at once; the unique constraint caught the second.
             throw new ConflictException("a trader with this phone number is already registered");
         }
+    }
+
+    @Override
+    public Optional<Trader> find(UUID councilId, UUID traderId) {
+        return jdbc.sql("select " + COLUMNS + " from trader where council_id = :councilId and id = :id")
+                .param("councilId", councilId)
+                .param("id", traderId)
+                .query((rs, row) -> map(rs))
+                .optional();
     }
 
     @Override

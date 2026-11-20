@@ -1,6 +1,7 @@
 package zm.msika.core.trader;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import zm.msika.core.phone.PhoneNumber;
 
@@ -8,6 +9,8 @@ import zm.msika.core.phone.PhoneNumber;
 public interface TraderRepository {
 
     void add(Trader trader);
+
+    Optional<Trader> find(UUID councilId, UUID traderId);
 
     List<Trader> list(UUID councilId);
 

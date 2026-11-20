@@ -13,7 +13,9 @@ import zm.msika.core.deposit.Deposit;
 import zm.msika.core.deposit.DepositRepository;
 import zm.msika.core.deposit.DepositStatus;
 import zm.msika.core.deposit.RequestDeposit;
+import zm.msika.core.payments.PaymentsWallet;
 import zm.msika.core.wallet.RegisterWallet;
+import zm.msika.core.wallet.VerifyWalletOwnership;
 import zm.msika.core.wallet.WalletOwner;
 import zm.msika.core.wallet.WalletRegistry;
 
@@ -31,6 +33,7 @@ class DepositService {
     private final RequestDeposit requestDeposit;
     private final ChangeDeposit changeDeposit;
     private final RegisterWallet registerWallet;
+    private final VerifyWalletOwnership verifyOwnership;
     private final DepositRepository deposits;
     private final WalletRegistry wallets;
     private final PaymentService payments;
@@ -38,11 +41,12 @@ class DepositService {
     private final AuditLog audit;
 
     DepositService(RequestDeposit requestDeposit, ChangeDeposit changeDeposit, RegisterWallet registerWallet,
-            DepositRepository deposits, WalletRegistry wallets, PaymentService payments, TenantContext tenant,
-            AuditLog audit) {
+            VerifyWalletOwnership verifyOwnership, DepositRepository deposits, WalletRegistry wallets,
+            PaymentService payments, TenantContext tenant, AuditLog audit) {
         this.requestDeposit = requestDeposit;
         this.changeDeposit = changeDeposit;
         this.registerWallet = registerWallet;
+        this.verifyOwnership = verifyOwnership;
         this.deposits = deposits;
         this.wallets = wallets;
         this.payments = payments;
@@ -94,9 +98,19 @@ class DepositService {
         return tenant.inCouncil(councilId, () -> deposits.list(councilId, status, 200));
     }
 
+    /**
+     * Registers a wallet only if the payments system agrees it is that kind of wallet and, for trader and agent
+     * wallets, that it is registered to that person's phone. The payments system is asked first, outside any
+     * database transaction. The check runs after the row is written, in the same transaction, so the usual answers
+     * (a duplicate, a bad shape, an unknown stall) come first, and a failed check rolls the row back: nothing that
+     * fails the check is ever stored.
+     */
     WalletOwner registerWallet(UUID councilId, String walletId, WalletOwner.Role role, UUID stallId, UUID agentId) {
+        String id = walletId == null ? null : walletId.trim();
+        PaymentsWallet inPayments = id == null || id.isEmpty() ? null : payments.findWallet(id).orElse(null);
         return tenant.inCouncil(councilId, () -> {
             WalletOwner w = registerWallet.execute(councilId, walletId, role, stallId, agentId);
+            verifyOwnership.check(councilId, w.walletId(), role, stallId, agentId, inPayments);
             audit.record(councilId, CurrentUser.actor(), "wallet.register", role + " " + stallId + " " + agentId);
             return w;
         });
