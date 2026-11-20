@@ -1,5 +1,6 @@
 package zm.msika.core.payments;
 
+import java.util.Optional;
 import zm.msika.ledger.Money;
 
 /**
@@ -29,4 +30,13 @@ public interface PaymentsPort {
      * @throws PaymentsUnavailableException if the system could not be reached or answered with an error
      */
     String cashIn(String idempotencyKey, String agentWalletId, String customerWalletId, Money amount, String reference);
+
+    /**
+     * Looks up one wallet: its kind and the phone number it is registered to. Used to check that a wallet a
+     * council registers really belongs to that trader or agent.
+     *
+     * @return the wallet, or empty if the payments system has no wallet with that id
+     * @throws PaymentsUnavailableException if the system could not be reached or answered with an error
+     */
+    Optional<PaymentsWallet> findWallet(String walletId);
 }

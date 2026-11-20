@@ -30,9 +30,22 @@ class PaymentsConfiguration {
     @Bean
     PaymentsPort paymentsPort(@Value("${msika.payments.zamsim.base-url:}") String baseUrl) {
         if (baseUrl.isBlank()) {
-            return (key, agent, customer, amount, reference) -> {
-                throw new zm.msika.core.payments.PaymentsUnavailableException(
-                        "no payments system is configured (msika.payments.zamsim.base-url)");
+            return new PaymentsPort() {
+                @Override
+                public String cashIn(String key, String agent, String customer, zm.msika.ledger.Money amount,
+                        String reference) {
+                    throw notConfigured();
+                }
+
+                @Override
+                public java.util.Optional<zm.msika.core.payments.PaymentsWallet> findWallet(String walletId) {
+                    throw notConfigured();
+                }
+
+                private zm.msika.core.payments.PaymentsUnavailableException notConfigured() {
+                    return new zm.msika.core.payments.PaymentsUnavailableException(
+                            "no payments system is configured (msika.payments.zamsim.base-url)");
+                }
             };
         }
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();

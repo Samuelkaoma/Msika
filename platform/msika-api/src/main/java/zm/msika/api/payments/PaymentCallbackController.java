@@ -81,12 +81,18 @@ class PaymentCallbackController {
             case "FAILED" -> PaymentEvent.Status.FAILED;
             default -> throw new IllegalArgumentException("not a final status: " + status);
         };
+        // A missing or broken amount must be refused here (400, never retried), not read as 0 and then refused by
+        // the ledger, which would answer 500 and make the sender retry the same bad callback forever.
+        JsonNode amount = t.path("amountNgwee");
+        if (!amount.isIntegralNumber() || !amount.canConvertToLong() || amount.asLong() <= 0) {
+            throw new IllegalArgumentException("amountNgwee must be a whole number of ngwee above zero");
+        }
         try {
             return new PaymentEvent(
                     optional(root, "callbackId"),
                     text(t, "id"),
                     mapped,
-                    t.path("amountNgwee").asLong(),
+                    amount.asLong(),
                     optional(t, "reference"),
                     optional(t, "failureReason"),
                     Instant.parse(text(t, "completedAt")),

@@ -11,6 +11,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +36,7 @@ import zm.msika.api.payments.CallbackVerifier;
 import zm.msika.api.tenancy.TenantContext;
 import zm.msika.core.payments.PaymentsPort;
 import zm.msika.core.payments.PaymentsUnavailableException;
+import zm.msika.core.payments.PaymentsWallet;
 import zm.msika.ledger.Money;
 
 /** The deposit lifecycle (card M-15) through the real HTTP API, with the payments system played by a script. */
@@ -44,6 +48,9 @@ class DepositApiTest extends ApiTest {
 
         final List<Call> calls = Collections.synchronizedList(new ArrayList<>());
         final AtomicInteger unreachable = new AtomicInteger();
+        /** The wallets the payments system knows, by id. */
+        final Map<String, PaymentsWallet> wallets = new ConcurrentHashMap<>();
+        volatile boolean walletLookupDown;
 
         @Override
         public String cashIn(String key, String agentWallet, String customerWallet, Money amount, String reference) {
@@ -52,6 +59,14 @@ class DepositApiTest extends ApiTest {
                 throw new PaymentsUnavailableException("scripted outage");
             }
             return "sim-" + key;
+        }
+
+        @Override
+        public Optional<PaymentsWallet> findWallet(String walletId) {
+            if (walletLookupDown) {
+                throw new PaymentsUnavailableException("scripted outage");
+            }
+            return Optional.ofNullable(wallets.get(walletId));
         }
     }
 
@@ -98,6 +113,8 @@ class DepositApiTest extends ApiTest {
     private Fixture council;
     private UUID stallId;
     private UUID agentId;
+    private String agentPhone;
+    private String traderPhone;
     private String traderWallet;
     private String agentWallet;
     private String merchantWallet;
@@ -109,6 +126,7 @@ class DepositApiTest extends ApiTest {
     void setUp() {
         payments.calls.clear();
         payments.unreachable.set(0);
+        payments.walletLookupDown = false;
         council = newCouncil();
         UUID market = UUID.randomUUID();
         stallId = UUID.randomUUID();
@@ -122,18 +140,38 @@ class DepositApiTest extends ApiTest {
                     .param("token", UUID.randomUUID().toString().replace("-", "")).update();
         });
         String digits = String.format("%06d", ThreadLocalRandom.current().nextInt(1_000_000));
+        agentPhone = "+260977" + digits;
+        traderPhone = "+260966" + digits;
         agentId = api().post(council.adminToken(), base() + "/agents",
-                new RegisterAgentRequest("+260977" + digits, "Test Agent"), AgentBody.class).body().id();
+                new RegisterAgentRequest(agentPhone, "Test Agent"), AgentBody.class).body().id();
+        // The stall's holder, so its trader wallet can be checked against the holder's phone.
+        UUID traderId = UUID.randomUUID();
+        tenant.inCouncil(council.councilId(), () -> {
+            jdbc.sql("insert into trader (id, council_id, msisdn, display_name) values (:id, :c, :phone, 'Test Trader')")
+                    .param("id", traderId).param("c", council.councilId()).param("phone", traderPhone).update();
+            jdbc.sql("insert into stall_allocation (id, council_id, stall_id, trader_id, valid_from) "
+                            + "values (:id, :c, :s, :t, now())")
+                    .param("id", UUID.randomUUID()).param("c", council.councilId()).param("s", stallId)
+                    .param("t", traderId).update();
+        });
         tag = UUID.randomUUID().toString().substring(0, 8);
         completedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
         traderWallet = "w-trader-" + tag;
         agentWallet = "w-agent-" + tag;
         merchantWallet = "w-merchant-" + tag;
         supplierWallet = "w-supplier-" + tag;
+        scripted(traderWallet, PaymentsWallet.Kind.TRADER, traderPhone);
+        scripted(merchantWallet, PaymentsWallet.Kind.MERCHANT, null);
+        scripted(agentWallet, PaymentsWallet.Kind.AGENT, agentPhone);
+        scripted(supplierWallet, PaymentsWallet.Kind.SUPPLIER, null);
         registerWallet(traderWallet, "TRADER", stallId, null);
         registerWallet(merchantWallet, "MERCHANT", stallId, null);
         registerWallet(agentWallet, "AGENT", null, agentId);
         registerWallet(supplierWallet, "SUPPLIER", null, null);
+    }
+
+    private void scripted(String id, PaymentsWallet.Kind kind, String msisdn) {
+        payments.wallets.put(id, new PaymentsWallet(id, kind, msisdn));
     }
 
     private String base() {
@@ -169,6 +207,11 @@ class DepositApiTest extends ApiTest {
                 + "\"reference\":" + (reference == null ? "null" : "\"" + reference + "\"") + ","
                 + "\"failureReason\":" + ("FAILED".equals(status) ? "\"INSUFFICIENT_FUNDS\"" : "null") + ","
                 + "\"completedAt\":\"" + completedAt + "\"}}";
+        return signedCallback(json);
+    }
+
+    /** Sends a body exactly as given, signed as the payments system signs it. */
+    private Reply signedCallback(String json) {
         long now = Instant.now().getEpochSecond();
         try {
             HttpResponse<String> response = HTTP.send(HttpRequest.newBuilder(
@@ -433,6 +476,101 @@ class DepositApiTest extends ApiTest {
         assertThat(api().post(council.adminToken(), base() + "/wallets",
                 new RegisterWalletRequest("w-other", "MERCHANT", UUID.randomUUID(), null), ErrorBody.class).status()).isEqualTo(404);
         assertThat(api().get(council.adminToken(), base() + "/wallets", Wallet[].class).body()).hasSize(4);
+    }
+
+    private int registerStatus(String id, String role, UUID stall, UUID agent) {
+        return api().post(council.adminToken(), base() + "/wallets",
+                new RegisterWalletRequest(id, role, stall, agent), ErrorBody.class).status();
+    }
+
+    private long walletRows(String id) {
+        return ownerJdbc().sql("select count(*) from payments_wallet where wallet_id = :id")
+                .param("id", id).query(Long.class).single();
+    }
+
+    @Test
+    @DisplayName("a wallet the payments system does not know is refused with 400 and not stored")
+    void unknownWalletIsRefused() {
+        String id = "w-nowhere-" + tag;
+        assertThat(registerStatus(id, "SUPPLIER", null, null)).isEqualTo(400);
+        assertThat(walletRows(id)).isZero();
+    }
+
+    @Test
+    @DisplayName("a trader wallet on someone else's phone, or of the wrong kind, is refused and not stored")
+    void someoneElsesWalletIsRefused() {
+        // A second stall, held by the same trader, so only the wallet decides the answer.
+        UUID secondStall = UUID.randomUUID();
+        tenant.inCouncil(council.councilId(), () -> {
+            UUID market = jdbc.sql("select market_id from stall where id = :s").param("s", stallId).query(UUID.class).single();
+            UUID trader = jdbc.sql("select trader_id from stall_allocation where stall_id = :s").param("s", stallId)
+                    .query(UUID.class).single();
+            jdbc.sql("insert into stall (id, council_id, market_id, code, stall_class, status, qr_token) "
+                            + "values (:id, :c, :m, 'DEP-A-2', 'STANDARD', 'ALLOCATED', :token)")
+                    .param("id", secondStall).param("c", council.councilId()).param("m", market)
+                    .param("token", UUID.randomUUID().toString().replace("-", "")).update();
+            jdbc.sql("insert into stall_allocation (id, council_id, stall_id, trader_id, valid_from) "
+                            + "values (:id, :c, :s, :t, now())")
+                    .param("id", UUID.randomUUID()).param("c", council.councilId()).param("s", secondStall)
+                    .param("t", trader).update();
+        });
+        String strangers = "w-stranger-" + tag;
+        scripted(strangers, PaymentsWallet.Kind.TRADER, "+260955000123");
+        String merchantKind = "w-merchant-kind-" + tag;
+        scripted(merchantKind, PaymentsWallet.Kind.MERCHANT, traderPhone);
+
+        assertThat(registerStatus(strangers, "TRADER", secondStall, null)).isEqualTo(400);
+        assertThat(registerStatus(merchantKind, "TRADER", secondStall, null)).isEqualTo(400);
+        assertThat(walletRows(strangers) + walletRows(merchantKind)).isZero();
+
+        // An agent's wallet must be on that agent's phone too.
+        String digits = String.format("%06d", ThreadLocalRandom.current().nextInt(1_000_000));
+        UUID secondAgent = api().post(council.adminToken(), base() + "/agents",
+                new RegisterAgentRequest("+260976" + digits, "Second Agent"), AgentBody.class).body().id();
+        String agentsWallet = "w-agent-2-" + tag;
+        scripted(agentsWallet, PaymentsWallet.Kind.AGENT, agentPhone);
+        assertThat(registerStatus(agentsWallet, "AGENT", null, secondAgent)).as("the first agent's phone").isEqualTo(400);
+        scripted(agentsWallet, PaymentsWallet.Kind.AGENT, "+260976" + digits);
+        assertThat(registerStatus(agentsWallet, "AGENT", null, secondAgent)).as("now on the right phone").isEqualTo(201);
+    }
+
+    @Test
+    @DisplayName("if the payments system cannot be asked about a wallet, the answer is 502 and nothing is stored")
+    void walletLookupOutage() {
+        String id = "w-later-" + tag;
+        scripted(id, PaymentsWallet.Kind.SUPPLIER, null);
+        payments.walletLookupDown = true;
+
+        assertThat(registerStatus(id, "SUPPLIER", null, null)).isEqualTo(502);
+        assertThat(walletRows(id)).isZero();
+    }
+
+    @Test
+    @DisplayName("a callback with a missing, zero, negative or fractional amount is refused with 400, so it is not retried")
+    void callbackWithABadAmount() {
+        String good = "{\"callbackId\":\"cb-%s\",\"transaction\":{\"id\":\"%s\",\"kind\":\"REQUEST_TO_PAY\","
+                + "\"status\":\"SUCCEEDED\",%s\"fromWalletId\":\"w-customer\",\"toWalletId\":\"" + merchantWallet + "\","
+                + "\"reference\":null,\"completedAt\":\"" + completedAt + "\"}}";
+        String[] amounts = {"", "\"amountNgwee\":0,", "\"amountNgwee\":-500,", "\"amountNgwee\":12.5,",
+                "\"amountNgwee\":\"12000\","};
+        for (int i = 0; i < amounts.length; i++) {
+            String txn = tag + "-bad-" + i;
+            Reply reply = signedCallback(String.format(good, txn, txn, amounts[i]));
+            assertThat(reply.status()).as("amount field: [" + amounts[i] + "]").isEqualTo(400);
+        }
+        assertThat(ledger("")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("a sale whose free-text reference happens to look like an Msika reference is still recorded as a sale")
+    void lookAlikeReferenceIsStillASale() {
+        String lookAlike = PaymentRefs.of(council.councilId(), UUID.randomUUID());
+
+        Reply reply = callback("tx-lookalike", "SUCCEEDED", 7_000, lookAlike, "REQUEST_TO_PAY", "w-customer", merchantWallet);
+
+        assertThat(reply.status()).isEqualTo(200);
+        assertThat(reply.body()).contains("RECORDED");
+        assertThat(ledger("")).containsExactly("MERCHANT_SALE:VERIFIED:7000");
     }
 
     /** Builds the reference the payments system echoes back; the same format as {@code PaymentReference}. */
