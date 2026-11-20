@@ -34,6 +34,10 @@ services:
       MSIKA_DB_URL: jdbc:postgresql://postgres:5432/msika
       MSIKA_OWNER_PASSWORD: ${MSIKA_OWNER_PASSWORD:-dev_only_msika_owner}
       MSIKA_APP_PASSWORD: ${MSIKA_APP_PASSWORD:-dev_only_msika_app}
+      # Sign-in. Empty means: no bootstrap operator, and a random token secret (tokens stop at restart).
+      MSIKA_AUTH_JWT_SECRET: ${MSIKA_AUTH_JWT_SECRET:-}
+      MSIKA_BOOTSTRAP_OPERATOR_EMAIL: ${MSIKA_BOOTSTRAP_OPERATOR_EMAIL:-}
+      MSIKA_BOOTSTRAP_OPERATOR_PASSWORD: ${MSIKA_BOOTSTRAP_OPERATOR_PASSWORD:-}
     ports:
       - "8080:8080"
 
