@@ -96,3 +96,13 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **`SECURITY DEFINER`** | A Postgres function that runs with its owner's rights. We use two tiny ones for sign-in lookups. |
 | **Audit log** | An append-only record of who changed what and when. |
 | **Bootstrap operator** | The first operator, created from environment settings at start-up. |
+| **E.164** | The international phone number format: `+` country code and number, no spaces. Ours is `+260` then nine digits. |
+| **Normalisation** | Turning many spellings of one value into one canonical form, once, at the edge. |
+| **Masking** | Showing only part of a sensitive value, like `0977***739`, so it is safe in logs. |
+| **Data minimisation** | Keeping only the personal data you need. |
+| **Check constraint** | A database rule on a column, such as "must match this pattern". |
+| **PDF / PDFBox** | The file format for printable pages / the Java library we use to make them. |
+| **QR code / module** | A grid of black and white squares that encodes text / one square of that grid. |
+| **Error correction (QR)** | Extra data in a QR code so it still reads when dirty or torn. We use level Q, about 25%. |
+| **Plate** | The A6 printed page for a stall: code, market name and QR code. |
+| **ZXing** | The Java library that makes and reads QR codes. |
