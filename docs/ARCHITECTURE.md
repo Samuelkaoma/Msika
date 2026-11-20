@@ -76,6 +76,7 @@ Msika/
 ├── apps/                          pnpm workspace
 │   ├── council-web/               React + Vite + TypeScript. Council dashboard.
 │   ├── sim-console/               React + Vite + TypeScript. Fake phones and wallets for demos.
+│   ├── market-survey/             Phone page for walking a market and mapping its stalls (Phase 10).
 │   └── agent-app/                 React Native (Expo). Phase 8, stretch.
 ├── ml/                            Python service (FastAPI). Phase 7.
 ├── infra/
@@ -167,6 +168,13 @@ A trader who qualifies can reply `LOAN` to ask for a stock loan. Msika sends a r
 (inside `zamsim`), the lender pays the supplier's wallet directly, and Msika sets up repayment as a
 share of each later deposit. Msika never pays out the loan or holds any of the money.
 
+### 4.7 Market map
+
+Every market has versioned plans that draw its stalls, and the dashboard colours each stall by
+whether it is free, active, quiet or suspended. Plans start generated from stall codes and later come
+from tracing and from walking the market with a phone. The full design, with its own rules, is in
+`docs/MARKET-MAP.md`.
+
 ---
 
 ## 5. Data model (first cut)
@@ -192,6 +200,8 @@ Times are `timestamptz`. `business_date` is the Lusaka trading date.
 | `sms_outbound` | id, council_id, msisdn, body, status, attempts, next_attempt_at (an outbox) |
 | `council_user` | id, council_id, email, password_hash, role |
 | `audit_log` | id, council_id, actor, action, target, at |
+
+The market map adds plan, footprint, survey and waiting-list tables: see `docs/MARKET-MAP.md` §10.
 
 `ledger_entry.kind`: `DEPOSIT`, `MERCHANT_SALE`, `SUPPLIER_PAYMENT`, `DECLARED_SALE`,
 `LEVY_PAYMENT`, `LOAN_REPAYMENT`, `REVERSAL`.
