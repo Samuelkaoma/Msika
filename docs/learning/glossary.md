@@ -64,3 +64,16 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Genesis** | The first link of a chain. For seals it is 32 zero bytes. |
 | **Canonical encoding** | One exact, unambiguous way to turn data into bytes so everyone hashes the same thing. |
 | **Provenance** | How sure we are of an entry: `VERIFIED`, `DEPOSITED` or `DECLARED`. |
+| **API / REST** | A set of URLs a program can call, designed around things (councils, stalls) and the HTTP verbs. |
+| **HTTP verbs** | `GET` read, `POST` create, `PUT` set to this state, `DELETE` remove. |
+| **Status code** | A number saying how a request went: 200 ok, 201 created, 400 bad request, 404 not found, 409 conflict. |
+| **Controller** | The class that receives HTTP requests and returns responses. It holds no business rules. |
+| **DTO** | A small object shaped for the wire (request or response), separate from the domain object. |
+| **Repository** | An interface for saving and finding things. Our adapters implement it with SQL. |
+| **Use case** | One thing the system can do, as a class: `AllocateStall`, `ImportStalls`. |
+| **Transaction** | Database changes that all happen or none do. |
+| **Primary key / foreign key / unique** | Constraints the database enforces: identify a row; must point at a real row; no duplicates. |
+| **Composite foreign key** | A foreign key over two columns, used here so a row cannot point across councils. |
+| **Partial unique index** | A uniqueness rule that applies only to some rows, for example only active allocations. |
+| **Fake (test)** | A simple in-memory stand-in for a real dependency, used to test rules without a database. |
+| **JSON** | The text format APIs use to send data, such as `{"code": "SOW"}`. |
