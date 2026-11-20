@@ -1,0 +1,43 @@
+# Runs the same full check as the local gate (scripts/check.sh). See CONTRIBUTING.md on why this
+# costs no Actions minutes while the repository is public.
+name: CI
+
+on:
+  pull_request:
+    # develop and main are the normal targets. feature/** lets pull requests stacked on another
+    # card's branch run too.
+    branches: [develop, main, "feature/**"]
+  workflow_dispatch:
+
+# A newer push to the same pull request cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-java@v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      # pnpm's version comes from "packageManager" in the root package.json.
+      - uses: pnpm/action-setup@v6.1.1
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Full check
+        run: ./scripts/check.sh

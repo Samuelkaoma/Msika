@@ -34,3 +34,7 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Git hook** | A script git runs at a certain moment, such as before a push. |
 | **Branch protection** | A GitHub rule that stops direct pushes to a branch and requires reviewed pull requests. |
 | **Test tag** | A label on a test (`@Tag("integration")`) used to run groups of tests separately. |
+| **CI (continuous integration)** | A server that builds and tests every change automatically. |
+| **Workflow** | A GitHub Actions YAML file saying when to run and what steps to do. |
+| **Runner** | The machine a CI job runs on. |
+| **Concurrency (CI)** | A rule that stops overlapping runs, for example cancelling an older run. |
