@@ -157,7 +157,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
 Goal: money moves between wallets in `zamsim`, and Msika records it correctly even when the
 simulator misbehaves.
 
-**☐ M-12 zamsim wallets and transfers** · KK · M-04 · `feature/M-12-zamsim-core`
+**☑ M-12 zamsim wallets and transfers** · KK · M-04 · `feature/M-12-zamsim-core`
 - Do: ARCHITECTURE §6. Wallets, cash-in, transfers, transaction status, statements. Its own
   double-entry ledger, so the total of all wallets only changes by cash-in and cash-out.
   `Idempotency-Key` on every write.

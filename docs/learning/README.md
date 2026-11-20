@@ -29,6 +29,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-09 | [M-09-council-users-and-security.md](M-09-council-users-and-security.md) | written |
 | M-10 | [M-10-traders-agents-plates.md](M-10-traders-agents-plates.md) | written |
 | M-11 | [M-11-recording-and-day-close.md](M-11-recording-and-day-close.md) | written |
+| M-12 | [M-12-zamsim-wallets.md](M-12-zamsim-wallets.md) | written |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
 

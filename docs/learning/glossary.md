@@ -115,3 +115,12 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Verifier** | The independent tool (`scripts/verify-seal`) that rebuilds every seal from raw rows and reports any alteration. |
 | **Exit code** | The number a program returns to say how it went: 0 fine, non-zero a problem. Ours: 1 altered, 2 could not run. |
 | **Tamper-evident** | Changes cannot be prevented absolutely, but they are always detectable. |
+| **Simulator (zamsim)** | Our stand-in for Zamtel Money. It follows the real rules so Msika learns the real behaviour. |
+| **Double-entry** | Every money movement is lines that add up to zero: one wallet loses what another gains. |
+| **Issuer wallet** | The special wallet that holds minus all e-money, so the whole system always sums to zero. |
+| **Fund / withdraw** | Money entering the system from the issuer, and leaving it back to the issuer. |
+| **`select ... for update`** | Locks rows until the transaction ends, so two payments cannot spend the same money. |
+| **Deadlock** | Two transactions each waiting for a lock the other holds. Prevented by always locking in the same order. |
+| **Deferred constraint trigger** | A database check that runs when the transaction commits, after all its rows exist. |
+| **Running balance** | The wallet's balance after each ledger line, shown on a statement. |
+| **Conservation** | Money is neither created nor destroyed by a transfer: totals before and after are equal. |
