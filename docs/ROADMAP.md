@@ -48,7 +48,7 @@ table in the same pull request.
 | 7 Credit and intelligence | M-34 to M-39 | ☐ |
 | 8 Agent app and WhatsApp | M-40 to M-42 | ☐ |
 | 9 Pilot readiness | M-43 to M-47 | ☐ |
-| 10 Measured market map | M-52 to M-58 | ☐ |
+| 10 Measured market map | M-52 to M-60 | ☐ |
 
 The market map cards are numbered after M-47 because they were added later; the numbers say nothing
 about order. Phase 5M is built inside Phase 5, before the demo cards M-28 and M-29.
@@ -439,8 +439,10 @@ traced and tied to the city map, and the ground is compared with the register. D
   `C:\Users\Samuel\Desktop\Projects\SKACE Architect\capture-kit\src\`) into
   `apps/market-survey/src/kit/` with their tests and a `SOURCE.md`. Build a simulated market and a
   simulated surveyor with noise and drift, run 100 seeded walks per mode (tracked, compass and tilt,
-  topology-only), with and without loop closure. Write the results in
-  `docs/research/survey-accuracy.md`, labelled as simulation. Decision record for copying the kit.
+  topology-only), with and without loop closure. Also simulate repeated walks of one market (full
+  surveys and patrols, with a stall moved partway through) for M-59 to measure against (MARKET-MAP
+  §6.6). Write the results in `docs/research/survey-accuracy.md`, labelled as simulation. Decision
+  record for copying the kit.
 - Done: with zero noise the market is reproduced within 2 cm. The tables are reproducible from the
   seeds with one command. The tracked mode meets the §6.4 target (0.75 m at the 95th percentile
   within a section) or the note says plainly that it does not and by how much.
@@ -492,3 +494,24 @@ traced and tied to the city map, and the ground is compared with the register. D
 - Done: applicants are offered stalls in the order they applied within each class. The public page
   and the `FREE` reply contain no name or phone number (a test checks the response bodies). Every
   allocation is in the audit log.
+
+**☐ M-59 Plans that improve with every walk** · SK · M-54 · `feature/M-59-plan-refinement`
+- Do: MARKET-MAP §6.6. Keep every walk's raw readings and path. Fit each new walk onto the plan
+  through the stalls it scanned (weighted, with outliers rejected), fuse all readings by weight with
+  ageing, re-adjust the network, detect changed stalls and raise flags, derive aisle lines from the
+  bundle of walked paths, and produce a plan proposal with its diff after each walk. Publish
+  refinement-only proposals automatically where the council allows it. The map shows each stall's
+  uncertainty and the age of its evidence. Decision record for evidence-based footprints.
+- Done: on M-52's repeated-walk simulation, the 95th percentile corner error after five walks is at
+  most about half that after one, the moved stall is flagged within three walks, and no unchanged
+  stall is flagged (or the note says by how much the targets were missed). Working the plan out
+  again from the raw readings gives the same result. A proposal with a topology change is never
+  published automatically. A walk where most tie points are rejected is not used for refinement.
+
+**☐ M-60 Patrol mode and walk-next guidance** · TM · M-53, M-59 · `feature/M-60-patrol-mode`
+- Do: MARKET-MAP §6.2 item 7 and §6.6. Patrol mode in `apps/market-survey` (scan plates in passing,
+  path recorded, nothing else asked), plate scans from the agent app (M-40) sent as evidence when it
+  exists, and the "walk next" list and route from `GET /api/v1/markets/{id}/walk-next`.
+- Done: a simulated patrol of 50 plate scans uploads and lowers the uncertainty of the scanned stalls
+  on the next proposal. The walk-next list puts a never-walked aisle and an open change flag ahead of
+  a well-measured stall.

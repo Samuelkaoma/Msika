@@ -5,7 +5,7 @@ stalls are free, who trades at each one, who has paid, and who deposited today. 
 a trader and find their stall, look back at who was where on any date, allocate a free stall from
 the map, and print a true-scale sheet for the market office wall.
 
-This file is the design. The cards that build it are M-48 to M-58 in `docs/ROADMAP.md`. The rules in
+This file is the design. The cards that build it are M-48 to M-60 in `docs/ROADMAP.md`. The rules in
 `AGENTS.md` and `docs/ARCHITECTURE.md` §2 apply here too. This file adds rules of its own in §2.
 
 ---
@@ -48,7 +48,8 @@ These add to ARCHITECTURE §2. Breaking one is a bug.
    Postgres, the same habit as money in ngwee. Latitude and longitude appear only at the edge, through
    a georeference (§5.3), never as the stored shape.
 6. **A published plan never changes.** Changes make a new version. History works because old
-   versions and old allocations are both kept.
+   versions and old allocations are both kept. A plan that improves with every walk (§6.6) does so
+   by new versions, never by editing a published one.
 7. **No photos of people.** Surveys record stall positions and states, not pictures. If a photo
    option is ever added, it needs a data-protection decision first (M-43).
 8. **The figures we quote are the figures we measured.** Any accuracy claim for the survey says
@@ -186,6 +187,8 @@ The walk is a state machine like `walk.js`, with the phone always saying what to
    readings. About 3 seconds a stall instead of about 20. It gives the address level (aisle, side,
    order) for certain and no shapes. This is the mode for iPhones (no WebXR AR in Safari) and for a
    first pass over a big market.
+7. **Patrol mode.** The officer's normal inspection walk with the app open: scan plates when passing,
+   nothing else asked. It adds low-weight evidence that improves the map over time (§6.6).
 
 Readings are taken the two ways capture-kit supports: **tracked** (Android Chrome with WebXR hit-test,
 preferred) or **compass and tilt** (the fallback). Each reading is accepted only when the phone is
@@ -245,6 +248,78 @@ produces a report for the council, every item linking to the stall on the map:
 
 The report is evidence with a date and a surveyor. It changes nothing in the register (rule 1). An
 officer acts on each item, and the action is audited.
+
+### 6.6 The map gets better with every walk
+
+One survey gives one noisy drawing. The map should not stop there. Every time an officer or agent
+walks the market with the app (a full survey, a routine patrol, or a closing round), what they
+record is kept as **evidence**, and the plan is re-estimated from all the evidence so far. A stall
+walked past ten times is drawn better than one walked past once, and the map shows which is which.
+
+**Nothing is thrown away.** Each walk keeps its raw readings (every corner mark, every plate scan,
+and the path the phone travelled, all in that walk's own frame) with their uncertainties. A footprint
+on the plan is a *result worked out from* readings, not a reading itself. That is what lets the
+estimate improve, and it means the whole plan can be worked out again from scratch if the method
+improves.
+
+**Stalls already on the map anchor each new walk.** A phone's tracking drifts, so a new walk does not
+line up with the plan by itself. But every plate the walker scans is a stall whose position the plan
+already knows, with an uncertainty. Those stalls are tie points: the walk is fitted onto the plan
+through them (a best fit weighted by how certain each one is, with outliers left out), which removes
+most of the walk's drift. This is better than loop closure alone, because a busy market has
+hundreds of known points and a gate has only one. The first walk of a market has no tie points
+and relies on anchors and loops (§6.3). Every walk after it has plenty.
+
+**Estimates combine by weight.** After a walk is fitted, each stall corner is re-estimated from all
+the readings of it, each weighted by one over its variance. With *n* readings of similar quality the
+uncertainty falls roughly as one over the square root of *n*: four walks halve it. The whole network
+(corners, shared stall sides, aisle lines, anchors) is adjusted together, as in §6.3, so improving one
+stall also tightens its neighbours.
+
+**Old evidence counts for less.** Markets change: stalls are rebuilt, widened, moved. Each reading's
+weight halves after a set time (default 180 days, configurable per market), so the plan follows the
+market as it is now. A stall nobody has walked past for a long time shows its uncertainty growing on
+the map, which is the honest signal that it needs a visit.
+
+**A change is not noise.** When new readings of a stall keep disagreeing with its estimate by more
+than their uncertainties allow (three walks in a row beyond three standard deviations, say), the
+stall is flagged *possibly changed* rather than quietly averaged into a wrong shape halfway between
+old and new. An officer looks and either confirms the change (evidence from before the change date is
+then set aside for that stall) or marks the readings as bad. A plate found in a new place goes the
+same way, through the "same plate in two places" finding in §6.5.
+
+**The walked paths draw the aisles.** The phone's path is recorded on every walk. Paths from many
+walks show where people can actually walk: the middle of the bundle of paths is the aisle's line, and
+the stall fronts on either side give its width. Aisles drawn this way replace generated ones as the
+evidence builds up. Places nobody has ever walked are shown as "never walked", not as empty space.
+
+**Patrol mode records evidence without a survey.** A full survey asks for corner marks at every
+stall. Patrol mode asks for nothing extra: the officer walks their normal inspection with the app
+open, scans plates as they pass, and the phone records its path. That gives topology for certain,
+rough positions for every scanned stall, and path evidence for the aisles, all at low weight. When
+the agent app (M-40) scans a plate for a deposit, it adds the same kind of evidence on every closing
+round. Many low-weight readings add up.
+
+**The app says where to walk next.** The survey and patrol modes can show the stalls with the highest
+uncertainty, the oldest evidence, open *possibly changed* flags and never-walked aisles, and lead the
+walker to them, the way capture-kit's interior walk leads a person to the next unvisited room. Effort
+goes where it improves the map most.
+
+**Better estimates become new plan versions, not edits.** Published plans still never change
+(rule 6). After each walk the server works out a *proposed* version and shows what it would change:
+which stalls moved and by how much, how much each uncertainty shrank, any new or changed aisles, and
+any topology change. A council can let proposals publish themselves when they are refinements only:
+every stall moved by less than its previous uncertainty, nothing added, removed or reordered, and no
+open *possibly changed* flags. Anything else waits for an officer to publish it. Either way the
+version history shows the plan sharpening over time.
+
+**How much better it gets is measured, not assumed.** The survey simulation (M-52) runs repeated
+walks of the same simulated market, including patrols and a stall that is moved halfway through, and
+reports the corner error after 1, 2, 5 and 10 walks, and how many walks it takes to flag the moved
+stall. The target: after five walks of the same quality, the 95th percentile corner error is at most
+about half what it was after one; and a stall moved by 1 m is flagged within three walks with no
+unchanged stall flagged in the same run. If the simulation does not reach those numbers, its note
+says so and by how much.
 
 ---
 
@@ -348,11 +423,15 @@ All tables have `council_id` and row-level security. Lengths are `integer` milli
 | `plan_section` | id, council_id, plan_id, name, polygon_mm |
 | `plan_aisle` | id, council_id, plan_id, name, path_mm (polyline) |
 | `plan_feature` | id, council_id, plan_id, kind (GATE, TOILET, WATER, OFFICE, DRAIN, OTHER), label, shape_mm |
-| `stall_footprint` | council_id, plan_id, stall_id, polygon_mm, provenance, uncertainty_mm (null when not measured), aisle_id, side (L, R), position, survey_id; unique (plan_id, stall_id) and unique (plan_id, aisle_id, side, position) |
+| `stall_footprint` | council_id, plan_id, stall_id, polygon_mm, provenance, uncertainty_mm (null when not measured), aisle_id, side (L, R), position, evidence_count, last_evidence_at; unique (plan_id, stall_id) and unique (plan_id, aisle_id, side, position) |
 | `plan_background` | council_id, plan_id, file key, pixel-to-plan transform, scale source and uncertainty |
 | `control_point` | id, council_id, plan_id, x_mm, y_mm, lat_e7, lon_e7 (degrees times 10⁷ as `integer`), source (GPS, IMAGERY), accuracy_mm |
-| `survey` | id, council_id, market_id, surveyor (council user or agent), method (TRACKED, COMPASS, TOPOLOGY_ONLY), started_at, finished_at, raw file key, report (JSON) |
+| `survey` | id, council_id, market_id, surveyor (council user or agent), kind (FULL, PATROL, ROUND), method (TRACKED, COMPASS, TOPOLOGY_ONLY), started_at, finished_at, raw file key, fit to plan (transform, tie points used and rejected, residuals), report (JSON) |
 | `survey_observation` | id, council_id, survey_id, stall_id (null for unregistered), scanned_code, state (OCCUPIED, EMPTY, NO_STRUCTURE, NO_PLATE), observed_at, polygon_mm, uncertainty_mm |
+| `survey_reading` | id, council_id, survey_id, stall_id (null for unregistered), corner (FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT, or null for a plate scan), x_mm and y_mm in the walk's own frame, sigma_mm, taken_at, status (USED, OUTLIER, SET_ASIDE) |
+| `survey_path` | council_id, survey_id, path_mm (the phone's travelled path in the walk's own frame, thinned to one point per 0.5 m), sigma_mm |
+| `stall_change_flag` | id, council_id, stall_id, raised_at, evidence (survey ids), status (OPEN, CONFIRMED_CHANGE, BAD_READINGS), decided_by, change_date |
+| `plan_proposal` | id, council_id, market_id, based_on_plan_id, created_at, trigger_survey_id, diff (JSON: moved stalls and by how much, uncertainty changes, aisle and topology changes), refinement_only (bool), status (OPEN, PUBLISHED, DISCARDED) |
 | `allocation_application` | id, council_id, market_id, msisdn, stall_class, applied_at, status (WAITING, OFFERED, ALLOCATED, WITHDRAWN) |
 
 A database trigger refuses changes to a `PUBLISHED` or `RETIRED` plan and to its sections, aisles,
@@ -365,7 +444,8 @@ stall within 50 m of this drain across all markets".
 
 In Java the geometry lives in `zm.msika.core.map` with no outside library: `PointMm`, `PolygonMm`,
 `Footprint`, `Provenance`, `StallAddress`, `MarketPlan`, `PlanCheck` (the publish checks),
-`SimilarityTransform`, `NetworkAdjustment`. If a robust polygon library turns out to be needed, JTS
+`SimilarityTransform`, `NetworkAdjustment`, `TiePointFit` (fitting a walk onto the plan),
+`EvidenceFusion` (weights, ageing, outliers) and `ChangeDetector`. If a robust polygon library turns out to be needed, JTS
 is the candidate, and adding it needs a decision record because `msika-core` takes no dependencies
 lightly.
 
@@ -385,6 +465,10 @@ lightly.
 | `POST /api/v1/plans/{id}/publish` | Publish, or `422` with every blocker listed |
 | `POST /api/v1/markets/{id}/surveys` | Upload a survey file. Returns the reconciliation report |
 | `POST /api/v1/surveys/{id}/apply` | Put a survey's footprints into a draft plan |
+| `GET /api/v1/markets/{id}/proposals` | Proposed plan versions worked out from new evidence, each with its diff |
+| `POST /api/v1/proposals/{id}/publish` | Publish a proposal as the next plan version (also done automatically for refinement-only proposals where the council allows it) |
+| `POST /api/v1/stall-change-flags/{id}/decide` | Confirm a change (with its date) or mark the readings as bad |
+| `GET /api/v1/markets/{id}/walk-next` | The stalls and aisles where a walk would improve the map most |
 | `GET /api/v1/plans/{id}/geojson` | Export for a GIS, only for georeferenced plans |
 | `GET /api/v1/councils/current/markets-overview` | The city overview |
 | `GET /public/v1/markets/{id}/free-stalls` | No sign-in, no personal data |
@@ -417,7 +501,15 @@ The status endpoint must answer for a 5,000-stall market in under 300 ms on a la
 - **WebXR AR does not exist in iPhone Safari.** iPhone surveyors get compass and tilt (worse) or
   topology-only mode.
 - **Drift grows with distance walked.** A long aisle without a loop closure will bend. The walk
-  must end aisles at anchors, and the report shows each loop's mismatch.
+  must end aisles at anchors, and the report shows each loop's mismatch. Once a market has a plan,
+  scanned stalls act as tie points and take out most of the drift (§6.6).
+- **Averaging only helps against random error.** If every phone of one model is off in the same
+  direction, a hundred walks with it are still off. Walks with different phones and methods, and the
+  tape-measure checks from M-53, are what catch a shared bias.
+- **A whole section rebuilt at once fools the tie points.** If most stalls in an area move together,
+  the fit may line the walk up with the old layout and see nothing as changed. The fit reports how
+  many tie points it rejected; when that is a large share, the walk is not used for refinement and
+  the area is flagged for a full survey.
 - **Phone GPS is good to about 5 m in the open and worse among roofs.** It places the market on the
   city map; it cannot place stalls.
 - **A plate scanned is not a plate in the right place.** A plate moved to another stall is caught
@@ -436,3 +528,5 @@ Each gets a short record in `docs/decisions/` in the card that first needs it:
 - Plans drawn as SVG without a map library; Leaflet only for the city view (M-50).
 - Survey modules copied from SKACE Architect's capture-kit, not shared as a package (M-52).
 - Survey observations are evidence and never change the register by themselves (M-54).
+- Footprints are estimates worked out from all walks' readings, kept raw, weighted, aged and
+  re-estimated; better estimates arrive as new plan versions (M-59).
