@@ -146,3 +146,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Write, then check** | Insert, then check, in one transaction, so a failed check rolls the insert back and nothing is stored. |
 | **Reconciliation** | Comparing two independent records of the same money (Msika's ledger and the payments system's statements) and listing every difference. |
 | **Statement** | The payments system's list of settled movements on one wallet between two dates. |
+| **Parser** | Code that reads free text (an SMS body) and produces a typed command, or says why it cannot. |
+| **Sealed interface** | A Java interface that lists every class allowed to implement it, so a `switch` must handle each one. |
