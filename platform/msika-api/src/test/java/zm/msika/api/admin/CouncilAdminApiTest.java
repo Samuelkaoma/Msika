@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.web.client.RestClient;
 import zm.msika.api.PostgresIntegrationTest;
+import zm.msika.api.tenancy.TenantContext;
 
 /**
  * Councils, markets, stalls and allocations through the real HTTP API and a real Postgres.
@@ -45,6 +46,9 @@ class CouncilAdminApiTest extends PostgresIntegrationTest {
 
     @Autowired
     JdbcClient jdbc;
+
+    @Autowired
+    TenantContext tenant;
 
     private RestClient client() {
         return RestClient.create("http://localhost:" + port);
@@ -105,11 +109,13 @@ class CouncilAdminApiTest extends PostgresIntegrationTest {
 
     private UUID newTrader(UUID council) {
         UUID id = UUID.randomUUID();
-        jdbc.sql("insert into trader (id, council_id, msisdn, display_name) values (:id, :council, :msisdn, 'Test Trader')")
+        // Row-level security: the insert must say which council it is for, like the real app does.
+        tenant.inCouncil(council, () -> jdbc
+                .sql("insert into trader (id, council_id, msisdn, display_name) values (:id, :council, :msisdn, 'Test Trader')")
                 .param("id", id)
                 .param("council", council)
                 .param("msisdn", "+26097700" + (1000 + Math.abs(id.hashCode() % 9000)))
-                .update();
+                .update());
         return id;
     }
 
@@ -236,8 +242,9 @@ class CouncilAdminApiTest extends PostgresIntegrationTest {
         assertThat(call(HttpMethod.DELETE, path, null, null, Void.class).status())
                 .as("freeing a free stall is safe").isEqualTo(204);
 
-        Integer history = jdbc.sql("select count(*) from stall_allocation where stall_id = :id and valid_to is not null")
-                .param("id", stall).query(Integer.class).single();
+        Integer history = tenant.inCouncil(council.id(), () -> jdbc
+                .sql("select count(*) from stall_allocation where stall_id = :id and valid_to is not null")
+                .param("id", stall).query(Integer.class).single());
         assertThat(history).as("the ended allocation is kept as history").isEqualTo(1);
 
         Result<AllocationBody> again = call(HttpMethod.PUT, path,
@@ -277,13 +284,14 @@ class CouncilAdminApiTest extends PostgresIntegrationTest {
         CouncilBody b = newCouncil();
         MarketBody marketOfB = newMarket(b.id(), "SOW");
 
-        assertThatThrownBy(() -> jdbc.sql("insert into stall (id, council_id, market_id, code, stall_class, status, qr_token) "
+        assertThatThrownBy(() -> tenant.inCouncil(a.id(), () -> jdbc
+                .sql("insert into stall (id, council_id, market_id, code, stall_class, status, qr_token) "
                         + "values (:id, :council, :market, 'SOW-X-1', 'STANDARD', 'VACANT', :token)")
                 .param("id", UUID.randomUUID())
                 .param("council", a.id())
                 .param("market", marketOfB.id())
                 .param("token", "t".repeat(22))
-                .update())
+                .update()))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -296,11 +304,14 @@ class CouncilAdminApiTest extends PostgresIntegrationTest {
         UUID stall = stallsOf(council.id(), market.id()).get(0).id();
         String insert = "insert into stall_allocation (id, council_id, stall_id, trader_id, valid_from) "
                 + "values (:id, :council, :stall, :trader, now())";
-        jdbc.sql(insert).param("id", UUID.randomUUID()).param("council", council.id()).param("stall", stall)
-                .param("trader", newTrader(council.id())).update();
+        UUID firstTrader = newTrader(council.id());
+        UUID secondTrader = newTrader(council.id());
+        tenant.inCouncil(council.id(), () -> jdbc.sql(insert).param("id", UUID.randomUUID())
+                .param("council", council.id()).param("stall", stall).param("trader", firstTrader).update());
 
-        assertThatThrownBy(() -> jdbc.sql(insert).param("id", UUID.randomUUID()).param("council", council.id())
-                .param("stall", stall).param("trader", newTrader(council.id())).update())
+        assertThatThrownBy(() -> tenant.inCouncil(council.id(), () -> jdbc.sql(insert)
+                .param("id", UUID.randomUUID()).param("council", council.id())
+                .param("stall", stall).param("trader", secondTrader).update()))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 }

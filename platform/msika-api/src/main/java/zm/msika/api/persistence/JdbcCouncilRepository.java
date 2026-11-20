@@ -3,6 +3,7 @@ package zm.msika.api.persistence;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -28,6 +29,11 @@ class JdbcCouncilRepository implements CouncilRepository {
                 .param("timezone", council.timezone().getId())
                 .param("createdAt", OffsetDateTime.ofInstant(council.createdAt(), ZoneOffset.UTC))
                 .update();
+    }
+
+    @Override
+    public List<UUID> listIds() {
+        return jdbc.sql("select id from council order by created_at, id").query(UUID.class).list();
     }
 
     @Override

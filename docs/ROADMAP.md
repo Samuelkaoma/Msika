@@ -123,7 +123,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
 - Done: integration tests for create, bulk import (including a CSV with a bad row, which is
   rejected with the row number), allocate and free a stall.
 
-**☐ M-08 Row-level security** · KK · M-07 · `feature/M-08-rls`
+**☑ M-08 Row-level security** · KK · M-07 · `feature/M-08-rls`
 - Do: RLS policies on every council table using `current_setting('app.council_id')`. A transaction
   helper sets `SET LOCAL app.council_id` from the signed-in user or the job's council. Jobs loop over
   councils.
