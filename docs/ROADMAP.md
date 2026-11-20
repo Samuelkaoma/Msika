@@ -56,7 +56,7 @@ Card boxes: ☐ not started, ◐ in progress (put the branch name next to it), �
 
 Goal: anyone can clone the repo, run one command, and get a working empty system with green checks.
 
-**☐ M-01 Monorepo skeleton** · SK · none · `feature/M-01-skeleton`
+**☑ M-01 Monorepo skeleton** · SK · none · `feature/M-01-skeleton`
 - Do: create the layout in ARCHITECTURE §3. Gradle Kotlin DSL multi-module build with the Gradle
   wrapper (nobody needs Gradle installed), Java 21 toolchain, the current stable Spring Boot pinned to
   an exact version. `msika-api`, `zamsim` and `elevysim` each start with a `/health` endpoint. pnpm

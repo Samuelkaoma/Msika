@@ -1,0 +1,23 @@
+# Build output
+build/
+bin/
+.gradle/
+dist/
+node_modules/
+*.log
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Secrets and local config: never commit these (the repository is public)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks

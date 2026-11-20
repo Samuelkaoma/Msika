@@ -1,0 +1,31 @@
+# Msika teaching pack
+
+This is a build-along course. Every time we build something for a card in `docs/ROADMAP.md`, a lesson
+is added here that explains what we built, why, and how to rebuild it from nothing.
+
+Audience: someone who wants to understand the system well enough to rebuild it, not just run it.
+
+## How to use it
+
+1. Start with [00-big-picture.md](00-big-picture.md) and [glossary.md](glossary.md).
+2. Read lessons in order. They are named after the roadmap card: `M-01-...`, `M-02-...`.
+3. Each lesson ends with a **Rebuild it yourself** section. Try it before you read our code.
+4. To see what changed, open the lesson's **Files touched** list, then look at the same files in the
+   Source Control panel in VS Code (or run `git diff`).
+
+## Lesson index
+
+| Card | Lesson | Status |
+|---|---|---|
+| none | [00-big-picture.md](00-big-picture.md) | written |
+| M-01 | [M-01-monorepo-skeleton.md](M-01-monorepo-skeleton.md) | written |
+
+Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
+
+## Rules for this pack
+
+- One lesson per card, written in the same branch as the code, so the lesson and code always match.
+- Explain each new idea the first time it appears (an API, a migration, a port, row-level security),
+  in plain words, with a small example, before showing our real code.
+- No real names, phone numbers, keys or secrets (the repo is public).
+- If a lesson and the code disagree, the code is right and the lesson is a bug. Fix the lesson.
