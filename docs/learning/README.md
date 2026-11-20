@@ -24,6 +24,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-04 | [M-04-local-stack.md](M-04-local-stack.md) | written |
 | M-05 | [M-05-architecture-tests.md](M-05-architecture-tests.md) | written |
 | M-06 | [M-06-ledger.md](M-06-ledger.md) | written |
+| M-07 | [M-07-councils-markets-stalls.md](M-07-councils-markets-stalls.md) | written |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
 

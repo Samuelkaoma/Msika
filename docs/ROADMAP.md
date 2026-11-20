@@ -115,7 +115,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
   fail, that a broken chain between two days is detected, and that `Money` refuses to mix
   currencies or overflow.
 
-**☐ M-07 Councils, markets and stalls** · SK · M-04, M-05 · `feature/M-07-stalls`
+**☑ M-07 Councils, markets and stalls** · SK · M-04, M-05 · `feature/M-07-stalls`
 - Do: domain model and use cases in `msika-core`; tables, Flyway migrations and repositories in
   `msika-api`. Stall codes like `SOW-B-114`. Each stall gets a random `qr_token`. REST endpoints for
   operators and council admins to create markets, create stalls in bulk (CSV upload), and allocate a
