@@ -169,7 +169,7 @@ simulator misbehaves.
   callbacks. Request-to-pay that waits for approval in the console.
 - Done: tests show the signature, the retry after a 500 from the receiver, and each fault mode.
 
-**☐ M-14 Payments adapter in Msika** · TM · M-11, M-13 · `feature/M-14-payments-adapter`
+**☑ M-14 Payments adapter in Msika** · TM · M-11, M-13 · `feature/M-14-payments-adapter`
 - Do: `PaymentsPort` in `msika-core`; an HTTP adapter for `zamsim` in `msika-api`; the callback
   endpoint that checks the signature and timestamp. Every callback goes through `RecordEntry`.
 - Done: with all fault modes turned on, a run of 500 simulated deposits ends with exactly the right

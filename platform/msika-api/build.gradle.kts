@@ -48,3 +48,16 @@ tasks.register("printVerifySealsCommand") {
         println(classpath.asPath)
     }
 }
+
+// The payment tests run the real zamsim program as a separate process (card M-14), so its runnable jar is built
+// first and its location handed to the tests. Msika never imports zamsim's code: the tests only start it
+// and talk to it over HTTP, exactly like a real payments system.
+evaluationDependsOn(":zamsim")
+val zamsimJar = project(":zamsim").tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar")
+tasks.named<Test>("integrationTest") {
+    dependsOn(zamsimJar)
+    val jarFile = zamsimJar.flatMap { it.archiveFile }
+    doFirst {
+        systemProperty("zamsim.jar", jarFile.get().asFile.absolutePath)
+    }
+}

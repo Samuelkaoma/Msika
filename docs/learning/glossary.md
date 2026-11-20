@@ -134,3 +134,7 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **`FOR UPDATE SKIP LOCKED`** | Lets several workers take different rows from one queue without waiting. |
 | **Fault injection** | Making a system misbehave on purpose (fail, delay, duplicate, reorder) to prove callers cope. |
 | **Request-to-pay** | A merchant asks a customer to pay. It waits until the customer approves, rejects, or it expires. |
+| **Port / adapter** | The port is an interface of what we need; the adapter is the class that does it with a particular outside system. |
+| **Payment reference** | A value we choose (`msika:<council>:<request>`) that the payments system echoes back, so a callback finds its request. |
+| **Fail closed** | When something needed to check is missing (no secret), refuse everything rather than allow everything. |
+| **Idempotency key** | A value sent with a request so repeating it does the thing once. |
