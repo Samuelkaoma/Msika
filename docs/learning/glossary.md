@@ -38,3 +38,12 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Workflow** | A GitHub Actions YAML file saying when to run and what steps to do. |
 | **Runner** | The machine a CI job runs on. |
 | **Concurrency (CI)** | A rule that stops overlapping runs, for example cancelling an older run. |
+| **Docker / container** | A way to run a program in an isolated, repeatable environment. |
+| **Docker Compose** | A YAML file that starts several containers together. |
+| **Image** | The packaged program a container starts from. |
+| **Multi-stage build** | A Dockerfile that compiles in one image and runs in a smaller one. |
+| **Database role** | A Postgres login with its own permissions. |
+| **BYPASSRLS** | A Postgres attribute that skips row-level security. The app role must never have it. |
+| **Testcontainers** | A test library that starts a real container, such as Postgres, for the duration of a test. |
+| **Integration test** | A test that uses real parts together (the app and a real database), as opposed to a unit test. |
+| **Environment variable** | A named setting passed to a program from outside, so secrets stay out of the code. |

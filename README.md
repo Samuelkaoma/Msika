@@ -42,7 +42,25 @@ which runs the fast checks before every push. To run the checks yourself, use
 | Council dashboard | `pnpm --filter council-web dev` | http://localhost:5173 |
 | Simulator console | `pnpm --filter sim-console dev` | http://localhost:5174 |
 
-Each health endpoint answers `{"status":"UP"}`.
+Each health endpoint answers `{"status":"UP", ...}` and lists its database under `components`.
+
+## Run the whole stack with Docker
+
+Needs Docker Desktop (or Docker Engine) running.
+
+```bash
+docker compose -f infra/docker-compose.yml up --build    # start Postgres and the three services
+docker compose -f infra/docker-compose.yml down -v       # stop and delete the database data
+```
+
+The first start builds the three apps inside Docker, so it takes a few minutes. The passwords in the
+compose file are local-only defaults; to change them copy `infra/.env.example` to `infra/.env`.
+
+Running just one app with `./gradlew :msika-api:bootRun` also needs the database. Start only
+Postgres with `docker compose -f infra/docker-compose.yml up -d postgres`.
+
+Integration tests (tagged `integration`) start their own Postgres through Testcontainers, so they
+need Docker running but nothing else: `./gradlew integrationTest`.
 
 ## Layout
 
