@@ -231,7 +231,7 @@ class SmsInboundApiTest extends ApiTest {
     }
 
     @Test
-    @DisplayName("a registered agent is answered in their council: HELP, a trader-only command, and a command for M-19")
+    @DisplayName("a registered agent is answered in their council: HELP, a trader-only command, and an unknown stall")
     void knownAgent() {
         Fixture council = newCouncil();
         String phone = newPhone();
@@ -245,8 +245,9 @@ class SmsInboundApiTest extends ApiTest {
         processedAll(phone, 3);
 
         assertThat(inboundFrom(phone)).allMatch(r -> council.councilId().equals(r.get("council_id")));
-        assertThat(inboundFrom(phone)).extracting(r -> r.get("outcome")).containsExactly("HELP", "TRADERS_ONLY", "NOT_WIRED");
-        assertThat(outboxTo(phone)).extracting(r -> r.get("template")).containsExactly("HELP_AGENT", "TRADERS_ONLY");
+        assertThat(inboundFrom(phone)).extracting(r -> r.get("outcome")).containsExactly("HELP", "TRADERS_ONLY", "STALL_NOT_FOUND");
+        assertThat(outboxTo(phone)).extracting(r -> r.get("template"))
+                .containsExactly("HELP_AGENT", "TRADERS_ONLY", "STALL_NOT_FOUND");
         assertThat(outboxTo(phone)).allMatch(r -> council.councilId().equals(r.get("council_id")));
     }
 
@@ -266,6 +267,8 @@ class SmsInboundApiTest extends ApiTest {
     @Test
     @DisplayName("a refused send is retried after a wait, and marked FAILED after the last try")
     void outboxRetries() {
+        // Send whatever other tests left waiting, so the scripted refusals below hit only this test's texts.
+        outbox.sendDue();
         String phone = newPhone();
         send("gw-" + UUID.randomUUID(), phone, "HELLO");
         processedAll(phone, 1);
@@ -284,6 +287,7 @@ class SmsInboundApiTest extends ApiTest {
         assertThat(outboxTo(phone).get(0)).containsEntry("status", "SENT").containsEntry("attempts", 3);
         assertThat(gateway.sent).filteredOn(s -> s.to().equals(phone)).hasSize(1);
 
+        outbox.sendDue();
         String other = newPhone();
         send("gw-" + UUID.randomUUID(), other, "HELLO");
         processedAll(other, 1);

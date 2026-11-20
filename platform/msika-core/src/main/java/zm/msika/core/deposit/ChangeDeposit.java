@@ -17,10 +17,17 @@ public final class ChangeDeposit {
 
     private final DepositRepository deposits;
     private final Clock clock;
+    private final DepositEvents events;
 
     public ChangeDeposit(DepositRepository deposits, Clock clock) {
+        this(deposits, clock, DepositEvents.NONE);
+    }
+
+    /** @param events told when a deposit is cancelled, in the same transaction */
+    public ChangeDeposit(DepositRepository deposits, Clock clock, DepositEvents events) {
         this.deposits = Objects.requireNonNull(deposits);
         this.clock = Objects.requireNonNull(clock);
+        this.events = Objects.requireNonNull(events);
     }
 
     /**
@@ -36,7 +43,9 @@ public final class ChangeDeposit {
             throw new ConflictException("only a PENDING deposit can be cancelled; this one is "
                     + require(councilId, depositId).status());
         }
-        return require(councilId, depositId);
+        Deposit cancelled = require(councilId, depositId);
+        events.cancelled(cancelled);
+        return cancelled;
     }
 
     /**

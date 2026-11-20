@@ -21,10 +21,17 @@ public final class DepositOutcomes implements PaymentOutcomes {
 
     private final DepositRepository deposits;
     private final Clock clock;
+    private final DepositEvents events;
 
     public DepositOutcomes(DepositRepository deposits, Clock clock) {
+        this(deposits, clock, DepositEvents.NONE);
+    }
+
+    /** @param events told about each outcome in the same transaction */
+    public DepositOutcomes(DepositRepository deposits, Clock clock, DepositEvents events) {
         this.deposits = Objects.requireNonNull(deposits);
         this.clock = Objects.requireNonNull(clock);
+        this.events = Objects.requireNonNull(events);
     }
 
     @Override
@@ -35,8 +42,12 @@ public final class DepositOutcomes implements PaymentOutcomes {
                     DepositStatus.CONFIRMED, null, entry.id(), now);
             if (!confirmed) {
                 // Cancelled in the meantime: the money moved anyway. Record that, and flag it.
-                deposits.transition(request.councilId(), deposit.id(), DepositStatus.CANCELLED, DepositStatus.DISPUTED,
-                        PAID_AFTER_CANCEL, entry.id(), now);
+                confirmed = deposits.transition(request.councilId(), deposit.id(), DepositStatus.CANCELLED,
+                        DepositStatus.DISPUTED, PAID_AFTER_CANCEL, entry.id(), now);
+            }
+            if (confirmed) {
+                // The trader hears either way: the money is in their wallet, and they can say NO if it is wrong.
+                deposits.find(request.councilId(), deposit.id()).ifPresent(events::confirmed);
             }
             // Any other status (CONFIRMED, DISPUTED, FAILED) means this is a repeat or a contradiction: leave it.
         });
@@ -44,9 +55,12 @@ public final class DepositOutcomes implements PaymentOutcomes {
 
     @Override
     public void failed(PaymentRequest request, String reason) {
-        deposits.findByPaymentRequest(request.councilId(), request.id()).ifPresent(deposit ->
-                // A cancelled deposit stays cancelled: both the agent and the payments system agree nothing happened.
-                deposits.transition(request.councilId(), deposit.id(), DepositStatus.PENDING, DepositStatus.FAILED,
-                        reason, null, clock.instant()));
+        deposits.findByPaymentRequest(request.councilId(), request.id()).ifPresent(deposit -> {
+            // A cancelled deposit stays cancelled: both the agent and the payments system agree nothing happened.
+            if (deposits.transition(request.councilId(), deposit.id(), DepositStatus.PENDING, DepositStatus.FAILED,
+                    reason, null, clock.instant())) {
+                deposits.find(request.councilId(), deposit.id()).ifPresent(d -> events.failed(d, reason));
+            }
+        });
     }
 }

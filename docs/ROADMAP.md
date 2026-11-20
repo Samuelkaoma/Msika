@@ -212,7 +212,7 @@ Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
 - Done: a repeated `gatewayMessageId` is processed once. A bad signature gets 401. A test fails if
   any template can go over 160 characters with the longest values.
 
-**☐ M-19 Trader and agent commands** · TM · M-15, M-18 · `feature/M-19-sms-commands`
+**☑ M-19 Trader and agent commands** · TM · M-15, M-18 · `feature/M-19-sms-commands`
 - Do: wire every command in SMS-PROTOCOL.md to its use case, including registration with consent,
   `DEP` going through the deposit flow, `NO` disputing a deposit, and the confirmation SMS to the
   trader.

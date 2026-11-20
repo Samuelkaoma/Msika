@@ -2,10 +2,8 @@ package zm.msika.api.sms;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.Executors;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,13 +44,6 @@ class SmsConfiguration {
     @ConditionalOnProperty(name = "msika.sms.gateway", havingValue = "console", matchIfMissing = true)
     ConsoleSmsGateway consoleSmsGateway(Clock clock) {
         return new ConsoleSmsGateway(clock);
-    }
-
-    /** Until the commands are wired to their use cases (card M-19), a valid command is stored and not answered. */
-    @Bean
-    @ConditionalOnMissingBean(SmsCommandHandler.class)
-    SmsCommandHandler unwiredCommands() {
-        return (sender, from, command, receivedAt) -> new SmsCommandHandler.Result("NOT_WIRED", List.of());
     }
 
     /** The schedules: send the outbox every couple of seconds, and pick up any text left unprocessed. */

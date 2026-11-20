@@ -22,6 +22,9 @@ public interface DepositRepository {
 
     Optional<Deposit> findByKey(UUID councilId, UUID agentId, String idempotencyKey);
 
+    /** Deposits with this reference made on or after the date, newest first (references repeat only across days). */
+    List<Deposit> findByReference(UUID councilId, String reference, java.time.LocalDate since);
+
     /** The council's deposits, newest first, optionally only those with one status. */
     List<Deposit> list(UUID councilId, DepositStatus status, int limit);
 
