@@ -1,0 +1,8 @@
+{
+  "name": "msika",
+  "private": true,
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "build": "pnpm -r build"
+  }
+}
