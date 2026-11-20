@@ -47,3 +47,8 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Testcontainers** | A test library that starts a real container, such as Postgres, for the duration of a test. |
 | **Integration test** | A test that uses real parts together (the app and a real database), as opposed to a unit test. |
 | **Environment variable** | A named setting passed to a program from outside, so secrets stay out of the code. |
+| **ArchUnit** | A library for writing tests about code structure, such as which packages may use which. |
+| **Architecture test** | A test that fails when the code's structure breaks a design rule. |
+| **Vacuous rule** | A rule that passes only because there is nothing for it to check. |
+| **Layer** | A level in the dependency direction: api, then core, then ledger. Dependencies point down only. |
+| **ADR (decision record)** | A short document of one decision: context, decision, consequences. Kept in `docs/decisions/`. |

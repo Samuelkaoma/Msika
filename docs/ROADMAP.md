@@ -91,7 +91,7 @@ Goal: anyone can clone the repo, run one command, and get a working empty system
 - Done: `docker compose up` starts everything and the health endpoints report the database as up.
   An integration test boots `msika-api` against Testcontainers Postgres.
 
-**☐ M-05 Architecture tests and decisions log** · SK · M-01 · `feature/M-05-arch-tests`
+**☑ M-05 Architecture tests and decisions log** · SK · M-01 · `feature/M-05-arch-tests`
 - Do: ArchUnit test in `msika-api` enforcing the dependency rules in ARCHITECTURE §3 (core and
   ledger import no Spring, JPA, Jackson or HTTP clients; nothing in Msika imports `zamsim` or
   `elevysim`). `docs/decisions/` with short records for: monorepo, simulators as separate services,
