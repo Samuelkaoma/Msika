@@ -76,7 +76,7 @@ Goal: anyone can clone the repo, run one command, and get a working empty system
 - Done: a push with a failing unit test is blocked by the hook. The PR template appears on a new
   pull request. `main` and `develop` cannot be pushed to directly.
 
-**☐ M-03 GitHub Actions CI** · KK · M-02 · `feature/M-03-ci`
+**☑ M-03 GitHub Actions CI** · KK · M-02 · `feature/M-03-ci`
 - Do: `.github/workflows/ci.yml` that runs `scripts/check.sh` (full) on pull requests into `develop`
   and `main`. Linux runners only. Cancel a run when a newer push replaces it. Cache Gradle and pnpm.
   See CONTRIBUTING.md on why this costs no minutes while the repo is public.
