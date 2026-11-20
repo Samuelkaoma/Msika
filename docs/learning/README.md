@@ -34,6 +34,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-14 | [M-14-payments-adapter.md](M-14-payments-adapter.md) | written |
 | M-15 | [M-15-deposits.md](M-15-deposits.md) | written |
 | M-16 | [M-16-reconciliation.md](M-16-reconciliation.md) | written |
+| M-17 | [M-17-sms-parser.md](M-17-sms-parser.md) | written |
 | R-01 | [R-01-review-fixes.md](R-01-review-fixes.md) | written (fixes from the first review, not a card) |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.

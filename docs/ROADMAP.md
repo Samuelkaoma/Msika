@@ -199,7 +199,7 @@ simulator misbehaves.
 
 Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
 
-**☐ M-17 SMS command parser** · TM · M-01 · `feature/M-17-sms-parser`
+**☑ M-17 SMS command parser** · TM · M-01 · `feature/M-17-sms-parser`
 - Do: a pure parser in `msika-core` that turns a message body into a command object or a parse
   error. No database, no Spring.
 - Done: a test for every example in SMS-PROTOCOL.md, plus amounts with commas, K prefix, decimals,
