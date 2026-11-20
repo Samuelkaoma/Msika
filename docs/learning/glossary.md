@@ -138,3 +138,7 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Payment reference** | A value we choose (`msika:<council>:<request>`) that the payments system echoes back, so a callback finds its request. |
 | **Fail closed** | When something needed to check is missing (no secret), refuse everything rather than allow everything. |
 | **Idempotency key** | A value sent with a request so repeating it does the thing once. |
+| **State machine** | A thing that can only move along a fixed set of allowed status changes. |
+| **Atomic status change** | `update ... where status = old`: only one of two competing changes finds the old status. |
+| **Wallet registry** | Msika's list of which payments-system wallet belongs to which stall, agent or supplier. |
+| **`SECURITY DEFINER` function** | A database function that runs with its owner's rights, used for one narrow lookup across the security wall. |

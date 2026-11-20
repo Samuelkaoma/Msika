@@ -9,8 +9,11 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import zm.msika.core.ledger.RecordEntry;
 import zm.msika.core.payments.HandlePaymentEvent;
+import zm.msika.core.payments.PaymentOutcomes;
 import zm.msika.core.payments.PaymentRequestRepository;
 import zm.msika.core.payments.PaymentsPort;
+import zm.msika.core.payments.RecordWalletPayment;
+import zm.msika.core.wallet.WalletRegistry;
 
 /**
  * Wires the payments port to its adapter. Settings come from the environment, never from the repository:
@@ -48,7 +51,13 @@ class PaymentsConfiguration {
     }
 
     @Bean
-    HandlePaymentEvent handlePaymentEvent(PaymentRequestRepository requests, RecordEntry recordEntry, Clock clock) {
-        return new HandlePaymentEvent(requests, recordEntry, clock);
+    HandlePaymentEvent handlePaymentEvent(PaymentRequestRepository requests, RecordEntry recordEntry, Clock clock,
+            PaymentOutcomes outcomes) {
+        return new HandlePaymentEvent(requests, recordEntry, clock, outcomes);
+    }
+
+    @Bean
+    RecordWalletPayment recordWalletPayment(WalletRegistry wallets, RecordEntry recordEntry) {
+        return new RecordWalletPayment(wallets, recordEntry);
     }
 }

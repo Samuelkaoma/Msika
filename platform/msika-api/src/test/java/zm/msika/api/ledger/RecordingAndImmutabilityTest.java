@@ -245,8 +245,14 @@ class RecordingAndImmutabilityTest extends PostgresIntegrationTest {
         assertThatThrownBy(() -> owner.sql("delete from ledger_entry where council_id = :c")
                 .param("c", l.councilId()).update())
                 .rootCause().hasMessageContaining("append-only");
+        // Since M-15 the deposit table references the ledger, so Postgres refuses TRUNCATE on it even earlier than the
+        // trigger does. Either way it is refused; the trigger must still be there as the guard for any table without
+        // a referencing table.
         assertThatThrownBy(() -> owner.sql("truncate ledger_entry").update())
-                .rootCause().hasMessageContaining("append-only");
+                .rootCause().hasMessageContaining("truncate");
+        assertThat(owner.sql("select count(*) from pg_trigger where tgrelid = 'ledger_entry'::regclass "
+                        + "and not tgisinternal and (tgtype & 32) = 32").query(Long.class).single())
+                .as("the TRUNCATE trigger is still on ledger_entry").isGreaterThanOrEqualTo(1);
         assertThat(rowsFor(l.councilId(), "seed")).isEqualTo(1);
     }
 

@@ -3,6 +3,7 @@ package zm.msika.api.persistence;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -39,19 +40,32 @@ class JdbcAgentRepository implements AgentRepository {
         }
     }
 
+    private static final String COLUMNS = "id, council_id, msisdn, display_name, active, created_at";
+
+    private static Agent map(java.sql.ResultSet rs) throws java.sql.SQLException {
+        return new Agent(
+                rs.getObject("id", UUID.class),
+                rs.getObject("council_id", UUID.class),
+                new PhoneNumber(rs.getString("msisdn")),
+                rs.getString("display_name"),
+                rs.getBoolean("active"),
+                rs.getObject("created_at", OffsetDateTime.class).toInstant());
+    }
+
     @Override
     public List<Agent> list(UUID councilId) {
-        return jdbc.sql("select id, council_id, msisdn, display_name, active, created_at from agent "
-                        + "where council_id = :councilId order by display_name, id")
+        return jdbc.sql("select " + COLUMNS + " from agent where council_id = :councilId order by display_name, id")
                 .param("councilId", councilId)
-                .query((rs, row) -> new Agent(
-                        rs.getObject("id", UUID.class),
-                        rs.getObject("council_id", UUID.class),
-                        new PhoneNumber(rs.getString("msisdn")),
-                        rs.getString("display_name"),
-                        rs.getBoolean("active"),
-                        rs.getObject("created_at", OffsetDateTime.class).toInstant()))
+                .query((rs, row) -> map(rs))
                 .list();
+    }
+
+    @Override
+    public Optional<Agent> find(UUID councilId, UUID agentId) {
+        return jdbc.sql("select " + COLUMNS + " from agent where council_id = :councilId and id = :id")
+                .param("councilId", councilId).param("id", agentId)
+                .query((rs, row) -> map(rs))
+                .optional();
     }
 
     @Override

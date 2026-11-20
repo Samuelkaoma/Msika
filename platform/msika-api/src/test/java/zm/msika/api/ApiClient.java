@@ -19,7 +19,16 @@ public final class ApiClient {
 
     public <T> Result<T> send(
             String token, HttpMethod method, String path, Object body, MediaType type, Class<T> responseType) {
+        return send(token, method, path, body, type, responseType, null);
+    }
+
+    /** Like the above, with an {@code Idempotency-Key} header when {@code idempotencyKey} is not null. */
+    public <T> Result<T> send(String token, HttpMethod method, String path, Object body, MediaType type,
+            Class<T> responseType, String idempotencyKey) {
         RestClient.RequestBodySpec spec = client.method(method).uri(path);
+        if (idempotencyKey != null) {
+            spec = spec.header("Idempotency-Key", idempotencyKey);
+        }
         if (token != null) {
             spec = spec.headers(h -> h.setBearerAuth(token));
         }

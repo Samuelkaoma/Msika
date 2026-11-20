@@ -65,7 +65,8 @@ These come from `docs/ARCHITECTURE.md` §2. Breaking one is a bug even if every 
 - Integration tests use Testcontainers Postgres, not H2 and not a shared database.
 - REST paths start with `/api/v1/`. The OpenAPI spec is generated from the code.
 - Pin exact dependency versions. Adding a dependency needs a sentence in the pull request on why.
-- Commit messages are plain sentences in the present tense (see CONTRIBUTING.md).
+- Commit messages are plain sentences in the present tense (see CONTRIBUTING.md). Never add a
+  `Co-Authored-By` trailer or a "Generated with ..." line to a commit or pull request. A commit hook refuses them.
 
 ## When you are unsure
 

@@ -32,6 +32,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-12 | [M-12-zamsim-wallets.md](M-12-zamsim-wallets.md) | written |
 | M-13 | [M-13-callbacks-and-faults.md](M-13-callbacks-and-faults.md) | written |
 | M-14 | [M-14-payments-adapter.md](M-14-payments-adapter.md) | written |
+| M-15 | [M-15-deposits.md](M-15-deposits.md) | written |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
 
