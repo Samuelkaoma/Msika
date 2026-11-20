@@ -67,8 +67,9 @@ Agents are registered by the council. An agent's number can only use agent comma
 - Header `X-Msika-Timestamp`: rejected if more than 5 minutes off.
 - Response `200 {"stored": true}` as soon as the row is saved. A repeated `gatewayMessageId`
   returns `200 {"stored": false, "duplicate": true}` and does nothing else.
-- Each gateway adapter turns its own format into this one. For the Android gateway app, a small
-  adapter endpoint (`/api/v1/sms/inbound/android`) maps that app's webhook format.
+- Each gateway turns its own format into this one. The relay (ARCHITECTURE §7) posts this format
+  directly. If an Android SMS-gateway app is used as the relay and cannot, a small mapping endpoint
+  translates its webhook format.
 
 Phone numbers are normalised to E.164 (`+260...`) before any lookup. `0977...` and `260977...` are
 both accepted.

@@ -264,10 +264,37 @@ Outbox worker ──► SmsGatewayPort.send ──► gateway ──► phone
 
 Gateway adapters:
 - `ConsoleSmsGateway`: dev and demos. The sim console shows fake phones you can type into.
-- `AndroidSmsGateway`: the pilot. An Android phone with a SIM runs an open-source SMS-gateway app
-  that forwards incoming texts to the webhook and sends our replies. One phone per pilot market is
-  enough.
-- `ProviderSmsGateway`: later, a two-way bulk-SMS provider or a Zamtel shortcode.
+- `RelaySmsGateway`: the pilot (card M-21). See "Getting SMS to a cloud server" below.
+- `ProviderSmsGateway`: later, a Zamtel shortcode or SMPP connection, or a two-way SMS provider.
+
+### Getting SMS to a cloud server
+
+Msika runs on a cloud VPS under Dokploy, which puts it behind HTTPS (card M-45). A VPS cannot hold
+a SIM card, so something with a SIM has to sit between
+the mobile network and the server. Two-way SMS through cloud SMS providers is not dependable in
+Zambia: providers' own pages disagree on whether replies can be received there at all. So we do not
+build on one until a provider confirms, in writing, an inbound number or shortcode on Zamtel.
+
+For the pilot, a **relay** in Lusaka holds a Zamtel SIM:
+
+```
+Trader's phone ──SMS──► relay (Zamtel SIM) ──HTTPS POST, signed──► VPS /api/v1/sms/inbound
+Trader's phone ◄──SMS── relay ◄──HTTPS GET every few seconds, signed── VPS /api/v1/sms/relay/outbox
+```
+
+- The relay always **connects out** to the VPS. It needs no public address and no open ports, so it
+  works on any home, office or mobile-data connection.
+- Replies wait in the outbox until the relay collects them and reports each one sent or failed. If
+  the relay is offline, nothing is lost: replies wait, and `/health` shows how long.
+- The relay is either a Raspberry Pi or old laptop with a USB GSM modem running Gammu's SMS daemon
+  (preferred: it restarts by itself), or an Android phone with an SMS-gateway app.
+- Traders text an ordinary Zamtel number, at normal SMS prices. Networks can block a SIM that sends
+  many automated messages, so ask Zamtel before relying on one. How many messages one SIM can
+  carry is something the pilot has to measure.
+- Production should replace the relay with a Zamtel shortcode or SMPP connection (a request for
+  card M-46). Check with ZICTA whether business messaging needs a registered sender, before the
+  pilot. Swapping
+  needs only another `SmsGatewayPort` adapter.
 
 The inbound endpoint answers `200` immediately after storing the message, and the processing
 happens after the store, so a slow use case cannot make the gateway retry.
