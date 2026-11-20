@@ -21,11 +21,21 @@ public final class Wallets {
         /** Money enters the system: ISSUER to a wallet. (Cash handed over, in real life.) */
         FUND,
         /** Money leaves the system: a wallet to ISSUER. */
-        WITHDRAW
+        WITHDRAW,
+        /** A merchant asks a customer to pay. Waits (PENDING) until the customer approves or rejects. */
+        REQUEST_TO_PAY;
+
+        /** True for the kinds a customer or merchant makes, which are reported by callback. */
+        public boolean reportedByCallback() {
+            return this == CASH_IN || this == TRANSFER || this == REQUEST_TO_PAY;
+        }
     }
 
     public enum TransactionStatus {
-        SUCCEEDED, FAILED
+        /** A request-to-pay still waiting for the customer. Nothing has moved. */
+        PENDING,
+        SUCCEEDED,
+        FAILED
     }
 
     public record Wallet(UUID id, WalletType type, String name, String msisdn, long balanceNgwee, Instant createdAt) {}
@@ -33,6 +43,9 @@ public final class Wallets {
     /**
      * One money movement and its outcome. A transaction that failed (for example for lack of money) is
      * still a transaction: it is recorded, moves nothing, and says why.
+     *
+     * @param completedAt when it reached its final state, or {@code null} while it is still PENDING
+     * @param expiresAt for a request-to-pay, when it lapses if nobody answers; otherwise {@code null}
      */
     public record Transaction(
             UUID id,
@@ -43,7 +56,9 @@ public final class Wallets {
             long amountNgwee,
             String reference,
             String failureReason,
-            Instant createdAt) {}
+            Instant createdAt,
+            Instant completedAt,
+            Instant expiresAt) {}
 
     /** One line of a wallet's statement: a signed amount (credit positive) and the balance after it. */
     public record StatementLine(

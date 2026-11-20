@@ -124,3 +124,13 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Deferred constraint trigger** | A database check that runs when the transaction commits, after all its rows exist. |
 | **Running balance** | The wallet's balance after each ledger line, shown on a statement. |
 | **Conservation** | Money is neither created nor destroyed by a transfer: totals before and after are equal. |
+| **Callback / webhook** | A call the payments system makes to our URL when something happens, instead of us asking. |
+| **HMAC** | A fingerprint of a message made with a shared secret. Different message or secret, different fingerprint. |
+| **Replay attack** | Re-sending a genuine recorded message later. Stopped by signing a timestamp and rejecting old ones. |
+| **Outbox** | A table of messages to send, written in the same transaction as the event they describe. |
+| **At-least-once delivery** | A message may arrive more than once but is never lost. Receivers must be idempotent. |
+| **Exponential backoff** | Waiting longer after each failed attempt, so a struggling receiver is not hammered. |
+| **Dead letter (DEAD)** | A message that has been given up on after its last attempt, kept with the reason. |
+| **`FOR UPDATE SKIP LOCKED`** | Lets several workers take different rows from one queue without waiting. |
+| **Fault injection** | Making a system misbehave on purpose (fail, delay, duplicate, reorder) to prove callers cope. |
+| **Request-to-pay** | A merchant asks a customer to pay. It waits until the customer approves, rejects, or it expires. |

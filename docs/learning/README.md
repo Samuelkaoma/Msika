@@ -30,6 +30,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-10 | [M-10-traders-agents-plates.md](M-10-traders-agents-plates.md) | written |
 | M-11 | [M-11-recording-and-day-close.md](M-11-recording-and-day-close.md) | written |
 | M-12 | [M-12-zamsim-wallets.md](M-12-zamsim-wallets.md) | written |
+| M-13 | [M-13-callbacks-and-faults.md](M-13-callbacks-and-faults.md) | written |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
 

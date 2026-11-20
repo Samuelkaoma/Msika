@@ -75,8 +75,8 @@ class LedgerRulesTest extends ZamsimIntegrationTest {
         Wallet other = wallet(0);
         UUID tx2 = UUID.randomUUID();
         assertThatThrownBy(() -> transaction.executeWithoutResult(status -> {
-            jdbc.sql("insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at) "
-                            + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, 100, now())")
+            jdbc.sql("insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at, completed_at) "
+                            + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, 100, now(), now())")
                     .param("id", tx2).param("from", w.id()).param("to", other.id()).update();
             // Only the debit line: money would vanish.
             jdbc.sql("insert into ledger_line (transaction_id, wallet_id, amount_ngwee, balance_after_ngwee, created_at) "
@@ -96,8 +96,8 @@ class LedgerRulesTest extends ZamsimIntegrationTest {
         UUID tx = UUID.randomUUID();
 
         transaction.executeWithoutResult(status -> {
-            jdbc.sql("insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at) "
-                            + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, 100, now())")
+            jdbc.sql("insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at, completed_at) "
+                            + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, 100, now(), now())")
                     .param("id", tx).param("from", a.id()).param("to", b.id()).update();
             jdbc.sql("insert into ledger_line (transaction_id, wallet_id, amount_ngwee, balance_after_ngwee, created_at) "
                             + "values (:tx, :w, -100, 900, now()), (:tx, :w2, 100, 100, now())")
@@ -126,8 +126,8 @@ class LedgerRulesTest extends ZamsimIntegrationTest {
     void transactionChecks() {
         Wallet a = wallet(1_000);
         Wallet b = wallet(0);
-        String insert = "insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at) "
-                + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, :amount, now())";
+        String insert = "insert into transaction (id, kind, status, from_wallet_id, to_wallet_id, amount_ngwee, created_at, completed_at) "
+                + "values (:id, 'TRANSFER', 'SUCCEEDED', :from, :to, :amount, now(), now())";
 
         assertThatThrownBy(() -> jdbc.sql(insert).param("id", UUID.randomUUID()).param("from", a.id()).param("to", b.id())
                 .param("amount", 0L).update()).as("zero").rootCause().hasMessageContaining("check constraint");

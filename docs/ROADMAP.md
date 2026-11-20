@@ -164,7 +164,7 @@ simulator misbehaves.
 - Done: tests prove that balances never go negative, money is conserved across 1,000 random
   transfers, and a repeated key returns the first result.
 
-**☐ M-13 zamsim callbacks and fault injection** · KK · M-12 · `feature/M-13-zamsim-callbacks`
+**☑ M-13 zamsim callbacks and fault injection** · KK · M-12 · `feature/M-13-zamsim-callbacks`
 - Do: signed callbacks with retries. Settings for failure rate, delay, duplicate and out-of-order
   callbacks. Request-to-pay that waits for approval in the console.
 - Done: tests show the signature, the retry after a 500 from the receiver, and each fault mode.

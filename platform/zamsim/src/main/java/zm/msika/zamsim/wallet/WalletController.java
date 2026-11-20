@@ -93,6 +93,38 @@ class WalletController {
         return accepted(service.withdraw(key, request.walletId(), request.amountNgwee(), request.reference()));
     }
 
+    record RequestToPayRequest(UUID merchantWalletId, UUID customerWalletId, long amountNgwee, String reference,
+            Integer ttlSeconds) {}
+
+    /**
+     * A merchant asks a customer to pay. Answers 202 with a PENDING transaction: nothing has moved. The
+     * customer approves or rejects it (in the sim console), and the result arrives by callback.
+     */
+    @PostMapping("/v1/request-to-pay")
+    ResponseEntity<Transaction> requestToPay(
+            @RequestHeader("Idempotency-Key") String key, @RequestBody RequestToPayRequest request) {
+        return accepted(service.requestToPay(key, request.merchantWalletId(), request.customerWalletId(),
+                request.amountNgwee(), request.reference(), request.ttlSeconds()));
+    }
+
+    /** The requests waiting for this customer, for the console. */
+    @GetMapping("/v1/request-to-pay")
+    List<Transaction> pendingRequests(@RequestParam("customer") UUID customer) {
+        return service.pendingRequests(customer);
+    }
+
+    /** The customer approves: the payment is made now, or fails for lack of money. Safe to repeat. */
+    @PostMapping("/v1/request-to-pay/{id}/approve")
+    Transaction approve(@PathVariable UUID id) {
+        return service.approve(id);
+    }
+
+    /** The customer turns the request down. Safe to repeat. */
+    @PostMapping("/v1/request-to-pay/{id}/reject")
+    Transaction reject(@PathVariable UUID id) {
+        return service.reject(id);
+    }
+
     @GetMapping("/v1/transactions/{id}")
     Transaction transaction(@PathVariable UUID id) {
         return service.transaction(id);
