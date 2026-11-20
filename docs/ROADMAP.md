@@ -137,7 +137,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
 - Done: tests for wrong password, deactivated user (refused on the very next request), officer
   trying to change something (403), and an endpoint with no rule (403).
 
-**☐ M-10 Traders, agents and stall QR plates** · TM · M-07 · `feature/M-10-traders`
+**☑ M-10 Traders, agents and stall QR plates** · TM · M-07 · `feature/M-10-traders`
 - Do: register traders and agents (council side). Phone numbers stored in E.164 and masked in logs.
   Generate a printable A6 PDF plate per stall with the code, market name and a QR code holding the
   stall code and token.
