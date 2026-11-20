@@ -21,3 +21,6 @@ Thumbs.db
 *.key
 *.p12
 *.jks
+
+# Local signing keys (the seal key is generated on first run). NEVER commit these.
+.msika-keys/

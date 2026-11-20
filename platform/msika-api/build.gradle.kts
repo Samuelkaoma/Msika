@@ -28,3 +28,23 @@ dependencies {
     testImplementation("com.google.zxing:javase:3.5.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
+// Prints the java program and classpath that scripts/verify-seal runs. The script runs java itself instead of
+// going through Gradle (a JavaExec task), because Gradle turns every non-zero exit into 1 and the verifier
+// needs to tell "the ledger was altered" (1) from "could not run" (2).
+val verifyLauncher = project.extensions.getByType<JavaToolchainService>().launcherFor {
+    languageVersion.set(JavaLanguageVersion.of(21))
+}
+val verifyClasspath = sourceSets["main"].runtimeClasspath
+
+tasks.register("printVerifySealsCommand") {
+    group = "help"
+    description = "Prints the java executable and runtime classpath used by scripts/verify-seal."
+    dependsOn("classes")
+    val launcher = verifyLauncher
+    val classpath = verifyClasspath
+    doLast {
+        println(launcher.get().executablePath.asFile.absolutePath)
+        println(classpath.asPath)
+    }
+}

@@ -45,8 +45,15 @@ class SecurityConfiguration {
                         .requestMatchers("/health", "/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
-                        // Only Msika staff create councils.
+                        // Only Msika staff create councils, and close days by hand.
                         .requestMatchers(HttpMethod.POST, "/api/v1/councils").hasRole(Role.MSIKA_OPERATOR.name())
+                        .requestMatchers(HttpMethod.POST, "/api/v1/councils/*/day-close")
+                        .hasRole(Role.MSIKA_OPERATOR.name())
+                        // The seal-checking public key is public: a key only we could read would prove nothing.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/seal-key").permitAll()
+                        // A council user reads their own council's seal without naming the council.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/seals/*")
+                        .hasAnyRole(Role.COUNCIL_ADMIN.name(), Role.COUNCIL_OFFICER.name())
                         // Everything inside a council: see councilScope.
                         .requestMatchers("/api/v1/councils/{councilId}/**").access(councilScope())
                         // Anything not listed above is denied.
