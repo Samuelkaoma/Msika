@@ -199,6 +199,9 @@ class DepositsUnderFaultsTest extends ApiTest {
         }
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    zm.msika.api.reconciliation.ReconciliationService reconciliation;
+
     private void verify(RestClient sim, List<PaymentTestSupport.Stall> stalls, Map<UUID, Wallet> traderWallets) {
         List<UUID> councils = stalls.stream().map(PaymentTestSupport.Stall::councilId).toList();
 
@@ -256,6 +259,22 @@ class DepositsUnderFaultsTest extends ApiTest {
             assertThat(ledgerSum).as("ledger sum of stall equals what zamsim says it holds").isEqualTo(walletBalance);
             assertThat(ledgerSum).isEqualTo(expectedPerStall.getOrDefault(stall.stallId(), 0L));
         }
+
+        // 7. The nightly reconciliation (card M-16), run against the real zamsim statements, finds the two sides agree.
+        int reconciled = 0;
+        for (PaymentTestSupport.Stall stall : stalls) {
+            tenant.inCouncil(stall.councilId(), () -> jdbc.sql("insert into payments_wallet (wallet_id, council_id, role, stall_id) "
+                            + "values (:w, :c, 'TRADER', :s)")
+                    .param("w", traderWallets.get(stall.stallId()).id().toString()).param("c", stall.councilId())
+                    .param("s", stall.stallId()).update());
+            java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Africa/Lusaka"));
+            for (java.time.LocalDate day = today.minusDays(1); !day.isAfter(today); day = day.plusDays(1)) {
+                var report = reconciliation.reconcile(stall.councilId(), day, "test");
+                assertThat(report.differences()).as("reconciliation differences for " + day).isEmpty();
+                reconciled += report.paymentsCount();
+            }
+        }
+        assertThat(reconciled).as("payments the reconciliation compared").isEqualTo((int) succeeded);
 
         // 6. The faults really happened, so this was not an easy day. (A test that passes because nothing went wrong proves nothing.)
         List<CallbackRow> sent = List.of(sim.get().uri("/v1/admin/callbacks?limit=1000").retrieve().body(CallbackRow[].class));

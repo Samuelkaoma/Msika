@@ -1,5 +1,7 @@
 package zm.msika.core.payments;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import zm.msika.ledger.Money;
 
@@ -39,4 +41,13 @@ public interface PaymentsPort {
      * @throws PaymentsUnavailableException if the system could not be reached or answered with an error
      */
     Optional<PaymentsWallet> findWallet(String walletId);
+
+    /**
+     * The settled movements on one wallet between two dates, both included, by the date the money moved in
+     * Lusaka. Used by the nightly reconciliation (card M-16) to compare the payments system's record with
+     * Msika's ledger.
+     *
+     * @throws PaymentsUnavailableException if the system could not be reached or answered with an error
+     */
+    List<StatementLine> statement(String walletId, LocalDate from, LocalDate to);
 }

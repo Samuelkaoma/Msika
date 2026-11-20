@@ -1,5 +1,9 @@
 package zm.msika.api.payments;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
@@ -10,6 +14,7 @@ import org.springframework.web.client.RestClientException;
 import zm.msika.core.payments.PaymentsPort;
 import zm.msika.core.payments.PaymentsWallet;
 import zm.msika.core.payments.PaymentsUnavailableException;
+import zm.msika.core.payments.StatementLine;
 import zm.msika.ledger.Money;
 
 /**
@@ -76,6 +81,49 @@ public final class ZamsimPaymentsAdapter implements PaymentsPort {
         return Optional.of(new PaymentsWallet(reply.get("id").toString(), kind(reply.get("type").toString()),
                 msisdn == null ? null : msisdn.toString()));
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<StatementLine> statement(String walletId, LocalDate from, LocalDate to) {
+        List<Map<String, Object>> reply;
+        try {
+            reply = client.get()
+                    .uri(u -> u.path("/v1/statements")
+                            .queryParam("wallet", walletId)
+                            .queryParam("from", from)
+                            .queryParam("to", to)
+                            .queryParam("limit", STATEMENT_LIMIT)
+                            .build())
+                    .retrieve()
+                    .body(List.class);
+        } catch (RestClientException e) {
+            throw new PaymentsUnavailableException("the payments system could not give a statement", e);
+        }
+        if (reply == null) {
+            throw new PaymentsUnavailableException("the payments system answered a statement request with nothing", null);
+        }
+        if (reply.size() >= STATEMENT_LIMIT) {
+            // A statement cut short would make settled payments look missing. Refuse rather than guess.
+            throw new PaymentsUnavailableException("the statement for wallet " + walletId + " has " + STATEMENT_LIMIT
+                    + " or more lines, more than one request can return", null);
+        }
+        List<StatementLine> lines = new ArrayList<>(reply.size());
+        for (Map<String, Object> line : reply) {
+            Object counterparty = line.get("counterpartyWalletId");
+            Object reference = line.get("reference");
+            lines.add(new StatementLine(
+                    String.valueOf(line.get("transactionId")),
+                    String.valueOf(line.get("kind")),
+                    ((Number) line.get("amountNgwee")).longValue(),
+                    counterparty == null ? null : counterparty.toString(),
+                    reference == null ? null : reference.toString(),
+                    Instant.parse(line.get("at").toString())));
+        }
+        return lines;
+    }
+
+    /** The most lines zamsim returns for one statement request. */
+    static final int STATEMENT_LIMIT = 5000;
 
     /** zamsim's wallet types, mapped to the kinds Msika knows. Its COUNCIL, LENDER and ISSUER wallets are OTHER. */
     private static PaymentsWallet.Kind kind(String zamsimType) {

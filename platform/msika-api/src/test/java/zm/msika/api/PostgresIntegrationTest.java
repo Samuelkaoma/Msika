@@ -46,6 +46,7 @@ public abstract class PostgresIntegrationTest {
         // The scheduled day close is off in tests (tests call the service directly), and the seal signing key
         // goes in a throwaway folder.
         registry.add("msika.day-close.enabled", () -> "false");
+        registry.add("msika.reconciliation.enabled", () -> "false");
         registry.add("msika.seal.key-file", () -> SEAL_KEY_FILE.toString());
         registry.add("msika.payments.callback-secret", () -> CALLBACK_SECRET);
     }

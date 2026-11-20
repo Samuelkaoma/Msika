@@ -36,9 +36,9 @@ table in the same pull request.
 
 | Phase | Cards | Status |
 |---|---|---|
-| 0 Foundation | M-01 to M-05 | ☐ |
-| 1 Core record | M-06 to M-11 | ☐ |
-| 2 Payments simulator | M-12 to M-16 | ☐ |
+| 0 Foundation | M-01 to M-05 | ☑ |
+| 1 Core record | M-06 to M-11 | ☑ |
+| 2 Payments simulator | M-12 to M-16 | ☑ |
 | 3 SMS channel | M-17 to M-21 | ☐ |
 | 4 Levy and eLevy simulator | M-22 to M-25 | ☐ |
 | 5 Council dashboard and demo | M-26 to M-30 | ☐ |
@@ -189,7 +189,7 @@ simulator misbehaves.
   supplier payments from `zamsim` recorded as `VERIFIED` (ARCHITECTURE §4.2).
 - Done: tests for each state change, including a callback that arrives after the agent cancelled.
 
-**☐ M-16 Nightly reconciliation** · KK · M-15 · `feature/M-16-reconciliation`
+**☑ M-16 Nightly reconciliation** · KK · M-15 · `feature/M-16-reconciliation`
 - Do: a job that compares each council's ledger for the day with `zamsim` statements and lists every
   difference (missing in Msika, missing in zamsim, amount differs).
 - Done: tests that plant each kind of difference and check it is reported. The dashboard can show

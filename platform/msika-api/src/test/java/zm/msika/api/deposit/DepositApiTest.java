@@ -68,6 +68,12 @@ class DepositApiTest extends ApiTest {
             }
             return Optional.ofNullable(wallets.get(walletId));
         }
+
+        @Override
+        public List<zm.msika.core.payments.StatementLine> statement(String walletId, java.time.LocalDate from,
+                java.time.LocalDate to) {
+            return List.of();
+        }
     }
 
     @TestConfiguration
