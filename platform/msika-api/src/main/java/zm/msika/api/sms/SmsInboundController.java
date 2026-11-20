@@ -1,11 +1,7 @@
 package zm.msika.api.sms;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import zm.msika.api.payments.CallbackVerifier;
-import zm.msika.api.tenancy.TenantContext;
 import zm.msika.core.phone.PhoneNumber;
-import zm.msika.core.sms.SmsRouting;
 
 /**
  * Where the SMS gateway delivers every text (docs/SMS-PROTOCOL.md, "Inbound webhook"). It checks the signature,
@@ -39,21 +33,11 @@ class SmsInboundController {
     record Refused(String error, String message) {}
 
     private final CallbackVerifier verifier;
-    private final TenantContext tenant;
-    private final SmsStore store;
-    private final SmsProcessor processor;
-    private final Executor executor;
-    private final Clock clock;
+    private final SmsInbox inbox;
 
-    SmsInboundController(@Qualifier("smsGatewayVerifier") CallbackVerifier verifier, TenantContext tenant,
-            SmsStore store, SmsProcessor processor, @Qualifier("smsProcessingExecutor") Executor executor,
-            Clock clock) {
+    SmsInboundController(@Qualifier("smsGatewayVerifier") CallbackVerifier verifier, SmsInbox inbox) {
         this.verifier = verifier;
-        this.tenant = tenant;
-        this.store = store;
-        this.processor = processor;
-        this.executor = executor;
-        this.clock = clock;
+        this.inbox = inbox;
     }
 
     @PostMapping("/api/v1/sms/inbound")
@@ -86,16 +70,9 @@ class SmsInboundController {
             return bad("body must be present and at most 1600 characters");
         }
 
-        // Which council the message belongs to: the sender's, when exactly one council knows the number.
-        List<SmsRouting.Sender> senders = store.findSenders(from.e164());
-        UUID council = senders.size() == 1 ? senders.get(0).councilId() : null;
-        UUID id = UUID.randomUUID();
-        boolean stored = tenant.inSmsTenant(council, () -> store.insertInbound(new SmsStore.Inbound(id, council,
-                gatewayId, from.e164(), text, receivedAt, clock.instant())));
-        if (!stored) {
+        if (!inbox.receive(gatewayId, from, text, receivedAt)) {
             return ResponseEntity.ok(new Stored(false, true));
         }
-        executor.execute(() -> processor.process(council, id));
         return ResponseEntity.ok(new Stored(true, null));
     }
 

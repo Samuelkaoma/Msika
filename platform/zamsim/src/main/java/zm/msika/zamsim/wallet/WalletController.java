@@ -60,6 +60,18 @@ class WalletController {
         return ResponseEntity.created(URI.create("/v1/wallets/" + wallet.id())).body(WalletResponse.of(wallet));
     }
 
+    /** Every wallet with its balance, newest first. For the sim console (card M-20). */
+    @GetMapping("/v1/wallets")
+    List<WalletResponse> wallets(@RequestParam(value = "limit", defaultValue = "200") int limit) {
+        return service.wallets(limit).stream().map(WalletResponse::of).toList();
+    }
+
+    /** The most recent transactions, newest first. For the sim console (card M-20). */
+    @GetMapping("/v1/transactions")
+    List<Transaction> transactions(@RequestParam(value = "limit", defaultValue = "100") int limit) {
+        return service.recentTransactions(limit);
+    }
+
     @GetMapping("/v1/wallets/{id}")
     WalletResponse wallet(@PathVariable UUID id) {
         return WalletResponse.of(service.wallet(id));

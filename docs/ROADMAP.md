@@ -219,7 +219,7 @@ Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
 - Done: an end-to-end test sends `DEP B114 450` from an agent number and ends with a confirmed
   deposit, a `DEPOSITED` ledger entry and the right SMS in the trader's outbox.
 
-**☐ M-20 Sim console** · TM · M-19 · `feature/M-20-sim-console`
+**☑ M-20 Sim console** · TM · M-19 · `feature/M-20-sim-console`
 - Do: `apps/sim-console`: a page of fake phones (pick a trader or agent, type a message, see
   replies), the zamsim wallets and transactions, request-to-pay approval, and the fault settings.
   The `ConsoleSmsGateway` adapter feeds it.
