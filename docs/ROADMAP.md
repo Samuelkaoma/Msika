@@ -83,7 +83,7 @@ Goal: anyone can clone the repo, run one command, and get a working empty system
 - Done: the first pull request shows the CI check, and it is required by branch protection. The
   Actions usage page shows the run did not count against the account's minutes.
 
-**☐ M-04 Local stack** · KK · M-01 · `feature/M-04-compose`
+**☑ M-04 Local stack** · KK · M-01 · `feature/M-04-compose`
 - Do: `infra/docker-compose.yml` with Postgres (pinned version) holding three databases or schemas
   (`msika`, `zamsim`, `elevysim`), each with its own user. Flyway in each Spring app with an empty
   first migration. Two Postgres roles for Msika: `msika_owner` (runs migrations) and `msika_app`

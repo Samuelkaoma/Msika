@@ -1,0 +1,67 @@
+# Local stack: one Postgres holding three databases, and the three Spring Boot services.
+#   docker compose -f infra/docker-compose.yml up --build
+# Passwords below are local-only defaults. Override them in infra/.env (see .env.example).
+name: msika
+
+services:
+  postgres:
+    image: postgres:18.7
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_only_postgres}
+      MSIKA_OWNER_PASSWORD: ${MSIKA_OWNER_PASSWORD:-dev_only_msika_owner}
+      MSIKA_APP_PASSWORD: ${MSIKA_APP_PASSWORD:-dev_only_msika_app}
+      ZAMSIM_PASSWORD: ${ZAMSIM_PASSWORD:-dev_only_zamsim}
+      ELEVYSIM_PASSWORD: ${ELEVYSIM_PASSWORD:-dev_only_elevysim}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  msika-api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      args: { MODULE: msika-api }
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      MSIKA_DB_URL: jdbc:postgresql://postgres:5432/msika
+      MSIKA_OWNER_PASSWORD: ${MSIKA_OWNER_PASSWORD:-dev_only_msika_owner}
+      MSIKA_APP_PASSWORD: ${MSIKA_APP_PASSWORD:-dev_only_msika_app}
+    ports:
+      - "8080:8080"
+
+  zamsim:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      args: { MODULE: zamsim }
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      ZAMSIM_DB_URL: jdbc:postgresql://postgres:5432/zamsim
+      ZAMSIM_PASSWORD: ${ZAMSIM_PASSWORD:-dev_only_zamsim}
+    ports:
+      - "8081:8081"
+
+  elevysim:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      args: { MODULE: elevysim }
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      ELEVYSIM_DB_URL: jdbc:postgresql://postgres:5432/elevysim
+      ELEVYSIM_PASSWORD: ${ELEVYSIM_PASSWORD:-dev_only_elevysim}
+    ports:
+      - "8082:8082"
+
+volumes:
+  pgdata:
