@@ -18,7 +18,7 @@ import org.testcontainers.utility.MountableFile;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class PostgresIntegrationTest {
 
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.7")
+    public static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.7")
             .withCopyFileToContainer(
                     MountableFile.forHostPath("../../infra/postgres/init/01-init.sh", 0755),
                     "/docker-entrypoint-initdb.d/01-init.sh")
@@ -43,6 +43,33 @@ public abstract class PostgresIntegrationTest {
         registry.add("msika.bootstrap-operator.email", () -> OPERATOR_EMAIL);
         registry.add("msika.bootstrap-operator.password", () -> OPERATOR_PASSWORD);
         registry.add("msika.auth.bcrypt-strength", () -> "4");
+        // The scheduled day close is off in tests (tests call the service directly), and the seal signing key
+        // goes in a throwaway folder.
+        registry.add("msika.day-close.enabled", () -> "false");
+        registry.add("msika.seal.key-file", () -> SEAL_KEY_FILE.toString());
+    }
+
+    /** Where the test app keeps its (throwaway) seal signing key. */
+    public static final java.nio.file.Path SEAL_KEY_FILE = tempKeyFile();
+
+    private static java.nio.file.Path tempKeyFile() {
+        try {
+            return java.nio.file.Files.createTempDirectory("msika-test-keys").resolve("seal-key.properties");
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    /** The database as the OWNER role, which row-level security does not apply to. Tests use it to simulate tampering. */
+    public static org.springframework.jdbc.core.simple.JdbcClient ownerJdbc() {
+        return org.springframework.jdbc.core.simple.JdbcClient.create(new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                "jdbc:postgresql://" + POSTGRES.getHost() + ":" + POSTGRES.getMappedPort(5432) + "/msika",
+                "msika_owner", "test_owner"));
+    }
+
+    /** The JDBC URL of the msika database, for tests of the command-line verifier. */
+    public static String jdbcUrl() {
+        return "jdbc:postgresql://" + POSTGRES.getHost() + ":" + POSTGRES.getMappedPort(5432) + "/msika";
     }
 
     /** The operator the app creates at start-up in tests. Made up, test only. */

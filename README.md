@@ -71,3 +71,15 @@ docs/       Roadmap, architecture, SMS protocol, teaching pack
 ```
 
 The full layout and the rules behind it are in `docs/ARCHITECTURE.md`.
+
+## Check that the ledger has not been altered
+
+Every trading day is sealed with a signed fingerprint. To check every seal against the database:
+
+```bash
+export MSIKA_VERIFY_DB_PASSWORD=...        # the OWNER role's password (msika_owner)
+scripts/verify-seal.sh                     # or .\scripts\verify-seal.ps1 on Windows
+```
+
+Exit code 0: everything verifies. 1: the ledger or a seal was altered (it says which council and day).
+2: it could not run. Options such as `--council <uuid>` and `--key-file` are described in the script.

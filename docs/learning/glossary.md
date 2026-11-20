@@ -106,3 +106,12 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Error correction (QR)** | Extra data in a QR code so it still reads when dirty or torn. We use level Q, about 25%. |
 | **Plate** | The A6 printed page for a stall: code, market name and QR code. |
 | **ZXing** | The Java library that makes and reads QR codes. |
+| **Idempotency key** | A name for one request, so repeating it records one entry. Same key and content: a repeat. Same key, different content: a conflict. |
+| **Business date** | The trading day an entry belongs to, in the council's time zone. A sealed day never changes. |
+| **Trigger (database)** | A function Postgres runs automatically when a row changes. Ours refuses `UPDATE` and `DELETE` on the ledger. |
+| **Advisory lock** | A named lock the application asks Postgres to hold. Shared for recording, exclusive for closing a day. |
+| **`ON CONFLICT DO NOTHING`** | An insert that quietly skips a duplicate instead of raising an error that aborts the transaction. |
+| **Day close** | Sealing a finished trading day: Merkle root over its entries, signed and chained to the day before. |
+| **Verifier** | The independent tool (`scripts/verify-seal`) that rebuilds every seal from raw rows and reports any alteration. |
+| **Exit code** | The number a program returns to say how it went: 0 fine, non-zero a problem. Ours: 1 altered, 2 could not run. |
+| **Tamper-evident** | Changes cannot be prevented absolutely, but they are always detectable. |

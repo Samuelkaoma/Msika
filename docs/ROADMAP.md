@@ -144,7 +144,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
 - Done: tests for phone normalisation (`0977...`, `260977...`, `+260977...` give the same number)
   and for masking. A market's plates download as one PDF.
 
-**☐ M-11 Recording entries and day close** · SK · M-06, M-08 · `feature/M-11-day-close`
+**☑ M-11 Recording entries and day close** · SK · M-06, M-08 · `feature/M-11-day-close`
 - Do: a `RecordEntry` use case that is the only way to write a ledger entry (enforces idempotency
   and business date). A database trigger that refuses `UPDATE` and `DELETE` on `ledger_entry`. A
   scheduled day-close job per council (ARCHITECTURE §4.4), plus an operator endpoint to run it by

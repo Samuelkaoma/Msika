@@ -38,6 +38,9 @@ services:
       MSIKA_AUTH_JWT_SECRET: ${MSIKA_AUTH_JWT_SECRET:-}
       MSIKA_BOOTSTRAP_OPERATOR_EMAIL: ${MSIKA_BOOTSTRAP_OPERATOR_EMAIL:-}
       MSIKA_BOOTSTRAP_OPERATOR_PASSWORD: ${MSIKA_BOOTSTRAP_OPERATOR_PASSWORD:-}
+      # Signs the daily seals. Empty means a development key is generated inside the container (and lost with it).
+      MSIKA_SEAL_PRIVATE_KEY: ${MSIKA_SEAL_PRIVATE_KEY:-}
+      MSIKA_SEAL_PUBLIC_KEY: ${MSIKA_SEAL_PUBLIC_KEY:-}
     ports:
       - "8080:8080"
 
