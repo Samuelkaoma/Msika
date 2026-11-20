@@ -77,3 +77,9 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Partial unique index** | A uniqueness rule that applies only to some rows, for example only active allocations. |
 | **Fake (test)** | A simple in-memory stand-in for a real dependency, used to test rules without a database. |
 | **JSON** | The text format APIs use to send data, such as `{"code": "SOW"}`. |
+| **Multi-tenancy** | One system serving several customers (here, councils) whose data must stay apart. |
+| **RLS policy** | A rule attached to a table that Postgres applies to every query on it. |
+| **`using` / `with check`** | The two halves of a policy: which rows you can see, and which rows you may write. |
+| **Session setting (`set_config`)** | A named value attached to a database connection or, with `true`, to one transaction. |
+| **Fail closed** | When something is missing, deny (return nothing) rather than allow. |
+| **Connection pool** | A small set of reused database connections, which is why a tenant setting must be local to a transaction. |

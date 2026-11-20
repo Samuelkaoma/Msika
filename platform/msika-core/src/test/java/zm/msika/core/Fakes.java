@@ -36,6 +36,11 @@ public final class Fakes {
         }
 
         @Override
+        public List<UUID> listIds() {
+            return byId.values().stream().sorted(java.util.Comparator.comparing(Council::createdAt)).map(Council::id).toList();
+        }
+
+        @Override
         public Optional<Council> find(UUID id) {
             return Optional.ofNullable(byId.get(id));
         }
