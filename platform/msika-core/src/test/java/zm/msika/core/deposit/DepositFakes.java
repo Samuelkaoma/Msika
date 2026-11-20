@@ -52,6 +52,14 @@ public final class DepositFakes {
         }
 
         @Override
+        public List<Deposit> findByReference(UUID councilId, String reference, java.time.LocalDate since) {
+            return byId.values().stream()
+                    .filter(d -> d.councilId().equals(councilId) && d.reference().equals(reference)
+                            && !d.businessDate().isBefore(since))
+                    .sorted(Comparator.comparing(Deposit::createdAt).reversed()).toList();
+        }
+
+        @Override
         public List<Deposit> list(UUID councilId, DepositStatus status, int limit) {
             return byId.values().stream()
                     .filter(d -> d.councilId().equals(councilId) && (status == null || d.status() == status))

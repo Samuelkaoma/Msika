@@ -78,8 +78,9 @@ public final class ZamsimPaymentsAdapter implements PaymentsPort {
             throw new PaymentsUnavailableException("the payments system answered a wallet lookup without an id or type", null);
         }
         Object msisdn = reply.get("msisdn");
+        Object balance = reply.get("balanceNgwee");
         return Optional.of(new PaymentsWallet(reply.get("id").toString(), kind(reply.get("type").toString()),
-                msisdn == null ? null : msisdn.toString()));
+                msisdn == null ? null : msisdn.toString(), balance instanceof Number n ? n.longValue() : null));
     }
 
     @Override

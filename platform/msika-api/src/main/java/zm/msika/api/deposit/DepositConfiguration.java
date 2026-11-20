@@ -32,14 +32,14 @@ class DepositConfiguration {
     }
 
     @Bean
-    ChangeDeposit changeDeposit(DepositRepository deposits, Clock clock) {
-        return new ChangeDeposit(deposits, clock);
+    ChangeDeposit changeDeposit(DepositRepository deposits, Clock clock, zm.msika.core.deposit.DepositEvents events) {
+        return new ChangeDeposit(deposits, clock, events);
     }
 
     /** What the payment callbacks tell: the deposit lifecycle follows the payment request. */
     @Bean
-    PaymentOutcomes paymentOutcomes(DepositRepository deposits, Clock clock) {
-        return new DepositOutcomes(deposits, clock);
+    PaymentOutcomes paymentOutcomes(DepositRepository deposits, Clock clock, zm.msika.core.deposit.DepositEvents events) {
+        return new DepositOutcomes(deposits, clock, events);
     }
 
     @Bean

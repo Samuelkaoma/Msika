@@ -77,3 +77,19 @@ Agents are registered by the council. An agent's number can only use agent comma
 
 Phone numbers are normalised to E.164 (`+260...`) before any lookup. `0977...` and `260977...` are
 both accepted.
+
+## How the commands behave (card M-19)
+
+- **Short stall codes.** An agent may send `DEP B114 450` or `DEP SOW-B-114 450`. `B114` (or `B-114`) matches
+  any stall in the agent's council whose code ends in `-B-114`. If more than one does, the agent is asked for the
+  full code; nothing is recorded.
+- **REG** needs the full code from the plate. The request waits for the market office (`GET`, `POST
+  .../registrations/{id}/approve` or `/reject`). Approval registers the trader if the number is new, allocates the
+  stall, and texts `Reply YES ...`. `YES` records consent to the terms and the levy sweep, once.
+- **NO** looks for the reference among deposits for the trader's stalls in the last 7 days. A deposit that is not
+  confirmed yet gets `... not confirmed yet ...`; one already flagged is answered as flagged again.
+- **UNDO** works only for the agent's own deposit, while it is still pending and within 10 minutes.
+- **Refusals.** If a use case refuses (the agent is inactive, a stall has no wallet), the sender gets
+  `Msika: not done: <reason>. Nothing was recorded.` and nothing is kept.
+- **Not built yet.** `LEVY`, the levy part of `BAL` (cards M-24, M-25), `MONTH`, `OK`, `WRONG` (M-31, M-32) and
+  `LOAN` (M-38) answer that the figures are not available yet. `BAL` gives the wallet balance meanwhile.

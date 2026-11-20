@@ -78,9 +78,74 @@ class DepositLifecycleTest {
         register(WalletOwner.Role.TRADER, "w-trader", stall.id(), null);
 
         requestDeposit = new RequestDeposit(councils, stalls, agents, wallets, deposits, requests, clock, new Random(7), MAX);
-        changeDeposit = new ChangeDeposit(deposits, clock);
+        changeDeposit = new ChangeDeposit(deposits, clock, events);
         RecordEntry recordEntry = new RecordEntry(councils, stalls, ledger, new LedgerFakes.Seals(), new LedgerFakes.Lock());
-        handler = new HandlePaymentEvent(requests, recordEntry, clock, new DepositOutcomes(deposits, clock));
+        handler = new HandlePaymentEvent(requests, recordEntry, clock, new DepositOutcomes(deposits, clock, events));
+    }
+
+    /** Records what people would have been told (card M-19). */
+    private final List<String> told = new java.util.ArrayList<>();
+    private final DepositEvents events = new DepositEvents() {
+        @Override
+        public void confirmed(Deposit d) {
+            told.add("confirmed " + d.reference() + " " + d.status());
+        }
+
+        @Override
+        public void failed(Deposit d, String reason) {
+            told.add("failed " + d.reference() + " " + reason);
+        }
+
+        @Override
+        public void cancelled(Deposit d) {
+            told.add("cancelled " + d.reference());
+        }
+    };
+
+    @Nested
+    @DisplayName("who is told (card M-19)")
+    class Told {
+
+        @Test
+        @DisplayName("the trader is told once when money is confirmed, however many times the callback comes")
+        void confirmedOnce() {
+            RequestDeposit.Prepared p = start("k", 45_000);
+            handler.execute(succeeded(p, "tx-1"));
+            handler.execute(succeeded(p, "tx-1"));
+
+            assertThat(told).containsExactly("confirmed " + p.deposit().reference() + " CONFIRMED");
+        }
+
+        @Test
+        @DisplayName("the agent is told once when it fails")
+        void failedOnce() {
+            RequestDeposit.Prepared p = start("k", 45_000);
+            handler.execute(failedEvent(p, "tx-1"));
+            handler.execute(failedEvent(p, "tx-1"));
+
+            assertThat(told).containsExactly("failed " + p.deposit().reference() + " INSUFFICIENT_FUNDS");
+        }
+
+        @Test
+        @DisplayName("a cancel is told, and money that arrives after it is told as well (the trader can say NO)")
+        void cancelThenPaid() {
+            RequestDeposit.Prepared p = start("k", 45_000);
+            changeDeposit.cancel(council.id(), p.deposit().id());
+            handler.execute(succeeded(p, "tx-1"));
+
+            assertThat(told).containsExactly("cancelled " + p.deposit().reference(),
+                    "confirmed " + p.deposit().reference() + " DISPUTED");
+        }
+
+        @Test
+        @DisplayName("a failure after a cancel tells nobody: nothing happened")
+        void cancelThenFailed() {
+            RequestDeposit.Prepared p = start("k", 45_000);
+            changeDeposit.cancel(council.id(), p.deposit().id());
+            handler.execute(failedEvent(p, "tx-1"));
+
+            assertThat(told).containsExactly("cancelled " + p.deposit().reference());
+        }
     }
 
     private void register(WalletOwner.Role role, String id, UUID stallId, UUID agentId) {

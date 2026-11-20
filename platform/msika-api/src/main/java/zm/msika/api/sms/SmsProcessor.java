@@ -52,11 +52,10 @@ public class SmsProcessor {
      * message is marked FAILED (with no reply) so that it is not tried forever; the error is logged for a person.
      */
     public void process(UUID councilIdOrNull, UUID inboundId) {
+        Deferred deferred;
         try {
-            tenant.inSmsTenant(councilIdOrNull, () -> {
-                store.claimInbound(inboundId).ifPresent(this::processClaimed);
-                return null;
-            });
+            deferred = tenant.inSmsTenant(councilIdOrNull, () ->
+                    store.claimInbound(inboundId).map(this::processClaimed).orElse(null));
         } catch (RuntimeException e) {
             LOG.error("processing SMS {} failed; marked FAILED", inboundId, e);
             tenant.inSmsTenant(councilIdOrNull, () -> {
@@ -64,6 +63,37 @@ public class SmsProcessor {
                         store.finishInbound(m.id(), "FAILED", "ERROR", clock.instant()));
                 return null;
             });
+            return;
+        }
+        if (deferred != null) {
+            runLater(councilIdOrNull, deferred);
+        }
+    }
+
+    /** Work the command left for after the commit, and the message it answers. */
+    private record Deferred(SmsStore.Inbound message, List<SmsCommandHandler.Later> later) {}
+
+    /** Runs each piece of later work outside any transaction, then queues the replies it produced. */
+    private void runLater(UUID councilIdOrNull, Deferred deferred) {
+        for (SmsCommandHandler.Later later : deferred.later()) {
+            List<SmsCommandHandler.Reply> replies;
+            try {
+                replies = later.run();
+            } catch (RuntimeException e) {
+                LOG.error("follow-up work for SMS {} failed", deferred.message().id(), e);
+                continue;
+            }
+            tenant.inSmsTenant(councilIdOrNull, () -> {
+                queue(deferred.message(), replies, clock.instant());
+                return null;
+            });
+        }
+    }
+
+    private void queue(SmsStore.Inbound message, List<SmsCommandHandler.Reply> replies, Instant now) {
+        for (SmsCommandHandler.Reply reply : replies) {
+            store.enqueue(message.councilId(), reply.toMsisdn(), reply.body(), reply.template().name(),
+                    reply.toMsisdn().equals(message.fromMsisdn()) ? message.id() : null, now);
         }
     }
 
@@ -75,14 +105,14 @@ public class SmsProcessor {
         waiting.forEach((id, council) -> process(council, id));
     }
 
-    private void processClaimed(SmsStore.Inbound message) {
+    private Deferred processClaimed(SmsStore.Inbound message) {
         Instant now = clock.instant();
         String masked = new PhoneNumber(message.fromMsisdn()).toString();
         int recent = store.countFrom(message.fromMsisdn(), message.storedAt().minus(rateWindow), message.storedAt());
         if (recent > rateLimit) {
             LOG.warn("rate limit: {} messages from {} in {}; message stored, not answered", recent, masked, rateWindow);
             store.finishInbound(message.id(), "RATE_LIMITED", "RATE_LIMITED", now);
-            return;
+            return null;
         }
 
         List<SmsRouting.Sender> senders = store.findSenders(message.fromMsisdn());
@@ -92,15 +122,14 @@ public class SmsProcessor {
                 String body = answer.template().render(answer.values());
                 store.enqueue(message.councilId(), message.fromMsisdn(), body, answer.template().name(), message.id(), now);
                 store.finishInbound(message.id(), "PROCESSED", answer.outcome(), now);
+                return null;
             }
             case SmsRouting.Decision.Handle handle -> {
-                SmsCommandHandler.Result result = handler.handle(handle.sender(), message.fromMsisdn(), handle.command(),
-                        message.receivedAt());
-                for (SmsCommandHandler.Reply reply : result.replies()) {
-                    store.enqueue(message.councilId(), reply.toMsisdn(), reply.body(), reply.template().name(),
-                            reply.toMsisdn().equals(message.fromMsisdn()) ? message.id() : null, now);
-                }
+                SmsCommandHandler.Result result = handler.handle(message.id(), handle.sender(), message.fromMsisdn(),
+                        handle.command(), message.receivedAt());
+                queue(message, result.replies(), now);
                 store.finishInbound(message.id(), "PROCESSED", result.outcome(), now);
+                return result.later().isEmpty() ? null : new Deferred(message, result.later());
             }
         }
     }

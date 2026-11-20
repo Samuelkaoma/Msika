@@ -77,6 +77,14 @@ class JdbcDepositRepository implements DepositRepository {
     }
 
     @Override
+    public List<Deposit> findByReference(UUID councilId, String reference, java.time.LocalDate since) {
+        return jdbc.sql("select " + COLUMNS + " from deposit where council_id = :councilId and reference = :ref "
+                        + "and business_date >= :since order by business_date desc, created_at desc")
+                .param("councilId", councilId).param("ref", reference).param("since", since)
+                .query((rs, row) -> map(rs)).list();
+    }
+
+    @Override
     public List<Deposit> list(UUID councilId, DepositStatus status, int limit) {
         return jdbc.sql("select " + COLUMNS + " from deposit where council_id = :councilId "
                         + "and (cast(:status as text) is null or status = :status) order by created_at desc, id limit :limit")

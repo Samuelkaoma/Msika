@@ -152,3 +152,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Outbox** | A table of messages waiting to be sent, written in the same transaction as what they report, and sent later by a worker. |
 | **GSM-7** | The alphabet a plain SMS uses: 160 characters per message. One character outside it cuts the limit to 70. |
 | **Back-off** | Waiting longer after each failed try (10 s, 30 s, 2 min ...) so a struggling system is not flooded. |
+| **Savepoint** | A mark inside a database transaction that can be rolled back to without undoing everything before it. |
+| **Domain event** | A notice from the core that something happened (a deposit was confirmed), which other code can act on. |
