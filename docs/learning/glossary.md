@@ -144,3 +144,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **`SECURITY DEFINER` function** | A database function that runs with its owner's rights, used for one narrow lookup across the security wall. |
 | **Poison message** | A message that fails every time. Answering "try again" makes the sender retry it forever; answer 400 instead. |
 | **Write, then check** | Insert, then check, in one transaction, so a failed check rolls the insert back and nothing is stored. |
+| **Reconciliation** | Comparing two independent records of the same money (Msika's ledger and the payments system's statements) and listing every difference. |
+| **Statement** | The payments system's list of settled movements on one wallet between two dates. |

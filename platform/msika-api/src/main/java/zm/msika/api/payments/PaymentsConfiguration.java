@@ -42,6 +42,12 @@ class PaymentsConfiguration {
                     throw notConfigured();
                 }
 
+                @Override
+                public java.util.List<zm.msika.core.payments.StatementLine> statement(String walletId,
+                        java.time.LocalDate from, java.time.LocalDate to) {
+                    throw notConfigured();
+                }
+
                 private zm.msika.core.payments.PaymentsUnavailableException notConfigured() {
                     return new zm.msika.core.payments.PaymentsUnavailableException(
                             "no payments system is configured (msika.payments.zamsim.base-url)");
