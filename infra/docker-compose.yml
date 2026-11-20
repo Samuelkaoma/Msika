@@ -54,6 +54,9 @@ services:
     environment:
       ZAMSIM_DB_URL: jdbc:postgresql://postgres:5432/zamsim
       ZAMSIM_PASSWORD: ${ZAMSIM_PASSWORD:-dev_only_zamsim}
+      # Callbacks to Msika. Empty means callbacks are off. The secret must match the one Msika checks with.
+      ZAMSIM_CALLBACK_URL: ${ZAMSIM_CALLBACK_URL:-}
+      ZAMSIM_CALLBACK_SECRET: ${ZAMSIM_CALLBACK_SECRET:-}
     ports:
       - "8081:8081"
 
