@@ -52,3 +52,15 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Vacuous rule** | A rule that passes only because there is nothing for it to check. |
 | **Layer** | A level in the dependency direction: api, then core, then ledger. Dependencies point down only. |
 | **ADR (decision record)** | A short document of one decision: context, decision, consequences. Kept in `docs/decisions/`. |
+| **Record (Java)** | A short way to write an immutable class: the fields, constructor, accessors and `equals` come for free. |
+| **Value object** | A small immutable thing defined by its contents, such as `Money`. |
+| **Hash (SHA-256)** | A one-way function that turns any data into a 32-byte fingerprint. Any change to the data changes it completely. |
+| **Merkle tree / root** | Hashes of hashes, up to one root that fingerprints every entry at once. |
+| **Inclusion proof** | A few hashes that prove one entry is in a tree with a given root. |
+| **Consistency proof** | A few hashes that prove a later tree extends an earlier one without rewriting it. |
+| **Digital signature (ECDSA)** | Proof that the holder of a private key committed to some data. Anyone with the public key can check it. |
+| **Hash chain** | Each item contains the hash of the one before, so changing the past breaks everything after it. |
+| **Seal** | A signed Merkle root for one council's day, chained to the previous day's seal. |
+| **Genesis** | The first link of a chain. For seals it is 32 zero bytes. |
+| **Canonical encoding** | One exact, unambiguous way to turn data into bytes so everyone hashes the same thing. |
+| **Provenance** | How sure we are of an entry: `VERIFIED`, `DEPOSITED` or `DECLARED`. |

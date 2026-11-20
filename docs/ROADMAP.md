@@ -102,7 +102,7 @@ Goal: anyone can clone the repo, run one command, and get a working empty system
 
 Goal: councils, markets, stalls, traders and agents exist, and the ledger records and seals entries.
 
-**☐ M-06 Ledger module** · SK · M-01 · `feature/M-06-ledger`
+**☑ M-06 Ledger module** · SK · M-01 · `feature/M-06-ledger`
 - Do: copy `Money`, `MerkleAccumulator`, `SignedTreeHead`, `SignatureScheme`,
   `EcdsaSignatureScheme`, `InclusionProof`, `ConsistencyProof` and their tests from SKACE (ARCHITECTURE
   §8) into `msika-ledger`, package `zm.msika.ledger`. On Samuel's machine the sources are in
