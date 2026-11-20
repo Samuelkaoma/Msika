@@ -42,11 +42,16 @@ table in the same pull request.
 | 3 SMS channel | M-17 to M-21 | ☐ |
 | 4 Levy and eLevy simulator | M-22 to M-25 | ☐ |
 | 5 Council dashboard and demo | M-26 to M-30 | ☐ |
+| 5M Market map (inside Phase 5) | M-48 to M-51 | ☐ |
 | **MVP line: release v0.1.0** | | |
 | 6 Turnover statements | M-31 to M-33 | ☐ |
 | 7 Credit and intelligence | M-34 to M-39 | ☐ |
 | 8 Agent app and WhatsApp | M-40 to M-42 | ☐ |
 | 9 Pilot readiness | M-43 to M-47 | ☐ |
+| 10 Measured market map | M-52 to M-60 | ☐ |
+
+The market map cards are numbered after M-47 because they were added later; the numbers say nothing
+about order. Phase 5M is built inside Phase 5, before the demo cards M-28 and M-29.
 
 Card boxes: ☐ not started, ◐ in progress (put the branch name next to it), ☑ merged.
 
@@ -268,20 +273,61 @@ Goal: a council officer sees their markets, and the full story can be shown in 7
   the daily seals with a "verify" button.
 - Done: figures match direct SQL on the seeded demo market. Works at phone width.
 
-**☐ M-28 Synthetic demo market** · WM · M-19 · `feature/M-28-seed`
+### Phase 5M: Market map (design in `docs/MARKET-MAP.md`)
+
+Goal: a council officer sees every stall drawn where it stands, coloured by whether it is free,
+active, quiet or suspended, can find any trader on it, and can watch the closing round live.
+
+**☐ M-48 Market plans and generated layouts** · SK · M-08, M-10 · `feature/M-48-market-plans`
+- Do: MARKET-MAP §4, §5.1 and §10. The geometry types in `zm.msika.core.map` (integer millimetres,
+  no outside library), the plan tables with RLS and the trigger that freezes published plans, the
+  publish checks that report every blocker at once, and the generator that lays out a plan from
+  stall codes with a per-market numbering configuration. Draft, publish and read endpoints. Decision
+  records for millimetre geometry and for no PostGIS.
+- Done: tests for polygon validity (self-crossing, too few corners, zero area), overlap with and
+  without the 50 mm tolerance, a publish that fails with four different blockers listing all four,
+  an `UPDATE` on a published footprint failing at the database, and a generated plan for a
+  300-stall market with every stall placed, no overlaps and no duplicate addresses.
+
+**☐ M-49 Map status** · SK · M-48, M-15, M-24 · `feature/M-49-map-status`
+- Do: MARKET-MAP §7 and the `map-status`, `panel` and `search` endpoints in §11. States worked out
+  from the register and activity, never stored. Trader names and phones shown by role (officers see
+  masked phones).
+- Done: a test for each state and each levy band, including the edges (exactly 7 days quiet). The
+  status of a 5,000-stall market comes back in under 300 ms with one query (measured in a test that
+  prints the time). Search finds a trader by name, by `0977...` and by `+260977...`.
+
+**☐ M-50 Market map page** · TM · M-26, M-49 · `feature/M-50-market-map`
+- Do: MARKET-MAP §8.1 to §8.3 and §8.8 in `council-web`: the SVG plan with pan and zoom, layers,
+  legend with counts, patterns as well as colours, dashed outlines for generated footprints, the
+  stall panel, search, filters, the unmapped list, and the list view at phone width. Decision record
+  for SVG without a map library.
+- Done: component tests for the state-to-style mapping and for search highlighting. A generated
+  5,000-stall market first draws in under one second and the result is written in the pull request
+  with the machine it ran on. Works at 375 px wide as a list.
+
+**☐ M-51 Live closing view** · TM · M-50, M-19 · `feature/M-51-live-closing`
+- Do: MARKET-MAP §8.4. Server-sent events when a deposit is confirmed, the map recolouring stall by
+  stall, and the agent-round overlay (done tonight, not reached yet).
+- Done: an integration test sends three `DEP` messages and receives three events in order. The page
+  reconnects after the server restarts without reloading.
+
+**☐ M-28 Synthetic demo market** · WM · M-19, M-48 · `feature/M-28-seed`
 - Do: `scripts/seed/` builds one council, two markets, 300 stalls, 220 traders and 8 agents with 60
   days of realistic history: market days, rainy days, some traders who stop depositing, one agent
   with suspicious patterns. All names and numbers made up, with the reasoning in
-  `docs/research/synthetic-data.md`.
+  `docs/research/synthetic-data.md`. Each market gets a published generated plan (M-48) with
+  sections, aisles, gates and toilets, so the map looks like a market.
 - Done: one command resets the demo to a known state. Figures look plausible to MP and WM.
 
-**☐ M-29 Demo script** · MP · M-20, M-27, M-28 · `feature/M-29-demo-script`
-- Do: `docs/DEMO.md`: a 7-minute walk through stall plate, agent `DEP` by SMS, trader confirmation,
-  levy paid, eLevy account with no arrears beside one without Msika, council dashboard, sealed day
-  verified. A fallback for each step if the network fails.
+**☐ M-29 Demo script** · MP · M-20, M-27, M-28, M-51 · `feature/M-29-demo-script`
+- Do: `docs/DEMO.md`: a 7-minute walk through stall plate, agent `DEP` by SMS, the stall turning
+  colour on the live market map, trader confirmation, levy paid, eLevy account with no arrears beside
+  one without Msika, council dashboard, sealed day verified. A fallback for each step if the network
+  fails.
 - Done: two full rehearsals by someone who did not write the code.
 
-**☐ M-30 Release v0.1.0** · SK · all above · `release/0.1.0`
+**☐ M-30 Release v0.1.0** · SK · all above, including M-48 to M-51 · `release/0.1.0`
 - Do: the release branch from `develop`, fixes only, merge to `main`, tag `v0.1.0`, merge back to
   `develop`. CHANGELOG entry.
 - Done: a clean clone of the tag runs the demo from the README alone.
@@ -380,3 +426,92 @@ Goal: a council officer sees their markets, and the full story can be shown in 7
 - Do: market, number of traders and agents, survey before and after, what we measure (deposit
   rate, levy arrears, disputes).
 - Done: agreed by the whole team.
+
+## Phase 10: Measured market map (after v0.1.0)
+
+Goal: the map stops being a schematic. Markets are surveyed by walking them with a phone, plans are
+traced and tied to the city map, and the ground is compared with the register. Design in
+`docs/MARKET-MAP.md` §5 to §9.
+
+**☐ M-52 Survey simulation** · SK + WM · M-48 · `feature/M-52-survey-simulation`
+- Do: MARKET-MAP §6.1 and §6.4. Copy the needed capture-kit modules from SKACE Architect (commit
+  `c39ccb5`, on Samuel's machine at
+  `C:\Users\Samuel\Desktop\Projects\SKACE Architect\capture-kit\src\`) into
+  `apps/market-survey/src/kit/` with their tests and a `SOURCE.md`. Build a simulated market and a
+  simulated surveyor with noise and drift, run 100 seeded walks per mode (tracked, compass and tilt,
+  topology-only), with and without loop closure. Also simulate repeated walks of one market (full
+  surveys and patrols, with a stall moved partway through) for M-59 to measure against (MARKET-MAP
+  §6.6). Write the results in `docs/research/survey-accuracy.md`, labelled as simulation. Decision
+  record for copying the kit.
+- Done: with zero noise the market is reproduced within 2 cm. The tables are reproducible from the
+  seeds with one command. The tracked mode meets the §6.4 target (0.75 m at the 95th percentile
+  within a section) or the note says plainly that it does not and by how much.
+
+**☐ M-53 Market walk app** · TM · M-52, M-10 · `feature/M-53-market-walk`
+- Do: MARKET-MAP §6.2. `apps/market-survey`: a phone-first page that scans plates, takes readings
+  (tracked or compass and tilt), records stall states and unregistered structures, ends aisles at
+  anchors, offers topology-only mode, keeps everything on the phone until upload, and exports one
+  survey JSON.
+- Done: the simulated surveyor from M-52 drives the app's state machine in tests from start to
+  upload. A field test on a real Android phone in a real market (people's work, not Claude's)
+  checks at least 30 stalls against a tape measure, with the results added to
+  `docs/research/survey-accuracy.md` beside the simulation.
+
+**☐ M-54 Survey import and the reconciliation report** · SK · M-53, M-48 · `feature/M-54-reconciliation`
+- Do: MARKET-MAP §6.3 and §6.5. Upload, the aisle chain and network adjustment in Java with
+  uncertainties, snapping shared stall sides, the reconciliation report, and applying a survey to a
+  draft plan as `SURVEYED` footprints. Officer actions on each finding, audited. Decision record:
+  observations never change the register by themselves.
+- Done: a test for each finding in the §6.5 table, planted in a simulated survey. The adjustment's
+  uncertainties shrink when a loop is closed and grow along an open aisle. No register row changes
+  when a report is produced.
+
+**☐ M-55 Georeferencing and the city overview** · KK · M-48, M-50 · `feature/M-55-georeference`
+- Do: MARKET-MAP §5.3 and §8.7. Control points, the similarity transform with residuals, GeoJSON
+  export, and the Leaflet city overview with OpenStreetMap attribution.
+- Done: tests for two points (exact fit), three points with one bad point (its residual stands out),
+  and one point (refused with a clear message). Exported GeoJSON opens correctly in a GIS tool
+  (a written manual check).
+
+**☐ M-56 Plan editor and tracing** · TM · M-48, M-50 · `feature/M-56-plan-editor`
+- Do: MARKET-MAP §5.2 and §5.5. Upload a background, set its scale from a known length, draw and
+  move footprints, the "row of N stalls" tool, sections, aisles and features, save the draft, and
+  publish with the blocker list shown.
+- Done: a traced footprint carries the uncertainty from §5.2. Publishing a draft with an overlap
+  shows the overlap on the drawing. Editing a published plan is impossible from the page and from
+  the API.
+
+**☐ M-57 History and print sheets** · TM · M-50 · `feature/M-57-history-print`
+- Do: MARKET-MAP §8.5 and §8.6. The date control, and A3 and A4 sheets at 1:200 and 1:500 with
+  title block, legend with counts and scale bar, plus the register list.
+- Done: the map on a past date shows the trader who held a stall then, not now. A printed scale bar
+  measures true with a ruler (a written manual check, with the printer named).
+
+**☐ M-58 Allocation from the map and the waiting list** · SK + MP · M-50, M-19 · `feature/M-58-allocation`
+- Do: MARKET-MAP §9. The waiting list, `APPLY`, `PLACE` and `FREE` by SMS (added to
+  `docs/SMS-PROTOCOL.md` with their replies), allocating selected stalls to the next applicants from
+  the map, the allocation SMS, and the public free-stalls page.
+- Done: applicants are offered stalls in the order they applied within each class. The public page
+  and the `FREE` reply contain no name or phone number (a test checks the response bodies). Every
+  allocation is in the audit log.
+
+**☐ M-59 Plans that improve with every walk** · SK · M-54 · `feature/M-59-plan-refinement`
+- Do: MARKET-MAP §6.6. Keep every walk's raw readings and path. Fit each new walk onto the plan
+  through the stalls it scanned (weighted, with outliers rejected), fuse all readings by weight with
+  ageing, re-adjust the network, detect changed stalls and raise flags, derive aisle lines from the
+  bundle of walked paths, and produce a plan proposal with its diff after each walk. Publish
+  refinement-only proposals automatically where the council allows it. The map shows each stall's
+  uncertainty and the age of its evidence. Decision record for evidence-based footprints.
+- Done: on M-52's repeated-walk simulation, the 95th percentile corner error after five walks is at
+  most about half that after one, the moved stall is flagged within three walks, and no unchanged
+  stall is flagged (or the note says by how much the targets were missed). Working the plan out
+  again from the raw readings gives the same result. A proposal with a topology change is never
+  published automatically. A walk where most tie points are rejected is not used for refinement.
+
+**☐ M-60 Patrol mode and walk-next guidance** · TM · M-53, M-59 · `feature/M-60-patrol-mode`
+- Do: MARKET-MAP §6.2 item 7 and §6.6. Patrol mode in `apps/market-survey` (scan plates in passing,
+  path recorded, nothing else asked), plate scans from the agent app (M-40) sent as evidence when it
+  exists, and the "walk next" list and route from `GET /api/v1/markets/{id}/walk-next`.
+- Done: a simulated patrol of 50 plate scans uploads and lowers the uncertainty of the scanned stalls
+  on the next proposal. The walk-next list puts a never-walked aisle and an open change flag ahead of
+  a well-measured stall.
