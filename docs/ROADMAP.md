@@ -43,15 +43,18 @@ table in the same pull request.
 | 4 Levy and eLevy simulator | M-22 to M-25 | ☐ |
 | 5 Council dashboard and demo | M-26 to M-30 | ☐ |
 | 5M Market map (inside Phase 5) | M-48 to M-51 | ☐ |
+| 5A Council approvals (inside Phase 5) | M-61 to M-64 | ☐ |
 | **MVP line: release v0.1.0** | | |
 | 6 Turnover statements | M-31 to M-33 | ☐ |
 | 7 Credit and intelligence | M-34 to M-39 | ☐ |
 | 8 Agent app and WhatsApp | M-40 to M-42 | ☐ |
 | 9 Pilot readiness | M-43 to M-47 | ☐ |
 | 10 Measured market map | M-52 to M-60 | ☐ |
+| 11 Enforcement and oversight | M-65 to M-70 | ☐ |
 
-The market map cards are numbered after M-47 because they were added later; the numbers say nothing
-about order. Phase 5M is built inside Phase 5, before the demo cards M-28 and M-29.
+The market map and council admin cards are numbered after M-47 because they were added later; the
+numbers say nothing about order. Phases 5M and 5A are built inside Phase 5, before the demo cards
+M-28 and M-29.
 
 Card boxes: ☐ not started, ◐ in progress (put the branch name next to it), ☑ merged.
 
@@ -312,6 +315,45 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
 - Done: an integration test sends three `DEP` messages and receives three events in order. The page
   reconnects after the server restarts without reloading.
 
+### Phase 5A: Council approvals (design in `docs/COUNCIL-ADMIN.md`)
+
+Goal: every decision a council makes waits in one inbox with its evidence, is decided by the right
+person (never the one who raised it), and changes the register only when approved.
+
+**☐ M-61 Roles, market scopes and separation of duties** · KK · M-09 · `feature/M-61-roles`
+- Do: COUNCIL-ADMIN §3 and the `user_role` table in §9. Several roles per user, market scopes, the
+  new roles, the permission matrix in code re-seeded on start, the test that every endpoint has a
+  permission mapped, the rules in §3.3, and a migration that moves each existing user's role across.
+  Decision record for scoped roles.
+- Done: tests that a market master of market A cannot act in market B, an auditor can read
+  everything and change nothing, a user cannot change their own roles, an enforcement officer
+  cannot be given the revenue role, and an endpoint with no mapping fails the build.
+
+**☐ M-62 The request engine** · SK · M-61 · `feature/M-62-requests`
+- Do: COUNCIL-ADMIN §4.1, §4.3, §4.4 and §8. Requests, evidence, policies with code minimums,
+  append-only decisions, effects run in the deciding transaction, deadlines, escalation and
+  hand-over, bulk decisions with sampling. Start with two kinds to prove it (stall change, agent
+  suspension). Decision record for one engine.
+- Done: tests that the raiser cannot decide (refused by the database too), one person cannot give
+  both of two approvals, an effect that fails leaves the request open with its reason, a decision
+  row cannot be updated or deleted, an overdue request escalates, and a council cannot loosen a
+  policy below its minimum.
+
+**☐ M-63 The inbox page** · TM · M-62, M-26 · `feature/M-63-inbox`
+- Do: COUNCIL-ADMIN §4.5 in `council-web`: my queue, raised by me, overdue, the request page with the
+  proposed effect in words, evidence linking to the market map, and decisions with reasons.
+- Done: component tests for each view; a rejection cannot be sent without a reason; works at phone
+  width.
+
+**☐ M-64 Registrations, stall and allocation requests, and disputes** · SK · M-62, M-19 · `feature/M-64-request-kinds`
+- Do: the request kinds in COUNCIL-ADMIN §4.2 from trader registration to statement dispute,
+  including agent registration. `REG`, `NO`, `WRONG`, `TRANSFER`, `SURRENDER` and `STATUS` by SMS
+  raise or report on them (added to `docs/SMS-PROTOCOL.md`). New stalls queue their plates for
+  printing.
+- Done: an end-to-end test for each kind from raising to its effect, including a transfer where the
+  second trader never confirms and a deposit dispute that is upheld (reversal entry recorded, agent
+  case raised once M-67 exists, or a follow-up noted until then).
+
 **☐ M-28 Synthetic demo market** · WM · M-19, M-48 · `feature/M-28-seed`
 - Do: `scripts/seed/` builds one council, two markets, 300 stalls, 220 traders and 8 agents with 60
   days of realistic history: market days, rainy days, some traders who stop depositing, one agent
@@ -327,7 +369,7 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
   fails.
 - Done: two full rehearsals by someone who did not write the code.
 
-**☐ M-30 Release v0.1.0** · SK · all above, including M-48 to M-51 · `release/0.1.0`
+**☐ M-30 Release v0.1.0** · SK · all above, including M-48 to M-51 and M-61 to M-64 · `release/0.1.0`
 - Do: the release branch from `develop`, fixes only, merge to `main`, tag `v0.1.0`, merge back to
   `develop`. CHANGELOG entry.
 - Done: a clean clone of the tag runs the demo from the README alone.
@@ -515,3 +557,49 @@ traced and tied to the city map, and the ground is compared with the register. D
 - Done: a simulated patrol of 50 plate scans uploads and lowers the uncertainty of the scanned stalls
   on the next proposal. The walk-next list puts a never-walked aisle and an open change flag ahead of
   a well-measured stall.
+
+## Phase 11: Enforcement and oversight (after v0.1.0)
+
+Goal: when a by-law is broken, the council follows a fair process that Msika records from notice to
+appeal, using only evidence that does not punish traders for depositing. Design in
+`docs/COUNCIL-ADMIN.md` §2, §5 to §8. Nothing here is piloted before the legal review in M-43.
+
+**☐ M-65 Levy adjustments and rule changes** · SK + MP · M-62, M-24 · `feature/M-65-levy-requests`
+- Do: the levy adjustment and levy rule change kinds in COUNCIL-ADMIN §4.2: waivers, exemptions and
+  closed-market days as compensating entries in Msika and elevysim, and rule changes with a
+  resolution reference, a future start date and the advance notice SMS.
+- Done: a waived day leaves both levy records consistent, nothing is edited, and a rule change
+  cannot start sooner than its notice period.
+
+**☐ M-66 Offence catalogue and evidence policy** · MP + SK · M-62 · `feature/M-66-offences`
+- Do: COUNCIL-ADMIN §5.1 and §5.3. The catalogue with versions and legal references, changed only
+  through an approved request, and the evidence policy in code. MP researches real by-laws in
+  `docs/research/by-laws.md` with sources; until then only an obviously made-up demo catalogue
+  exists. Decision record: deposits and income are never evidence.
+- Done: a case cannot be decided with only disallowed evidence (a test tries each kind in the
+  right-hand column of §5.3). A case is judged by the catalogue version in force on the offence date.
+
+**☐ M-67 Enforcement cases** · SK · M-66, M-19 · `feature/M-67-cases`
+- Do: COUNCIL-ADMIN §5.2 and §6: the case lifecycle, notices, `APPEAL` and `CASES` by SMS, proposals,
+  decisions by a different person, second approval for suspension and revocation, appeals to someone
+  not involved, and inspections recorded from patrol mode. Agent cases from upheld deposit disputes.
+- Done: an end-to-end test of a case from opening to a decided appeal. Tests that a case cannot be
+  decided before its response deadline unless the trader responded, that a notice must be sent
+  first, and that the opener and the appeal decider can never be the same person as the decider.
+
+**☐ M-68 Fine payments** · TM · M-67, M-14 · `feature/M-68-fines`
+- Do: COUNCIL-ADMIN §5.2 step 7. `PAY` by SMS, the payment request to the wallet, the `FINE_PAYMENT`
+  ledger kind (ARCHITECTURE §5 updated), statements showing fines apart from levy, overdue marking,
+  and fine waivers through a request. Decision record: fines only through the wallet, never swept.
+- Done: a test that no deposit or levy sweep ever pays a fine, a paid fine's ledger entry and receipt,
+  and an overdue fine that changes nothing else by itself.
+
+**☐ M-69 Oversight reports and audit export** · WM · M-67 · `feature/M-69-oversight`
+- Do: COUNCIL-ADMIN §5.4 and the §8 export, for auditors and admins only.
+- Done: the reports find a planted officer whose cases cluster on three traders and are mostly
+  overturned; an officer cannot see reports about themselves.
+
+**☐ M-70 Support access** · KK · M-62 · `feature/M-70-support-access`
+- Do: COUNCIL-ADMIN §7.
+- Done: an operator sees nothing of a council without an approved window, sees it during the window
+  with every read audited, and nothing after it ends or is ended early.

@@ -11,6 +11,8 @@ have no access to them yet.
 2. `docs/ARCHITECTURE.md`: what the system is and the rules it rests on.
 3. `docs/SMS-PROTOCOL.md`: the exact SMS commands and replies.
 4. `CONTRIBUTING.md`: git flow, commit messages, the checks.
+5. For map cards (M-48 to M-60), `docs/MARKET-MAP.md`. For council admin cards (M-61 to M-70),
+   `docs/COUNCIL-ADMIN.md`. Each has its own rules that are never broken, in its §2.
 
 ## How to work a card
 
