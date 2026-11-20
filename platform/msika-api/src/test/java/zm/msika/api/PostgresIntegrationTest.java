@@ -47,6 +47,8 @@ public abstract class PostgresIntegrationTest {
         // goes in a throwaway folder.
         registry.add("msika.day-close.enabled", () -> "false");
         registry.add("msika.reconciliation.enabled", () -> "false");
+        registry.add("msika.sms.workers.enabled", () -> "false");
+        registry.add("msika.sms.gateway-secret", () -> "test-only-sms-gateway-secret");
         registry.add("msika.seal.key-file", () -> SEAL_KEY_FILE.toString());
         registry.add("msika.payments.callback-secret", () -> CALLBACK_SECRET);
     }

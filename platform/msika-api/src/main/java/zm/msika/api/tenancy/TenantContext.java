@@ -70,6 +70,39 @@ public class TenantContext {
     }
 
     /**
+     * Runs the work in its own transaction that sees only SMS messages belonging to no council (from or to a number
+     * nobody has registered). No council's rows are visible. Only the SMS channel uses this (card M-18).
+     */
+    public <T> T inUnassignedSms(Supplier<T> work) {
+        return transactions.execute(status -> {
+            jdbc.sql("select set_config('" + SMS_UNASSIGNED + "', 'on', true)").query(String.class).single();
+            return work.get();
+        });
+    }
+
+    /**
+     * Runs the work once for each place SMS messages can belong: every council, then the unassigned messages. The
+     * argument is the council, or null for the unassigned ones. Each runs in its own transaction.
+     */
+    public void forEachSmsTenant(Consumer<UUID> work) {
+        for (UUID councilId : councils.listIds()) {
+            inCouncil(councilId, () -> work.accept(councilId));
+        }
+        inUnassignedSms(() -> {
+            work.accept(null);
+            return null;
+        });
+    }
+
+    /** Runs the work as the council, or for unassigned SMS messages when the council is null. */
+    public <T> T inSmsTenant(UUID councilIdOrNull, Supplier<T> work) {
+        return councilIdOrNull == null ? inUnassignedSms(work) : inCouncil(councilIdOrNull, work);
+    }
+
+    /** The Postgres setting that lets a transaction see SMS messages with no council (see migration V10). */
+    static final String SMS_UNASSIGNED = "app.sms_unassigned";
+
+    /**
      * Runs a job once for every council, each in its own transaction with only that council visible.
      * If the job fails for one council, the exception is thrown and later councils are not run.
      */

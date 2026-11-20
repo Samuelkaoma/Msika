@@ -63,9 +63,13 @@ Agents are registered by the council. An agent's number can only use agent comma
 }
 ```
 
-- Header `X-Msika-Signature: sha256=<hex HMAC of the raw body with the gateway secret>`.
-- Header `X-Msika-Timestamp`: rejected if more than 5 minutes off.
-- Response `200 {"stored": true}` as soon as the row is saved. A repeated `gatewayMessageId`
+- Header `X-Msika-Timestamp`: Unix seconds; rejected if more than 5 minutes off.
+- Header `X-Msika-Signature: sha256=<hex HMAC-SHA256, with the gateway secret, of the timestamp, a dot, and the
+  raw body>`. The timestamp is inside the signature (the same scheme as payment callbacks), so a captured message
+  cannot be sent again later with a fresh timestamp. A bad or missing signature gets `401`.
+- A body that is not shaped like the example, or a `from` that is not a Zambian mobile number, gets `400`.
+- Response `200 {"stored": true}` as soon as the row is saved. The message is processed after the answer, so a slow
+  use case cannot make the gateway time out and send it again. A repeated `gatewayMessageId`
   returns `200 {"stored": false, "duplicate": true}` and does nothing else.
 - Each gateway turns its own format into this one. The relay (ARCHITECTURE §7) posts this format
   directly. If an Android SMS-gateway app is used as the relay and cannot, a small mapping endpoint

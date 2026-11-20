@@ -61,7 +61,9 @@ class PaymentsConfiguration {
         return new ZamsimPaymentsAdapter(client);
     }
 
+    /** Primary: the SMS gateway has its own verifier with its own secret, which is always asked for by name. */
     @Bean
+    @org.springframework.context.annotation.Primary
     CallbackVerifier callbackVerifier(
             @Value("${msika.payments.callback-secret:}") String secret,
             @Value("${msika.payments.callback-tolerance:PT5M}") Duration tolerance,

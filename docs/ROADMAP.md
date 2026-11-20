@@ -205,7 +205,7 @@ Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
 - Done: a test for every example in SMS-PROTOCOL.md, plus amounts with commas, K prefix, decimals,
   zero, negative and too large.
 
-**☐ M-18 Inbound webhook and outbox** · TM · M-09, M-17 · `feature/M-18-sms-inbound`
+**☑ M-18 Inbound webhook and outbox** · TM · M-09, M-17 · `feature/M-18-sms-inbound`
 - Do: the webhook in SMS-PROTOCOL.md (store, then process), `SmsGatewayPort`, the outbox table and
   a worker that sends with retries. Reply templates in one place, each checked for 160 GSM-7
   characters. Rate limiting.
