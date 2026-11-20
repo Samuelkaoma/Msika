@@ -148,3 +148,7 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Statement** | The payments system's list of settled movements on one wallet between two dates. |
 | **Parser** | Code that reads free text (an SMS body) and produces a typed command, or says why it cannot. |
 | **Sealed interface** | A Java interface that lists every class allowed to implement it, so a `switch` must handle each one. |
+| **Webhook** | An HTTP endpoint another system calls when something happens, such as the SMS gateway receiving a text. |
+| **Outbox** | A table of messages waiting to be sent, written in the same transaction as what they report, and sent later by a worker. |
+| **GSM-7** | The alphabet a plain SMS uses: 160 characters per message. One character outside it cuts the limit to 70. |
+| **Back-off** | Waiting longer after each failed try (10 s, 30 s, 2 min ...) so a struggling system is not flooded. |
