@@ -9,6 +9,7 @@ import zm.msika.core.common.ConflictException;
 import zm.msika.core.common.InvalidInputException;
 import zm.msika.core.common.NotFoundException;
 import zm.msika.core.common.RowError;
+import zm.msika.core.user.AuthenticationFailedException;
 
 /**
  * Turns the plain exceptions of msika-core into HTTP answers with one consistent body:
@@ -22,6 +23,11 @@ class ApiExceptionHandler {
     @ExceptionHandler(InvalidInputException.class)
     ResponseEntity<ErrorResponse> invalidInput(InvalidInputException e) {
         return respond(HttpStatus.BAD_REQUEST, "invalid_input", e.getMessage(), e.rows());
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    ResponseEntity<ErrorResponse> authenticationFailed(AuthenticationFailedException e) {
+        return respond(HttpStatus.UNAUTHORIZED, "unauthenticated", e.getMessage(), List.of());
     }
 
     @ExceptionHandler(NotFoundException.class)

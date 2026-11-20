@@ -83,3 +83,16 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Session setting (`set_config`)** | A named value attached to a database connection or, with `true`, to one transaction. |
 | **Fail closed** | When something is missing, deny (return nothing) rather than allow. |
 | **Connection pool** | A small set of reused database connections, which is why a tenant setting must be local to a transaction. |
+| **Authentication** | Proving who you are: email and password, then a token. |
+| **Authorization** | Deciding what you may do: your role, and which council. |
+| **401 / 403** | 401: we do not know who you are. 403: we know, and the answer is no. |
+| **Hash / salt** | A one-way scramble of a password, with a random addition so equal passwords hash differently. |
+| **BCrypt** | A password hash that is deliberately slow, so guessing is expensive. |
+| **JWT** | A small signed token naming a user, sent as `Authorization: Bearer ...`. Readable by anyone, changeable by no one. |
+| **Stateless** | The server keeps no session for you; the token carries what it needs. |
+| **Role** | A named set of permissions: operator, council admin, council officer. |
+| **Default deny** | Everything is refused unless a rule allows it. |
+| **CSRF** | An attack that rides on a browser's automatic cookies. Not a risk with bearer tokens in a header. |
+| **`SECURITY DEFINER`** | A Postgres function that runs with its owner's rights. We use two tiny ones for sign-in lookups. |
+| **Audit log** | An append-only record of who changed what and when. |
+| **Bootstrap operator** | The first operator, created from environment settings at start-up. |

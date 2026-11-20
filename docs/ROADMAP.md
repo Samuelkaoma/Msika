@@ -131,7 +131,7 @@ Goal: councils, markets, stalls, traders and agents exist, and the ledger record
   hand-written query without `WHERE` all see none of council B's rows. A test fails if any table
   with a `council_id` column has no policy.
 
-**☐ M-09 Council users and security** · KK · M-07 · `feature/M-09-auth`
+**☑ M-09 Council users and security** · KK · M-07 · `feature/M-09-auth`
 - Do: ARCHITECTURE §9. Sign-in, JWT, user row re-read per request, roles, default deny, audit log
   for every change.
 - Done: tests for wrong password, deactivated user (refused on the very next request), officer

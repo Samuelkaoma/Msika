@@ -39,5 +39,14 @@ public abstract class PostgresIntegrationTest {
         registry.add("spring.datasource.password", () -> "test_app");
         registry.add("spring.flyway.url", () -> url);
         registry.add("spring.flyway.password", () -> "test_owner");
+        // Made-up test credentials for the bootstrap operator. Cheap BCrypt keeps the tests quick.
+        registry.add("msika.bootstrap-operator.email", () -> OPERATOR_EMAIL);
+        registry.add("msika.bootstrap-operator.password", () -> OPERATOR_PASSWORD);
+        registry.add("msika.auth.bcrypt-strength", () -> "4");
     }
+
+    /** The operator the app creates at start-up in tests. Made up, test only. */
+    public static final String OPERATOR_EMAIL = "operator@example.test";
+
+    public static final String OPERATOR_PASSWORD = "operator test password";
 }
