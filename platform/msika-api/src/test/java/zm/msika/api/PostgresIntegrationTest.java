@@ -47,7 +47,11 @@ public abstract class PostgresIntegrationTest {
         // goes in a throwaway folder.
         registry.add("msika.day-close.enabled", () -> "false");
         registry.add("msika.seal.key-file", () -> SEAL_KEY_FILE.toString());
+        registry.add("msika.payments.callback-secret", () -> CALLBACK_SECRET);
     }
+
+    /** The secret callbacks are signed with in tests. Made up, test only. */
+    public static final String CALLBACK_SECRET = "test-only-callback-secret-0001";
 
     /** Where the test app keeps its (throwaway) seal signing key. */
     public static final java.nio.file.Path SEAL_KEY_FILE = tempKeyFile();

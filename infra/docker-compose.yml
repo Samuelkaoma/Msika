@@ -41,6 +41,9 @@ services:
       # Signs the daily seals. Empty means a development key is generated inside the container (and lost with it).
       MSIKA_SEAL_PRIVATE_KEY: ${MSIKA_SEAL_PRIVATE_KEY:-}
       MSIKA_SEAL_PUBLIC_KEY: ${MSIKA_SEAL_PUBLIC_KEY:-}
+      # The payments system (card M-14). Empty URL: no payments system. Empty secret: every callback is refused.
+      MSIKA_PAYMENTS_ZAMSIM_BASE_URL: ${MSIKA_PAYMENTS_ZAMSIM_BASE_URL:-}
+      MSIKA_PAYMENTS_CALLBACK_SECRET: ${MSIKA_PAYMENTS_CALLBACK_SECRET:-}
     ports:
       - "8080:8080"
 

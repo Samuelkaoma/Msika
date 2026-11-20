@@ -10,14 +10,14 @@ import zm.msika.core.common.ConflictException;
 import zm.msika.ledger.LedgerEntry;
 
 /** In-memory stand-ins for the ledger ports. */
-final class LedgerFakes {
+public final class LedgerFakes {
 
     private LedgerFakes() {}
 
-    static final class Ledger implements LedgerRepository {
-        final List<LedgerEntry> entries = new ArrayList<>();
+    public static final class Ledger implements LedgerRepository {
+        public final List<LedgerEntry> entries = new ArrayList<>();
         private long nextId = 1;
-        int addCalls;
+        public int addCalls;
 
         @Override
         public LedgerEntry add(NewEntry request, LocalDate businessDate) {
@@ -56,8 +56,8 @@ final class LedgerFakes {
         }
     }
 
-    static final class Seals implements SealRepository {
-        final List<SealedDay> all = new ArrayList<>();
+    public static final class Seals implements SealRepository {
+        public final List<SealedDay> all = new ArrayList<>();
 
         @Override
         public void add(UUID councilId, SealedDay sealed) {
@@ -82,8 +82,8 @@ final class LedgerFakes {
         }
     }
 
-    static final class Lock implements LedgerLock {
-        final List<String> calls = new ArrayList<>();
+    public static final class Lock implements LedgerLock {
+        public final List<String> calls = new ArrayList<>();
 
         @Override
         public void lockForRecording(UUID councilId) {

@@ -44,6 +44,8 @@ class SecurityConfiguration {
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/health", "/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        // The payments system is not a signed-in user; the callback proves itself with its signature.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payments/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
                         // Only Msika staff create councils, and close days by hand.
                         .requestMatchers(HttpMethod.POST, "/api/v1/councils").hasRole(Role.MSIKA_OPERATOR.name())
