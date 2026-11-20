@@ -41,9 +41,13 @@ services:
       # Signs the daily seals. Empty means a development key is generated inside the container (and lost with it).
       MSIKA_SEAL_PRIVATE_KEY: ${MSIKA_SEAL_PRIVATE_KEY:-}
       MSIKA_SEAL_PUBLIC_KEY: ${MSIKA_SEAL_PUBLIC_KEY:-}
-      # The payments system (card M-14). Empty URL: no payments system. Empty secret: every callback is refused.
-      MSIKA_PAYMENTS_ZAMSIM_BASE_URL: ${MSIKA_PAYMENTS_ZAMSIM_BASE_URL:-}
+      # The payments system (card M-14): zamsim on the internal network. Empty secret: every callback is refused.
+      MSIKA_PAYMENTS_ZAMSIM_BASE_URL: ${MSIKA_PAYMENTS_ZAMSIM_BASE_URL:-http://zamsim:8081}
       MSIKA_PAYMENTS_CALLBACK_SECRET: ${MSIKA_PAYMENTS_CALLBACK_SECRET:-}
+      # The SMS gateway's signing secret (card M-18). Empty: every inbound text from a gateway is refused.
+      MSIKA_SMS_GATEWAY_SECRET: ${MSIKA_SMS_GATEWAY_SECRET:-}
+      # The sim console's fake phones (card M-20). On for this local stack; never on in a pilot.
+      MSIKA_SIM_CONSOLE_ENABLED: ${MSIKA_SIM_CONSOLE_ENABLED:-true}
     ports:
       - "8080:8080"
 
@@ -58,7 +62,7 @@ services:
       ZAMSIM_DB_URL: jdbc:postgresql://postgres:5432/zamsim
       ZAMSIM_PASSWORD: ${ZAMSIM_PASSWORD:-dev_only_zamsim}
       # Callbacks to Msika. Empty means callbacks are off. The secret must match the one Msika checks with.
-      ZAMSIM_CALLBACK_URL: ${ZAMSIM_CALLBACK_URL:-}
+      ZAMSIM_CALLBACK_URL: ${ZAMSIM_CALLBACK_URL:-http://msika-api:8080/api/v1/payments/callback}
       ZAMSIM_CALLBACK_SECRET: ${ZAMSIM_CALLBACK_SECRET:-}
     ports:
       - "8081:8081"

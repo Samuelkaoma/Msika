@@ -58,6 +58,8 @@ class SecurityConfiguration {
                         // A council user reads their own council's seal without naming the council.
                         .requestMatchers(HttpMethod.GET, "/api/v1/seals/*")
                         .hasAnyRole(Role.COUNCIL_ADMIN.name(), Role.COUNCIL_OFFICER.name())
+                        // The sim console's fake phones (card M-20): development and demos only, operators only.
+                        .requestMatchers("/api/v1/sim/**").hasRole(Role.MSIKA_OPERATOR.name())
                         // Everything inside a council: see councilScope.
                         .requestMatchers("/api/v1/councils/{councilId}/**").access(councilScope())
                         // Anything not listed above is denied.

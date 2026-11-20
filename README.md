@@ -62,6 +62,21 @@ Postgres with `docker compose -f infra/docker-compose.yml up -d postgres`.
 Integration tests (tagged `integration`) start their own Postgres through Testcontainers, so they
 need Docker running but nothing else: `./gradlew integrationTest`.
 
+## Show a deposit with no phone (the sim console)
+
+The simulator console (card M-20) is a page of fake phones: pick a trader or an agent, type a text, and see Msika's
+reply. It also shows the simulated Zamtel Money wallets and transactions, lets a wallet approve a request-to-pay,
+and switches on the payments system's faults.
+
+1. In `infra/.env`, set `MSIKA_BOOTSTRAP_OPERATOR_EMAIL` and `_PASSWORD` (the console signs in as this operator),
+   and the same long random value for `ZAMSIM_CALLBACK_SECRET` and `MSIKA_PAYMENTS_CALLBACK_SECRET`.
+2. `docker compose -f infra/docker-compose.yml up --build`. The compose file already points Msika at zamsim, zamsim's
+   callbacks at Msika, and turns the console's endpoints on (`MSIKA_SIM_CONSOLE_ENABLED`; never on in a pilot).
+3. `pnpm --filter sim-console dev` and open http://localhost:5174. It forwards `/api` to port 8080 and `/zamsim`
+   to 8081 (change them with `MSIKA_API_URL` and `ZAMSIM_URL`).
+4. Create a council, market, stalls, a trader, an agent and their wallets (card M-28 will do this in one command),
+   then text `DEP B114 450` from the agent's phone and `TODAY` from the trader's.
+
 ## Layout
 
 ```

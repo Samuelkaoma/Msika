@@ -37,6 +37,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-17 | [M-17-sms-parser.md](M-17-sms-parser.md) | written |
 | M-18 | [M-18-sms-inbound.md](M-18-sms-inbound.md) | written |
 | M-19 | [M-19-sms-commands.md](M-19-sms-commands.md) | written |
+| M-20 | [M-20-sim-console.md](M-20-sim-console.md) | written |
 | R-01 | [R-01-review-fixes.md](R-01-review-fixes.md) | written (fixes from the first review, not a card) |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.

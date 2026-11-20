@@ -102,6 +102,26 @@ class WalletApiTest extends ZamsimIntegrationTest {
                 .isEqualTo(404);
     }
 
+    @Test
+    @DisplayName("the console lists wallets with balances and recent transactions, newest first, never the issuer")
+    void consoleLists() {
+        WalletBody agent = wallet("AGENT", "Listed Agent");
+        WalletBody trader = wallet("TRADER", "Listed Trader");
+        fund(agent, 10_000);
+        TxBody cashIn = send(HttpMethod.POST, "/v1/cash-in", key(), new CashIn(agent.id(), trader.id(), 4_000, "list"),
+                TxBody.class).body();
+
+        List<WalletBody> wallets = List.of(send(HttpMethod.GET, "/v1/wallets?limit=1000", null, null, WalletBody[].class).body());
+        List<TxBody> txs = List.of(send(HttpMethod.GET, "/v1/transactions?limit=5", null, null, TxBody[].class).body());
+
+        assertThat(wallets).extracting(WalletBody::id).contains(agent.id(), trader.id());
+        assertThat(wallets).noneMatch(w -> w.type().equals("ISSUER"));
+        assertThat(wallets.stream().filter(w -> w.id().equals(trader.id())).findFirst().orElseThrow().balanceNgwee())
+                .isEqualTo(4_000);
+        assertThat(txs.get(0)).isEqualTo(cashIn);
+        assertThat(send(HttpMethod.GET, "/v1/transactions?limit=0", null, null, ErrorBody.class).status()).isEqualTo(400);
+    }
+
     // ---------------------------------------------------------------- movements
 
     @Test

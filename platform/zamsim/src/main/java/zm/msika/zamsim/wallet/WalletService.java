@@ -110,6 +110,19 @@ public class WalletService {
         return findWallet(id).orElseThrow(() -> new NotFound("wallet not found"));
     }
 
+    /** Every wallet, newest first, for the sim console. */
+    @Transactional(readOnly = true)
+    public List<Wallet> wallets(int limit) {
+        if (limit < 1 || limit > 1000) {
+            throw new BadRequest("limit must be 1 to 1000");
+        }
+        return jdbc.sql("select id, type, name, msisdn, balance_ngwee, created_at from wallet "
+                        + "where id <> :issuer order by created_at desc, id limit :limit")
+                .param("issuer", Wallets.ISSUER_ID).param("limit", limit)
+                .query((rs, row) -> mapWallet(rs))
+                .list();
+    }
+
     private Optional<Wallet> findWallet(UUID id) {
         return jdbc.sql("select id, type, name, msisdn, balance_ngwee, created_at from wallet where id = :id")
                 .param("id", id)
@@ -452,6 +465,18 @@ public class WalletService {
     }
 
     // ------------------------------------------------------------------ reading
+
+    /** The most recent transactions, newest first, for the sim console. */
+    @Transactional(readOnly = true)
+    public List<Transaction> recentTransactions(int limit) {
+        if (limit < 1 || limit > 1000) {
+            throw new BadRequest("limit must be 1 to 1000");
+        }
+        return jdbc.sql("select " + TRANSACTION_COLUMNS + " from transaction order by created_at desc, id limit :limit")
+                .param("limit", limit)
+                .query((rs, row) -> mapTransaction(rs))
+                .list();
+    }
 
     @Transactional(readOnly = true)
     public Transaction transaction(UUID id) {
