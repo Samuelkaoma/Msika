@@ -28,3 +28,9 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Health endpoint** | A URL that answers "is this app alive?". |
 | **pnpm workspace** | Several JavaScript packages in one repo, built together. |
 | **Pinning** | Writing an exact version (`4.2.0`) instead of a range (`^4.2.0`). |
+| **Git flow** | The branching convention: `main` for releases, `develop` for integration, one `feature/` branch per card. |
+| **Quality gate** | The set of automatic checks a change must pass. Here: `scripts/check`. |
+| **Lint** | Checks for code that compiles but looks wrong. |
+| **Git hook** | A script git runs at a certain moment, such as before a push. |
+| **Branch protection** | A GitHub rule that stops direct pushes to a branch and requires reviewed pull requests. |
+| **Test tag** | A label on a test (`@Tag("integration")`) used to run groups of tests separately. |

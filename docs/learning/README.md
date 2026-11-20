@@ -19,6 +19,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 |---|---|---|
 | none | [00-big-picture.md](00-big-picture.md) | written |
 | M-01 | [M-01-monorepo-skeleton.md](M-01-monorepo-skeleton.md) | written |
+| M-02 | [M-02-local-gate.md](M-02-local-gate.md) | written |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.
 

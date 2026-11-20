@@ -66,7 +66,7 @@ Goal: anyone can clone the repo, run one command, and get a working empty system
 - Done: `./gradlew build` and `pnpm -r build` both pass on a clean clone on Windows. The three health
   endpoints answer when run. Versions are pinned exactly (no `+`, no `^` in root config).
 
-**☐ M-02 Git flow and the local gate** · KK · M-01 · `feature/M-02-local-gate`
+**☑ M-02 Git flow and the local gate** · KK · M-01 · `feature/M-02-local-gate`
 - Do: `scripts/check.ps1` and `scripts/check.sh` with `--fast` (unit tests, lint, typecheck) and full
   (adds integration tests and builds). `.githooks/pre-push` is a `sh` script that runs
   `scripts/check.sh --fast` (Git for Windows runs hooks in its own bash, so one hook serves everyone). `scripts/setup.ps1` and
