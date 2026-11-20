@@ -28,6 +28,10 @@ pnpm -r build
 
 On Windows PowerShell use `.\gradlew build` instead of `./gradlew build`.
 
+After cloning, run `scripts/setup.ps1` (or `scripts/setup.sh`) once. It turns on the pre-push hook,
+which runs the fast checks before every push. To run the checks yourself, use
+`./scripts/check.ps1 --fast`, or `./scripts/check.ps1` for everything (see `CONTRIBUTING.md`).
+
 ## Run things
 
 | What | Command | Check |
