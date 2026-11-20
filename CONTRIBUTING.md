@@ -34,6 +34,10 @@ Keep a branch short-lived. If `develop` moves on while you work, merge `develop`
 
 ## Commit messages
 
+**No `Co-Authored-By` trailers, and no tool signatures such as "Generated with ..." in commits or pull request
+descriptions.** The `commit-msg` hook refuses them locally. `scripts/check-no-coauthor.sh <base-ref>` checks a whole branch;
+adding it to the CI workflow needs a token with the `workflow` permission, so a maintainer does that.
+
 A plain sentence that says what changed, in the present tense:
 
 ```

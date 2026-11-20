@@ -12,6 +12,7 @@ import zm.msika.core.payments.PaymentReference;
 import zm.msika.core.payments.PaymentRequest;
 import zm.msika.core.payments.PaymentRequestRepository;
 import zm.msika.core.payments.PaymentsPort;
+import zm.msika.core.payments.RecordWalletPayment;
 import zm.msika.ledger.Money;
 
 /**
@@ -34,14 +35,16 @@ public class PaymentService {
     private final PaymentRequestRepository requests;
     private final PaymentsPort payments;
     private final HandlePaymentEvent handler;
+    private final RecordWalletPayment walletPayments;
     private final TenantContext tenant;
     private final Clock clock;
 
     PaymentService(PaymentRequestRepository requests, PaymentsPort payments, HandlePaymentEvent handler,
-            TenantContext tenant, Clock clock) {
+            RecordWalletPayment walletPayments, TenantContext tenant, Clock clock) {
         this.requests = requests;
         this.payments = payments;
         this.handler = handler;
+        this.walletPayments = walletPayments;
         this.tenant = tenant;
         this.clock = clock;
     }
@@ -75,7 +78,11 @@ public class PaymentService {
         }
     }
 
-    private void send(PaymentRequest request, String agentWalletId, String customerWalletId) {
+    /**
+     * Asks the payments system to move the money for a saved request, then remembers its transaction id. Safe to
+     * repeat: the key is derived from the request, so the payments system moves the money once.
+     */
+    public void send(PaymentRequest request, String agentWalletId, String customerWalletId) {
         String txn = payments.cashIn(paymentsKey(request.id()), agentWalletId, customerWalletId, request.amount(),
                 request.reference());
         tenant.inCouncil(request.councilId(), () -> requests.attachTransaction(request.councilId(), request.id(), txn));
@@ -90,14 +97,23 @@ public class PaymentService {
     }
 
     /**
-     * Handles a callback in one database transaction, as the council named in its reference. If anything fails the
-     * whole transaction rolls back, so a callback is applied completely or not at all, and can safely be retried.
+     * Handles a callback in one database transaction, as the right council. If anything fails the whole transaction
+     * rolls back, so a callback is applied completely or not at all, and can safely be retried.
+     *
+     * <p>A callback about a request Msika made names its council in the reference. Any other callback is about a
+     * payment between wallets (a customer paying a stall, a stall paying a supplier): the wallet registry says whose.
      */
     public HandlePaymentEvent.Outcome handle(PaymentEvent event) {
         Optional<PaymentReference.Parts> parts = PaymentReference.parse(event.reference());
-        if (parts.isEmpty()) {
+        if (parts.isPresent()) {
+            return tenant.inCouncil(parts.get().councilId(), () -> handler.execute(event));
+        }
+        Optional<RecordWalletPayment.Classified> classified = walletPayments.classify(event);
+        if (classified.isEmpty()) {
             return HandlePaymentEvent.Outcome.UNMATCHED;
         }
-        return tenant.inCouncil(parts.get().councilId(), () -> handler.execute(event));
+        UUID councilId = classified.get().owner().councilId();
+        boolean recorded = tenant.inCouncil(councilId, () -> walletPayments.execute(event, classified.get()));
+        return recorded ? HandlePaymentEvent.Outcome.RECORDED : HandlePaymentEvent.Outcome.DUPLICATE;
     }
 }

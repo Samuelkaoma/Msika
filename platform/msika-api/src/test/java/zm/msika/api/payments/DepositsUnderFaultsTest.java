@@ -313,11 +313,21 @@ class DepositsUnderFaultsTest extends ApiTest {
         assertThat(condition.getAsBoolean()).as("condition within " + limit).isTrue();
     }
 
+    /**
+     * A port that is free now, taken from 20000-39999. The operating system hands out ports for outgoing
+     * connections from a higher range (49152 and up on Windows), and one of those could be taken by this test's own
+     * HTTP clients between choosing and binding, so a port from the system's own choice (port 0) is not safe here.
+     */
     private static int freePort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            throw new java.io.UncheckedIOException(e);
+        java.util.Random random = new java.util.Random();
+        for (int attempt = 0; attempt < 200; attempt++) {
+            int candidate = 20_000 + random.nextInt(20_000);
+            try (ServerSocket socket = new ServerSocket(candidate)) {
+                return socket.getLocalPort();
+            } catch (IOException e) {
+                // taken: try another
+            }
         }
+        throw new IllegalStateException("no free port found in 20000-39999");
     }
 }

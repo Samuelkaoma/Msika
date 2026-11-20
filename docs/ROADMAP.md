@@ -175,7 +175,7 @@ simulator misbehaves.
 - Done: with all fault modes turned on, a run of 500 simulated deposits ends with exactly the right
   ledger, no duplicates and nothing lost.
 
-**☐ M-15 Deposits** · TM · M-14, M-10 · `feature/M-15-deposits`
+**☑ M-15 Deposits** · TM · M-14, M-10 · `feature/M-15-deposits`
 - Do: the deposit lifecycle (PENDING, CONFIRMED, FAILED, CANCELLED, DISPUTED) and the flow in
   ARCHITECTURE §4.1, through a REST endpoint for now (SMS comes in Phase 3). Merchant sales and
   supplier payments from `zamsim` recorded as `VERIFIED` (ARCHITECTURE §4.2).

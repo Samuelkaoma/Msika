@@ -72,6 +72,11 @@ class PeopleAndPlatesTest {
         }
 
         @Override
+        public java.util.Optional<Agent> find(UUID councilId, UUID agentId) {
+            return agentStore.stream().filter(a -> a.councilId().equals(councilId) && a.id().equals(agentId)).findFirst();
+        }
+
+        @Override
         public boolean existsByPhone(UUID councilId, PhoneNumber phone) {
             return agentStore.stream().anyMatch(a -> a.councilId().equals(councilId) && a.phone().equals(phone));
         }

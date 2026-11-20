@@ -37,64 +37,12 @@ class HandlePaymentEventTest {
 
     private static final Instant DONE = Instant.parse("2026-11-24T10:00:00Z");
 
-    /** In-memory payment requests. */
-    static final class Requests implements PaymentRequestRepository {
-        final Map<UUID, PaymentRequest> byId = new HashMap<>();
-        final List<String> locked = new ArrayList<>();
-
-        @Override
-        public void add(PaymentRequest request) {
-            byId.put(request.id(), request);
-        }
-
-        @Override
-        public Optional<PaymentRequest> find(UUID councilId, UUID id) {
-            return Optional.ofNullable(byId.get(id)).filter(r -> r.councilId().equals(councilId));
-        }
-
-        @Override
-        public Optional<PaymentRequest> findForUpdate(UUID councilId, UUID id) {
-            locked.add(id.toString());
-            return find(councilId, id);
-        }
-
-        @Override
-        public void attachTransaction(UUID councilId, UUID id, String txn) {
-            PaymentRequest r = byId.get(id);
-            if (r.paymentsTransactionId() == null) {
-                byId.put(id, with(r, r.status(), txn, r.failureReason(), r.completedAt()));
-            }
-        }
-
-        @Override
-        public void markSucceeded(UUID councilId, UUID id, String txn, Instant at) {
-            PaymentRequest r = byId.get(id);
-            byId.put(id, with(r, Status.SUCCEEDED, txn, null, at));
-        }
-
-        @Override
-        public void markFailed(UUID councilId, UUID id, String txn, String reason, Instant at) {
-            PaymentRequest r = byId.get(id);
-            byId.put(id, with(r, Status.FAILED, txn, reason, at));
-        }
-
-        @Override
-        public List<PaymentRequest> listSent(UUID councilId) {
-            return byId.values().stream().filter(r -> r.status() == Status.SENT).toList();
-        }
-
-        private static PaymentRequest with(PaymentRequest r, Status status, String txn, String reason, Instant at) {
-            return new PaymentRequest(r.id(), r.councilId(), r.purpose(), r.stallId(), r.amount(), status, txn, reason,
-                    r.createdAt(), at);
-        }
-    }
-
     private final Clock clock = Clock.fixed(Instant.parse("2026-11-24T10:05:00Z"), ZoneOffset.UTC);
     private final Fakes.Councils councils = new Fakes.Councils();
     private final Fakes.Stalls stalls = new Fakes.Stalls();
     private final LedgerFakes.Ledger ledger = new LedgerFakes.Ledger();
     private final LedgerFakes.Seals seals = new LedgerFakes.Seals();
-    private final Requests requests = new Requests();
+    private final PaymentFakes.Requests requests = new PaymentFakes.Requests();
 
     private Council council;
     private UUID stallId;

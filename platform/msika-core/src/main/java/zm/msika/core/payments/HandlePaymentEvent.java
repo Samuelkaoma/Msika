@@ -46,11 +46,19 @@ public final class HandlePaymentEvent {
     private final PaymentRequestRepository requests;
     private final RecordEntry recordEntry;
     private final Clock clock;
+    private final PaymentOutcomes outcomes;
 
     public HandlePaymentEvent(PaymentRequestRepository requests, RecordEntry recordEntry, Clock clock) {
+        this(requests, recordEntry, clock, PaymentOutcomes.NONE);
+    }
+
+    /** @param outcomes told, in the same transaction, what became of each request (for example the deposit lifecycle) */
+    public HandlePaymentEvent(PaymentRequestRepository requests, RecordEntry recordEntry, Clock clock,
+            PaymentOutcomes outcomes) {
         this.requests = Objects.requireNonNull(requests);
         this.recordEntry = Objects.requireNonNull(recordEntry);
         this.clock = Objects.requireNonNull(clock);
+        this.outcomes = Objects.requireNonNull(outcomes);
     }
 
     /**
@@ -80,8 +88,9 @@ public final class HandlePaymentEvent {
         }
 
         if (event.status() == PaymentEvent.Status.FAILED) {
-            requests.markFailed(request.councilId(), request.id(), event.transactionId(),
-                    event.failureReason() == null ? "FAILED" : event.failureReason(), event.completedAt());
+            String reason = event.failureReason() == null ? "FAILED" : event.failureReason();
+            requests.markFailed(request.councilId(), request.id(), event.transactionId(), reason, event.completedAt());
+            outcomes.failed(request, reason);
             return Outcome.FAILURE_NOTED;
         }
 
@@ -90,7 +99,7 @@ public final class HandlePaymentEvent {
                     + request.id() + " but " + request.amount().minorUnits() + " ngwee was asked for");
         }
 
-        recordEntry.execute(new NewEntry(
+        RecordEntry.Recorded recorded = recordEntry.execute(new NewEntry(
                 request.councilId(),
                 request.stallId(),
                 EntryKind.DEPOSIT,
@@ -100,6 +109,7 @@ public final class HandlePaymentEvent {
                 ledgerKey(event.transactionId()),
                 null));
         requests.markSucceeded(request.councilId(), request.id(), event.transactionId(), clock.instant());
+        outcomes.succeeded(request, recorded.entry());
         return Outcome.RECORDED;
     }
 }

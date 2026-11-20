@@ -56,7 +56,7 @@ public final class CallbackVerifier {
     }
 
     /** The signature for a body, for tests and for anything that needs to call the endpoint as the payments system. */
-    String sign(long timestamp, byte[] body) {
+    public String sign(long timestamp, byte[] body) {
         if (secret == null) {
             throw new IllegalStateException("no callback secret is configured");
         }

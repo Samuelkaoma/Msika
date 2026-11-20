@@ -89,7 +89,10 @@ class PaymentCallbackController {
                     t.path("amountNgwee").asLong(),
                     optional(t, "reference"),
                     optional(t, "failureReason"),
-                    Instant.parse(text(t, "completedAt")));
+                    Instant.parse(text(t, "completedAt")),
+                    optional(t, "kind"),
+                    optional(t, "fromWalletId"),
+                    optional(t, "toWalletId"));
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("bad completedAt", e);
         }

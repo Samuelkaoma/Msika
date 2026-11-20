@@ -9,6 +9,7 @@ import zm.msika.core.common.ConflictException;
 import zm.msika.core.common.InvalidInputException;
 import zm.msika.core.common.NotFoundException;
 import zm.msika.core.common.RowError;
+import zm.msika.core.payments.PaymentsUnavailableException;
 import zm.msika.core.user.AuthenticationFailedException;
 
 /**
@@ -38,6 +39,14 @@ class ApiExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     ResponseEntity<ErrorResponse> conflict(ConflictException e) {
         return respond(HttpStatus.CONFLICT, "conflict", e.getMessage(), List.of());
+    }
+
+    /** The payments system could not be asked. Whatever was saved stays saved; sending the same command again retries. */
+    @ExceptionHandler(PaymentsUnavailableException.class)
+    ResponseEntity<ErrorResponse> paymentsUnavailable(PaymentsUnavailableException e) {
+        return respond(HttpStatus.BAD_GATEWAY, "payments_unavailable",
+                e.getMessage() + ". The request is saved: send the same command again (same Idempotency-Key) to retry.",
+                List.of());
     }
 
     private static ResponseEntity<ErrorResponse> respond(

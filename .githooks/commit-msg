@@ -1,0 +1,7 @@
+#!/bin/sh
+# Refuses a commit message that carries a Co-Authored-By trailer. Commits are authored by the person who
+# made them. Do not skip this with --no-verify. See CONTRIBUTING.md, "Commit messages".
+if grep -qiE '^[[:space:]]*co-authored-by:' "$1"; then
+  echo "commit-msg: remove the Co-Authored-By line. Commits in this repository carry no co-author trailers." >&2
+  exit 1
+fi
