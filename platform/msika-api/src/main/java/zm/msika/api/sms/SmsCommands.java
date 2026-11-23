@@ -30,6 +30,8 @@ import zm.msika.core.deposit.DepositRepository;
 import zm.msika.core.deposit.DepositStatus;
 import zm.msika.core.deposit.RequestDeposit;
 import zm.msika.core.ledger.NewEntry;
+import zm.msika.core.levy.LevyAuthorityPort;
+import zm.msika.core.levy.LevyAuthorityUnavailableException;
 import zm.msika.core.ledger.RecordEntry;
 import zm.msika.core.payments.PaymentsUnavailableException;
 import zm.msika.core.payments.PaymentsWallet;
@@ -52,8 +54,9 @@ import zm.msika.ledger.Provenance;
  * rolled back, the text is still marked processed, and the sender is told why in a {@code NOT_DONE} reply. Calls to
  * the payments system are left for after the commit (see {@link SmsCommandHandler.Later}).
  *
- * <p>Commands whose figures come from later cards answer honestly that they have none yet: levy (M-24, M-25),
- * statements (M-31, M-32) and loans (M-38).
+ * <p>{@code LEVY} and {@code BAL} read the trader's account at the levy authority after the commit (card M-25).
+ * Commands whose figures come from later cards answer honestly that they have none yet: statements (M-31, M-32) and
+ * loans (M-38).
  */
 @Component
 class SmsCommands implements SmsCommandHandler {
@@ -75,11 +78,16 @@ class SmsCommands implements SmsCommandHandler {
     private final AuditLog audit;
     private final Clock clock;
     private final TransactionTemplate savepoint;
+    private final zm.msika.api.levy.LevyAccounts levyAccounts;
+    private final LevyAuthorityPort levyAuthority;
     private final SecureRandom random = new SecureRandom();
 
     SmsCommands(SmsQueries queries, TenantContext tenant, CouncilRepository councils, LedgerService ledger,
             RequestDeposit requestDeposit, ChangeDeposit changeDeposit, DepositRepository deposits, WalletRegistry wallets,
-            PaymentService payments, AuditLog audit, Clock clock, PlatformTransactionManager transactions) {
+            PaymentService payments, AuditLog audit, Clock clock, PlatformTransactionManager transactions,
+            zm.msika.api.levy.LevyAccounts levyAccounts, LevyAuthorityPort levyAuthority) {
+        this.levyAccounts = levyAccounts;
+        this.levyAuthority = levyAuthority;
         this.queries = queries;
         this.tenant = tenant;
         this.councils = councils;
@@ -104,7 +112,7 @@ class SmsCommands implements SmsCommandHandler {
                 case SmsCommand.DeclareSale s -> sale(inboundId, sender, from, s, receivedAt);
                 case SmsCommand.Today t -> today(sender, from);
                 case SmsCommand.Balance b -> balance(sender, from);
-                case SmsCommand.Levy l -> Result.reply("LEVY", Reply.of(from, SmsTemplate.LEVY_UNKNOWN));
+                case SmsCommand.Levy l -> levy(sender, from);
                 case SmsCommand.Month m -> Result.reply("MONTH", Reply.of(from, SmsTemplate.NO_STATEMENT));
                 case SmsCommand.StatementOk o -> Result.reply("OK", Reply.of(from, SmsTemplate.NO_STATEMENT));
                 case SmsCommand.StatementWrong w -> Result.reply("WRONG", Reply.of(from, SmsTemplate.NO_STATEMENT));
@@ -243,6 +251,50 @@ class SmsCommands implements SmsCommandHandler {
                 "AMOUNT4", SmsFormat.kwacha(t.getOrDefault(EntryKind.LEVY_PAYMENT, 0L))));
     }
 
+    /** What is needed to read the trader's levy account after the commit, or null if there is no levy to show. */
+    private record LevyLookup(UUID councilId, UUID traderId, UUID marketId, String accountId, Long dailyNgwee) {}
+
+    private LevyLookup levyLookup(Sender sender, SmsQueries.StallRef stall) {
+        UUID council = sender.councilId();
+        UUID market = queries.marketOf(council, stall.id());
+        Optional<String> account = levyAccounts.linked(council, sender.traderId(), market);
+        Optional<Long> daily = levyAccounts.dailyLevy(council, stall.id(), today(council));
+        if (account.isEmpty() && daily.isEmpty()) {
+            return null;
+        }
+        return new LevyLookup(council, sender.traderId(), market, account.orElse(null), daily.orElse(null));
+    }
+
+    /** Reads (opening if needed) the trader's levy account. Outside any transaction. */
+    private Optional<LevyAuthorityPort.LevyAccount> readLevy(LevyLookup l) {
+        String accountId = l.accountId() != null ? l.accountId()
+                : levyAccounts.ensure(l.councilId(), l.traderId(), l.marketId(), l.dailyNgwee());
+        return levyAuthority.account(accountId);
+    }
+
+    private Result levy(Sender sender, String from) {
+        Optional<SmsQueries.StallRef> stall = stallOf(sender);
+        if (stall.isEmpty()) {
+            return Result.reply("NO_STALL", Reply.of(from, SmsTemplate.NO_STALL));
+        }
+        LevyLookup lookup = levyLookup(sender, stall.get());
+        if (lookup == null) {
+            return Result.reply("LEVY", Reply.of(from, SmsTemplate.LEVY_UNKNOWN));
+        }
+        String code = stall.get().code();
+        return new Result("LEVY", List.of(), List.of(() -> {
+            Optional<LevyAuthorityPort.LevyAccount> account;
+            try {
+                account = readLevy(lookup);
+            } catch (LevyAuthorityUnavailableException e) {
+                return List.of(Reply.of(from, SmsTemplate.NOT_DONE, "REASON", "the levy system is not answering"));
+            }
+            return List.of(account.map(a -> Reply.of(from, SmsTemplate.LEVY, "AMOUNT", SmsFormat.kwacha(a.dailyLevyNgwee()),
+                            "STALL", code, "DATE", SmsFormat.day(a.paidTo()), "AMOUNT2", SmsFormat.kwacha(a.arrearsNgwee())))
+                    .orElse(Reply.of(from, SmsTemplate.LEVY_UNKNOWN)));
+        }));
+    }
+
     private Result balance(Sender sender, String from) {
         Optional<SmsQueries.StallRef> stall = stallOf(sender);
         if (stall.isEmpty()) {
@@ -253,6 +305,7 @@ class SmsCommands implements SmsCommandHandler {
             return Result.reply("NO_WALLET", Reply.of(from, SmsTemplate.NOT_DONE, "REASON", "no wallet is registered for you"));
         }
         String walletId = wallet.get().walletId();
+        LevyLookup lookup = levyLookup(sender, stall.get());
         return new Result("BAL", List.of(), List.of(() -> {
             Long balance;
             try {
@@ -260,9 +313,26 @@ class SmsCommands implements SmsCommandHandler {
             } catch (PaymentsUnavailableException e) {
                 balance = null;
             }
-            return List.of(balance == null
-                    ? Reply.of(from, SmsTemplate.NOT_DONE, "REASON", "the payments system is not answering")
-                    : Reply.of(from, SmsTemplate.BALANCE_WALLET, "AMOUNT", SmsFormat.kwacha(balance, true)));
+            if (balance == null) {
+                return List.of(Reply.of(from, SmsTemplate.NOT_DONE, "REASON", "the payments system is not answering"));
+            }
+            String money = SmsFormat.kwacha(balance, true);
+            Optional<LevyAuthorityPort.LevyAccount> levy = Optional.empty();
+            if (lookup != null) {
+                try {
+                    levy = readLevy(lookup);
+                } catch (LevyAuthorityUnavailableException e) {
+                    levy = Optional.empty();
+                }
+            }
+            if (levy.isEmpty()) {
+                return List.of(Reply.of(from, SmsTemplate.BALANCE_WALLET, "AMOUNT", money));
+            }
+            LevyAuthorityPort.LevyAccount a = levy.get();
+            return List.of(a.arrearsNgwee() == 0
+                    ? Reply.of(from, SmsTemplate.BALANCE_NO_ARREARS, "AMOUNT", money, "DATE", SmsFormat.day(a.paidTo()))
+                    : Reply.of(from, SmsTemplate.BALANCE, "AMOUNT", money, "DATE", SmsFormat.day(a.paidTo()),
+                            "AMOUNT2", SmsFormat.kwacha(a.arrearsNgwee())));
         }));
     }
 

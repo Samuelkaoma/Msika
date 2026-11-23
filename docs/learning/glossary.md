@@ -162,3 +162,4 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Levy rule** | The daily levy for one stall class in one market, from a start date. Never edited; a change is a new rule. |
 | **Levy sweep** | Paying a trader's unpaid levy days out of a confirmed deposit, with their consent, wallet to wallet. |
 | **State machine** | A record that moves through named states (PENDING, SENT, MOVED, DONE) by fixed steps, each safe to repeat. |
+| **System of record** | The system whose figures count when two disagree. For levy, that is the authority (eLevy), not Msika. |
