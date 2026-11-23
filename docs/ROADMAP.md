@@ -311,7 +311,7 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
   status of a 5,000-stall market comes back in under 300 ms with one query (measured in a test that
   prints the time). Search finds a trader by name, by `0977...` and by `+260977...`.
 
-**☐ M-50 Market map page** · TM · M-26, M-49 · `feature/M-50-market-map`
+**☑ M-50 Market map page** · TM · M-26, M-49 · `feature/M-50-market-map`
 - Do: MARKET-MAP §8.1 to §8.3 and §8.8 in `council-web`: the SVG plan with pan and zoom, layers,
   legend with counts, patterns as well as colours, dashed outlines for generated footprints, the
   stall panel, search, filters, the unmapped list, and the list view at phone width. Decision record

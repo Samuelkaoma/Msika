@@ -294,3 +294,200 @@ tr.flag td {
   color: var(--accent);
   font-weight: 600;
 }
+
+/* ------------------------------------------------------------------ the market map (card M-50) */
+
+.map-controls label {
+  margin-bottom: 0;
+}
+
+.map-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.map-frame {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  overflow: hidden;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  height: min(70vh, 720px);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.map-tools {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1;
+}
+
+.map-tools button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.map .section {
+  fill: none;
+  stroke: var(--muted);
+  stroke-opacity: 0.4;
+}
+
+.map .outline {
+  fill: none;
+  stroke: #33403a;
+  stroke-opacity: 0.8;
+}
+
+.map .highlight {
+  fill: none;
+  stroke: #d64545;
+}
+
+.map .selected {
+  fill: none;
+  stroke: #111;
+}
+
+.map .stall-label {
+  text-anchor: middle;
+  dominant-baseline: middle;
+  fill: #111;
+  pointer-events: none;
+}
+
+.map .section-label {
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.legend strong {
+  margin-left: auto;
+}
+
+.swatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #33403a;
+  border-radius: 3px;
+  flex: none;
+}
+
+.swatch.p-stripes {
+  background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.35) 0 3px, transparent 3px 7px) !important;
+}
+
+.swatch.p-dots {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.4) 1.5px, transparent 2px) !important;
+  background-size: 6px 6px !important;
+}
+
+.swatch.p-cross {
+  background-image: linear-gradient(45deg, transparent 45%, rgba(0, 0, 0, 0.5) 45% 55%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, rgba(0, 0, 0, 0.5) 45% 55%, transparent 55%) !important;
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.panel {
+  padding: 14px;
+}
+
+.panel h2 {
+  margin: 0;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 42px;
+}
+
+.bars span {
+  flex: 1;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.hits {
+  list-style: none;
+  padding: 0;
+}
+
+.unmapped {
+  columns: 3;
+  font-size: 0.85rem;
+}
+
+.map-list h3 {
+  margin: 14px 0 6px;
+  font-size: 0.95rem;
+}
+
+.map-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stall-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 18px auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+}
+
+.stall-row .muted {
+  grid-column: 2 / -1;
+}
+
+.map-list li.hit .stall-row {
+  outline: 3px solid #d64545;
+}
+
+@media (max-width: 760px) {
+  .map-body {
+    grid-template-columns: 1fr;
+  }
+  /* On a phone the legend and the stall panel come before the long list. */
+  .map-side {
+    order: -1;
+  }
+}
