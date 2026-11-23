@@ -36,10 +36,34 @@ class DepositConfiguration {
         return new ChangeDeposit(deposits, clock, events);
     }
 
-    /** What the payment callbacks tell: the deposit lifecycle follows the payment request. */
+    /**
+     * What the payment callbacks tell: a deposit's lifecycle follows its payment request, and a levy sweep's
+     * instruction follows its transfer (card M-24). Each ignores requests of the other purpose.
+     */
     @Bean
-    PaymentOutcomes paymentOutcomes(DepositRepository deposits, Clock clock, zm.msika.core.deposit.DepositEvents events) {
-        return new DepositOutcomes(deposits, clock, events);
+    @org.springframework.context.annotation.Primary
+    PaymentOutcomes paymentOutcomes(DepositRepository deposits, Clock clock, zm.msika.core.deposit.DepositEvents events,
+            zm.msika.api.levy.LevySweep levy) {
+        DepositOutcomes deposit = new DepositOutcomes(deposits, clock, events);
+        return new PaymentOutcomes() {
+            @Override
+            public void succeeded(zm.msika.core.payments.PaymentRequest request, zm.msika.ledger.LedgerEntry entry) {
+                if (request.purpose() == zm.msika.core.payments.PaymentRequest.Purpose.DEPOSIT) {
+                    deposit.succeeded(request, entry);
+                } else {
+                    levy.succeeded(request, entry);
+                }
+            }
+
+            @Override
+            public void failed(zm.msika.core.payments.PaymentRequest request, String reason) {
+                if (request.purpose() == zm.msika.core.payments.PaymentRequest.Purpose.DEPOSIT) {
+                    deposit.failed(request, reason);
+                } else {
+                    levy.failed(request, reason);
+                }
+            }
+        };
     }
 
     @Bean

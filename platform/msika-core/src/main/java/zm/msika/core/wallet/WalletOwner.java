@@ -23,7 +23,9 @@ public record WalletOwner(String walletId, UUID councilId, Role role, UUID stall
         /** A deposit agent's float wallet: cash-ins are paid out of it. One per agent. */
         AGENT,
         /** A supplier's wallet: a payment to it from a stall is a VERIFIED supplier payment. */
-        SUPPLIER
+        SUPPLIER,
+        /** The council's collection wallet: levy is paid into it (M-24). One per council. */
+        COUNCIL
     }
 
     public WalletOwner {

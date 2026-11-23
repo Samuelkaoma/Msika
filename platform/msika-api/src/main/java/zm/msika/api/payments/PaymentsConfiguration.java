@@ -38,6 +38,11 @@ class PaymentsConfiguration {
                 }
 
                 @Override
+                public String transfer(String key, String from, String to, zm.msika.ledger.Money amount, String reference) {
+                    throw notConfigured();
+                }
+
+                @Override
                 public java.util.Optional<zm.msika.core.payments.PaymentsWallet> findWallet(String walletId) {
                     throw notConfigured();
                 }

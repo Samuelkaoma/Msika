@@ -32,10 +32,12 @@ public record PaymentRequest(
         Instant createdAt,
         Instant completedAt) {
 
-    /** Why Msika is moving money. Later cards add levy sweeps and loan repayments. */
+    /** Why Msika is moving money. A later card adds loan repayments. */
     public enum Purpose {
         /** An agent's cash deposit for a stall. */
-        DEPOSIT
+        DEPOSIT,
+        /** Levy paid from the trader's wallet to the council's collection wallet, with the trader's consent (M-24). */
+        LEVY
     }
 
     public enum Status {

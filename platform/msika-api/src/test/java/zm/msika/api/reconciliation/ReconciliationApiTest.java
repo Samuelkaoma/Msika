@@ -40,6 +40,11 @@ class ReconciliationApiTest extends ApiTest {
 
     /** A payments system that only answers statement requests, from what the test planted. */
     static final class ScriptedStatements implements PaymentsPort {
+        @Override
+        public String transfer(String key, String from, String to, Money amount, String reference) {
+            throw new UnsupportedOperationException("no transfers in this test");
+        }
+
         final Map<String, List<StatementLine>> lines = new ConcurrentHashMap<>();
         volatile boolean down;
 

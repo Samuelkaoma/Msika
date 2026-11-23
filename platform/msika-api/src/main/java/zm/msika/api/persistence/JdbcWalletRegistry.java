@@ -57,6 +57,14 @@ class JdbcWalletRegistry implements WalletRegistry {
     }
 
     @Override
+    public Optional<WalletOwner> ofCouncil(UUID councilId) {
+        return jdbc.sql("select wallet_id, council_id, role, stall_id, agent_id from payments_wallet "
+                        + "where council_id = :councilId and role = 'COUNCIL'")
+                .param("councilId", councilId)
+                .query((rs, row) -> map(rs)).optional();
+    }
+
+    @Override
     public List<WalletOwner> list(UUID councilId) {
         return jdbc.sql("select wallet_id, council_id, role, stall_id, agent_id from payments_wallet "
                         + "where council_id = :councilId order by role, wallet_id")

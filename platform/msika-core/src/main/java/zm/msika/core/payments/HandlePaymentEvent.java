@@ -102,8 +102,10 @@ public final class HandlePaymentEvent {
         RecordEntry.Recorded recorded = recordEntry.execute(new NewEntry(
                 request.councilId(),
                 request.stallId(),
-                EntryKind.DEPOSIT,
-                Provenance.DEPOSITED,
+                request.purpose() == PaymentRequest.Purpose.LEVY ? EntryKind.LEVY_PAYMENT : EntryKind.DEPOSIT,
+                // A deposit is cash the agent says they took; a levy payment is a wallet-to-wallet transfer the payments
+                // system itself vouches for (ARCHITECTURE.md section 4.2).
+                request.purpose() == PaymentRequest.Purpose.LEVY ? Provenance.VERIFIED : Provenance.DEPOSITED,
                 Money.ofMinor(event.amountNgwee(), Currency.ZMW),
                 event.completedAt(),
                 ledgerKey(event.transactionId()),

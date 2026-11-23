@@ -74,7 +74,7 @@ public final class VerifyWalletOwnership {
                         .orElseThrow(() -> new NotFoundException("no agent " + agentId + " in this council"));
                 requireSamePhone(wallet, agent.phone(), "this agent");
             }
-            case MERCHANT, SUPPLIER -> {
+            case MERCHANT, SUPPLIER, COUNCIL -> {
                 // Existence and kind only: see the class comment.
             }
         }

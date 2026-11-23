@@ -58,6 +58,32 @@ public final class ZamsimPaymentsAdapter implements PaymentsPort {
 
     @Override
     @SuppressWarnings("unchecked")
+    public String transfer(String idempotencyKey, String fromWalletId, String toWalletId, Money amount, String reference) {
+        Map<String, Object> reply;
+        try {
+            reply = client.post()
+                    .uri("/v1/transfers")
+                    .header("Idempotency-Key", idempotencyKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "fromWalletId", fromWalletId,
+                            "toWalletId", toWalletId,
+                            "amountNgwee", amount.minorUnits(),
+                            "reference", reference))
+                    .retrieve()
+                    .body(Map.class);
+        } catch (RestClientException e) {
+            throw new PaymentsUnavailableException("the payments system could not be reached or refused the transfer", e);
+        }
+        Object id = reply == null ? null : reply.get("id");
+        if (id == null) {
+            throw new PaymentsUnavailableException("the payments system answered without a transaction id", null);
+        }
+        return id.toString();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public Optional<PaymentsWallet> findWallet(String walletId) {
         Map<String, Object> reply;
         try {
@@ -133,6 +159,7 @@ public final class ZamsimPaymentsAdapter implements PaymentsPort {
             case "MERCHANT" -> PaymentsWallet.Kind.MERCHANT;
             case "AGENT" -> PaymentsWallet.Kind.AGENT;
             case "SUPPLIER" -> PaymentsWallet.Kind.SUPPLIER;
+            case "COUNCIL" -> PaymentsWallet.Kind.COUNCIL;
             default -> PaymentsWallet.Kind.OTHER;
         };
     }
