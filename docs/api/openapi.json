@@ -1,6 +1,45 @@
 {
   "components" : {
     "schemas" : {
+      "AgentActivity" : {
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "agentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "cancelled" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "confirmed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "confirmedNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "disputed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "failed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "pending" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "AgentResponse" : {
         "properties" : {
           "active" : {
@@ -59,6 +98,36 @@
           },
           "language" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Arrears" : {
+        "properties" : {
+          "marketCode" : {
+            "type" : "string"
+          },
+          "oldestUnpaid" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "stallCode" : {
+            "type" : "string"
+          },
+          "traderId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "traderName" : {
+            "type" : "string"
+          },
+          "unpaidDays" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "unpaidNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -166,6 +235,42 @@
               "type" : "string"
             },
             "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "DayCollections" : {
+        "properties" : {
+          "businessDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "declaredNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "depositedNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "digitalNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "levyChargedNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "levyPaidNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "marketCode" : {
+            "type" : "string"
+          },
+          "marketId" : {
+            "format" : "uuid",
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -326,6 +431,41 @@
         },
         "type" : "object"
       },
+      "MarketOccupancy" : {
+        "properties" : {
+          "activeOnDay" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "allocated" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "marketId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "stalls" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "suspended" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "vacant" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "MarketResponse" : {
         "properties" : {
           "code" : {
@@ -365,6 +505,31 @@
           },
           "userId" : {
             "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ReconciliationDay" : {
+        "properties" : {
+          "businessDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "differenceCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "msikaCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "paymentsCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ranAt" : {
+            "format" : "date-time",
             "type" : "string"
           }
         },
@@ -541,6 +706,48 @@
           "date" : {
             "format" : "date",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Seal" : {
+        "properties" : {
+          "businessDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "entryCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "merkleRoot" : {
+            "type" : "string"
+          },
+          "sealedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SealCheck" : {
+        "properties" : {
+          "entries" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ok" : {
+            "type" : "boolean"
+          },
+          "problems" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "seals" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -1626,6 +1833,278 @@
           }
         },
         "tags" : [ "registration-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/agents" : {
+      "get" : {
+        "operationId" : "agents",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "from",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AgentActivity"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/arrears" : {
+      "get" : {
+        "operationId" : "arrears",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/Arrears"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/collections" : {
+      "get" : {
+        "operationId" : "collections",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "from",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DayCollections"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/markets" : {
+      "get" : {
+        "operationId" : "markets",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/MarketOccupancy"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/reconciliation" : {
+      "get" : {
+        "operationId" : "reconciliation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "from",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReconciliationDay"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/seals" : {
+      "get" : {
+        "operationId" : "seals",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "default" : 60,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/Seal"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/reports/seals/verification" : {
+      "get" : {
+        "operationId" : "verifySeals",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SealCheck"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/seals/{date}" : {
