@@ -2,12 +2,13 @@
 // with counts, filters, search, the stall panel and the unmapped list. Below 760 px it is a list instead: a drawing of
 // thousands of stalls is not usable on a phone.
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { api } from "../api/client";
-import type { Hit, MarketResponse, MarketStatus, Panel, PlanBody, StallStatus } from "../api/schema";
+import type { AgentResponse, Hit, MarketResponse, MarketStatus, Panel, PlanBody, StallStatus } from "../api/schema";
 import { useAuth } from "../auth";
 import { kwacha, today } from "../pages";
 import type { Footprint } from "./geometry";
+import { listen, type LiveState } from "./live";
 import { MarketSvg } from "./MarketSvg";
 import { legendFor, styleFor, type Layer } from "./style";
 
@@ -65,6 +66,59 @@ export function MarketMap({ councilId, marketId }: { councilId: string; marketId
   const [hits, setHits] = useState<Hit[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [day, setDay] = useState(today());
+  const [reloads, setReloads] = useState(0);
+  const [live, setLive] = useState<LiveState>("connecting");
+  const [agents, setAgents] = useState<AgentResponse[]>([]);
+  const [agentId, setAgentId] = useState("");
+  const [round, setRound] = useState<{ done: Set<string>; notReached: Set<string> } | null>(null);
+  const isToday = day === today();
+  const statusRef = useRef<MarketStatus | null>(null);
+  statusRef.current = status;
+
+  // The closing round, live (card M-51): each confirmed deposit recolours its stall at once. After a reconnection the
+  // whole status is reloaded, because events sent while disconnected are not sent again.
+  useEffect(() => {
+    if (!isToday) return;
+    return listen(`/api/v1/councils/${councilId}/markets/${marketId}/map-events`, {
+      onState: setLive,
+      onReconnect: () => setReloads((n) => n + 1),
+      onMessage: (m) => {
+        if (m.event !== "deposit") return;
+        const e = JSON.parse(m.data) as { stallId: string; amountNgwee: number; marketId: string };
+        if (e.marketId !== marketId) return;
+        if (!statusRef.current) {
+          // The status has not loaded yet: load it (it will include this deposit) rather than lose the event.
+          setReloads((n) => n + 1);
+          return;
+        }
+        setStatus((cur) =>
+          cur && {
+            ...cur,
+            stalls: (cur.stalls ?? []).map((s) =>
+              s.stallId === e.stallId
+                ? { ...s, state: s.state === "FREE" ? s.state : "ACTIVE", depositedTodayNgwee: (s.depositedTodayNgwee ?? 0) + e.amountNgwee, lastActivity: day }
+                : s,
+            ),
+          },
+        );
+        setReloads((n) => n + (agentId ? 1 : 0));
+      },
+    });
+  }, [councilId, marketId, isToday, day, agentId]);
+
+  useEffect(() => {
+    api("get", "/api/v1/councils/{councilId}/agents", { path: { councilId } }).then(setAgents, () => setAgents([]));
+  }, [councilId]);
+
+  useEffect(() => {
+    if (!agentId) {
+      setRound(null);
+      return;
+    }
+    api("get", "/api/v1/councils/{councilId}/agents/{agentId}/round", { path: { councilId, agentId }, query: { marketId, date: day } }).then(
+      (r) => setRound({ done: new Set(r.done ?? []), notReached: new Set(r.notReached ?? []) }),
+    );
+  }, [councilId, agentId, marketId, day, reloads]);
 
   useEffect(() => {
     api("get", "/api/v1/councils/{councilId}/markets/{marketId}/plan", { path: { councilId, marketId } }).then(setPlan, (e: unknown) =>
@@ -73,7 +127,7 @@ export function MarketMap({ councilId, marketId }: { councilId: string; marketId
   }, [councilId, marketId]);
   useEffect(() => {
     api("get", "/api/v1/councils/{councilId}/markets/{marketId}/map-status", { path: { councilId, marketId }, query: { date: day } }).then(setStatus);
-  }, [councilId, marketId, day]);
+  }, [councilId, marketId, day, reloads]);
 
   const footprints: Footprint[] = useMemo(
     () =>
@@ -177,6 +231,29 @@ export function MarketMap({ councilId, marketId }: { councilId: string; marketId
             </select>
           </label>
         </div>
+        <div className="row wrap">
+          <label>
+            Agent's round
+            <select aria-label="Agent's round" value={agentId} onChange={(e) => setAgentId(e.target.value)}>
+              <option value="">None</option>
+              {agents.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          {isToday && (
+            <span className={`live ${live}`} role="status" aria-label="Live updates">
+              {live === "live" ? "● Live" : live === "reconnecting" ? "Reconnecting…" : live === "connecting" ? "Connecting…" : "Not live"}
+            </span>
+          )}
+          {round && (
+            <span className="muted small">
+              Round: {round.done.size} done, {round.notReached.size} not reached yet
+            </span>
+          )}
+        </div>
         <form className="row" onSubmit={search} role="search">
           <input aria-label="Find a trader, phone or stall" placeholder="Name, phone or stall" value={query} onChange={(e) => setQuery(e.target.value)} />
           <button>Find</button>
@@ -213,6 +290,8 @@ export function MarketMap({ councilId, marketId }: { councilId: string; marketId
             highlighted={highlighted}
             selected={selected}
             onSelect={setSelected}
+            roundDone={round?.done}
+            roundNotReached={round?.notReached}
           />
         )}
         <aside className="map-side">

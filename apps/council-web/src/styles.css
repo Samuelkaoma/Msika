@@ -491,3 +491,29 @@ tr.flag td {
     order: -1;
   }
 }
+
+.map .round-done {
+  fill: none;
+  stroke: #1f8a5f;
+}
+
+.map .round-left {
+  fill: none;
+  stroke: #e07b18;
+}
+
+.live {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.live.live {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.live.reconnecting {
+  color: #b7791f;
+}

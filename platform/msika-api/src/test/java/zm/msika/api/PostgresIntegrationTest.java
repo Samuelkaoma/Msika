@@ -25,7 +25,10 @@ public abstract class PostgresIntegrationTest {
             .withEnv("MSIKA_OWNER_PASSWORD", "test_owner")
             .withEnv("MSIKA_APP_PASSWORD", "test_app")
             .withEnv("ZAMSIM_PASSWORD", "test_zamsim")
-            .withEnv("ELEVYSIM_PASSWORD", "test_elevysim");
+            .withEnv("ELEVYSIM_PASSWORD", "test_elevysim")
+            // Spring keeps one application context per distinct test configuration, each with its own connection
+            // pool; with many contexts the default limit of 100 connections runs out.
+            .withCommand("postgres", "-c", "max_connections=400");
 
     static {
         // Started once and left to the Testcontainers cleanup process when the JVM exits.
@@ -37,6 +40,7 @@ public abstract class PostgresIntegrationTest {
         String url = "jdbc:postgresql://" + POSTGRES.getHost() + ":" + POSTGRES.getMappedPort(5432) + "/msika";
         registry.add("spring.datasource.url", () -> url);
         registry.add("spring.datasource.password", () -> "test_app");
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> "6");
         registry.add("spring.flyway.url", () -> url);
         registry.add("spring.flyway.password", () -> "test_owner");
         // Made-up test credentials for the bootstrap operator. Cheap BCrypt keeps the tests quick.

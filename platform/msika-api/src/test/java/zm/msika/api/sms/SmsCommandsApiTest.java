@@ -129,7 +129,13 @@ class SmsCommandsApiTest extends ApiTest {
     void setUp() {
         council = newCouncil();
         UUID market = UUID.randomUUID();
-        marketCode = "SW" + (char) ('A' + ThreadLocalRandom.current().nextInt(26));
+        // Five random letters: stall codes must not repeat across the test councils sharing this database, or a REG
+        // from a stranger would (rightly) match more than one stall.
+        StringBuilder codeLetters = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            codeLetters.append((char) ('A' + ThreadLocalRandom.current().nextInt(26)));
+        }
+        marketCode = codeLetters.toString();
         stallId = UUID.randomUUID();
         vacantStallId = UUID.randomUUID();
         stallCode = marketCode + "-B-114";

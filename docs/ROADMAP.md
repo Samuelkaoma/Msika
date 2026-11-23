@@ -42,7 +42,7 @@ table in the same pull request.
 | 3 SMS channel | M-17 to M-21 | ☐ |
 | 4 Levy and eLevy simulator | M-22 to M-25 | ☑ (M-23 amounts still to research) |
 | 5 Council dashboard and demo | M-26 to M-30 | ☐ |
-| 5M Market map (inside Phase 5) | M-48 to M-51 | ☐ |
+| 5M Market map (inside Phase 5) | M-48 to M-51 | ☑ |
 | 5A Council approvals (inside Phase 5) | M-61 to M-64 | ☐ |
 | **MVP line: release v0.1.0** | | |
 | 6 Turnover statements | M-31 to M-33 | ☐ |
@@ -320,7 +320,7 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
   5,000-stall market first draws in under one second and the result is written in the pull request
   with the machine it ran on. Works at 375 px wide as a list.
 
-**☐ M-51 Live closing view** · TM · M-50, M-19 · `feature/M-51-live-closing`
+**☑ M-51 Live closing view** · TM · M-50, M-19 · `feature/M-51-live-closing`
 - Do: MARKET-MAP §8.4. Server-sent events when a deposit is confirmed, the map recolouring stall by
   stall, and the agent-round overlay (done tonight, not reached yet).
 - Done: an integration test sends three `DEP` messages and receives three events in order. The page
