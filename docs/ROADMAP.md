@@ -276,7 +276,7 @@ with and without Msika.
 
 Goal: a council officer sees their markets, and the full story can be shown in 7 minutes.
 
-**☐ M-26 Dashboard shell and sign-in** · TM · M-09 · `feature/M-26-dashboard-shell`
+**◐ M-26 Dashboard shell and sign-in** · TM · M-09 · `feature/M-26-dashboard-shell`
 - Do: `council-web` with sign-in, layout, navigation and a typed API client generated from the
   OpenAPI spec of `msika-api`.
 - Done: sign in, sign out, an expired session goes back to sign-in, an officer sees no edit buttons.
