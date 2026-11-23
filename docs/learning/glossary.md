@@ -165,3 +165,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **System of record** | The system whose figures count when two disagree. For levy, that is the authority (eLevy), not Msika. |
 | **OpenAPI** | A JSON description of every endpoint of an API. Ours is generated from the Java code and turned into TypeScript types. |
 | **Component test** | A test that renders part of the web app in an imitation browser and clicks and types like a person. |
+| **Market plan** | One version of a market's drawing: sections, aisles, features and stall footprints. Frozen once published. |
+| **Footprint** | A stall's shape on the plan, with its address (aisle, side, position) and where the shape came from. |

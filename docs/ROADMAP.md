@@ -292,7 +292,7 @@ Goal: a council officer sees their markets, and the full story can be shown in 7
 Goal: a council officer sees every stall drawn where it stands, coloured by whether it is free,
 active, quiet or suspended, can find any trader on it, and can watch the closing round live.
 
-**☐ M-48 Market plans and generated layouts** · SK · M-08, M-10 · `feature/M-48-market-plans`
+**☑ M-48 Market plans and generated layouts** · SK · M-08, M-10 · `feature/M-48-market-plans`
 - Do: MARKET-MAP §4, §5.1 and §10. The geometry types in `zm.msika.core.map` (integer millimetres,
   no outside library), the plan tables with RLS and the trigger that freezes published plans, the
   publish checks that report every blocker at once, and the generator that lays out a plan from

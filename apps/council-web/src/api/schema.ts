@@ -21,6 +21,11 @@ export interface AgentResponse {
   phone?: string;
 }
 
+export interface AisleBody {
+  name?: string;
+  pathMm?: Array<number>;
+}
+
 export interface AllocateRequest {
   traderId?: string; // uuid
 }
@@ -55,6 +60,14 @@ export interface ChargeRow {
   stallCode?: string;
   stallId?: string; // uuid
   traderId?: string; // uuid
+}
+
+export interface ConfigBody {
+  aisleWidthMm?: number; // int32
+  sectionGapMm?: number; // int32
+  stallDepthMm?: number; // int32
+  stallWidthMm?: number; // int32
+  stallsPerSide?: number; // int32
 }
 
 export interface CouncilResponse {
@@ -129,6 +142,32 @@ export interface DisputeRequest {
   reason?: string;
 }
 
+export interface EditRequest {
+  aisles?: Array<AisleBody>;
+  features?: Array<FeatureBody>;
+  footprints?: Array<FootprintBody>;
+  notes?: string;
+  sections?: Array<SectionBody>;
+  unmappedStallIds?: Array<string>;
+}
+
+export interface FeatureBody {
+  kind?: string;
+  label?: string;
+  shapeMm?: Array<number>;
+}
+
+export interface FootprintBody {
+  aisle?: string;
+  polygonMm?: Array<number>;
+  position?: number; // int32
+  provenance?: string;
+  side?: string;
+  stallCode?: string;
+  stallId?: string; // uuid
+  uncertaintyMm?: number; // int32
+}
+
 export interface ImportResponse {
   created?: number; // int32
 }
@@ -178,6 +217,27 @@ export interface MeResponse {
   email?: string;
   role?: string;
   userId?: string; // uuid
+}
+
+export interface PlanBody {
+  aisles?: Array<AisleBody>;
+  features?: Array<FeatureBody>;
+  footprints?: Array<FootprintBody>;
+  id?: string; // uuid
+  marketId?: string; // uuid
+  notes?: string;
+  publishedAt?: string; // date-time
+  sections?: Array<SectionBody>;
+  status?: string;
+  unmappedStallIds?: Array<string>;
+  version?: number; // int32
+}
+
+export interface PlanSummary {
+  id?: string; // uuid
+  publishedAt?: string; // date-time
+  status?: string;
+  version?: number; // int32
 }
 
 export interface ReconciliationDay {
@@ -283,6 +343,11 @@ export interface SealResponse {
   signature?: string;
 }
 
+export interface SectionBody {
+  name?: string;
+  polygonMm?: Array<number>;
+}
+
 export interface SetActiveRequest {
   active?: boolean;
 }
@@ -300,6 +365,10 @@ export interface StartDepositRequest {
   agentId?: string; // uuid
   amountNgwee?: number; // int64
   stallId?: string; // uuid
+}
+
+export interface StartRequest {
+  from?: string;
 }
 
 export interface TraderResponse {
@@ -444,6 +513,20 @@ export interface Paths {
       response: MarketResponse;
     };
   };
+  "/api/v1/councils/{councilId}/markets/{marketId}/layout-config": {
+    get: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: never;
+      response: ConfigBody;
+    };
+    put: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: ConfigBody;
+      response: ConfigBody;
+    };
+  };
   "/api/v1/councils/{councilId}/markets/{marketId}/levy-rules": {
     get: {
       path: { councilId: string; marketId: string };
@@ -456,6 +539,28 @@ export interface Paths {
       query: never;
       body: RuleRequest;
       response: LevyRule;
+    };
+  };
+  "/api/v1/councils/{councilId}/markets/{marketId}/plan": {
+    get: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: never;
+      response: PlanBody;
+    };
+  };
+  "/api/v1/councils/{councilId}/markets/{marketId}/plans": {
+    get: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: never;
+      response: Array<PlanSummary>;
+    };
+    post: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: StartRequest;
+      response: PlanBody;
     };
   };
   "/api/v1/councils/{councilId}/markets/{marketId}/plates.pdf": {
@@ -480,6 +585,28 @@ export interface Paths {
       query: never;
       body: string;
       response: ImportResponse;
+    };
+  };
+  "/api/v1/councils/{councilId}/plans/{planId}": {
+    get: {
+      path: { councilId: string; planId: string };
+      query: never;
+      body: never;
+      response: PlanBody;
+    };
+    put: {
+      path: { councilId: string; planId: string };
+      query: never;
+      body: EditRequest;
+      response: PlanBody;
+    };
+  };
+  "/api/v1/councils/{councilId}/plans/{planId}/publish": {
+    post: {
+      path: { councilId: string; planId: string };
+      query: never;
+      body: never;
+      response: PlanBody;
     };
   };
   "/api/v1/councils/{councilId}/reconciliation/{date}": {
