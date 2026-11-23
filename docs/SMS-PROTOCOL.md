@@ -91,5 +91,10 @@ both accepted.
 - **UNDO** works only for the agent's own deposit, while it is still pending and within 10 minutes.
 - **Refusals.** If a use case refuses (the agent is inactive, a stall has no wallet), the sender gets
   `Msika: not done: <reason>. Nothing was recorded.` and nothing is kept.
-- **Not built yet.** `LEVY`, the levy part of `BAL` (cards M-24, M-25), `MONTH`, `OK`, `WRONG` (M-31, M-32) and
-  `LOAN` (M-38) answer that the figures are not available yet. `BAL` gives the wallet balance meanwhile.
+- **LEVY and BAL** (card M-25) read the trader's account at the levy authority (eLevy; elevysim in the demo), opening
+  it the first time if a levy rule covers the stall. With no rule yet, `LEVY` says the details are not available
+  and `BAL` gives the wallet balance only.
+- **Weekly receipt** (card M-25): on Sunday evening, a trader whose levy was paid through Msika that week gets
+  `Msika: levy paid 1 Dec to 4 Dec at SOW-B-114: K20. Arrears K15. Thank you.` once, unless they sent `STOP`.
+- **Not built yet.** `MONTH`, `OK`, `WRONG` (M-31, M-32) and `LOAN` (M-38) answer that the figures are not
+  available yet.

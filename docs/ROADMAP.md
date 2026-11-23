@@ -40,7 +40,7 @@ table in the same pull request.
 | 1 Core record | M-06 to M-11 | ☑ |
 | 2 Payments simulator | M-12 to M-16 | ☑ |
 | 3 SMS channel | M-17 to M-21 | ☐ |
-| 4 Levy and eLevy simulator | M-22 to M-25 | ☐ |
+| 4 Levy and eLevy simulator | M-22 to M-25 | ☑ (M-23 amounts still to research) |
 | 5 Council dashboard and demo | M-26 to M-30 | ☐ |
 | 5M Market map (inside Phase 5) | M-48 to M-51 | ☐ |
 | 5A Council approvals (inside Phase 5) | M-61 to M-64 | ☐ |
@@ -268,7 +268,7 @@ with and without Msika.
   that fails after the money moved (it is retried, never paid twice), and a trader without consent
   (nothing is swept).
 
-**☐ M-25 Levy receipts and arrears** · TM · M-24 · `feature/M-25-levy-receipts`
+**☑ M-25 Levy receipts and arrears** · TM · M-24 · `feature/M-25-levy-receipts`
 - Do: `LEVY` and `BAL` replies use real figures. A weekly SMS receipt of levy paid.
 - Done: replies match the elevysim account after a seeded week.
 

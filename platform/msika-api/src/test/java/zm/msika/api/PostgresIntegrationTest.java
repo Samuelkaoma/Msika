@@ -50,6 +50,7 @@ public abstract class PostgresIntegrationTest {
         registry.add("msika.sms.workers.enabled", () -> "false");
         registry.add("msika.levy-charge.enabled", () -> "false");
         registry.add("msika.levy-sweep.enabled", () -> "false");
+        registry.add("msika.levy-receipts.enabled", () -> "false");
         registry.add("msika.sms.gateway-secret", () -> "test-only-sms-gateway-secret");
         registry.add("msika.seal.key-file", () -> SEAL_KEY_FILE.toString());
         registry.add("msika.payments.callback-secret", () -> CALLBACK_SECRET);

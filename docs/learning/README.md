@@ -41,6 +41,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-22 | [M-22-elevysim.md](M-22-elevysim.md) | written |
 | M-23 | [M-23-levy-rules.md](M-23-levy-rules.md) | written |
 | M-24 | [M-24-levy-sweep.md](M-24-levy-sweep.md) | written |
+| M-25 | [M-25-levy-receipts.md](M-25-levy-receipts.md) | written |
 | R-01 | [R-01-review-fixes.md](R-01-review-fixes.md) | written (fixes from the first review, not a card) |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.

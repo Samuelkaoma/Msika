@@ -73,6 +73,11 @@ class SmsQueries {
                 .param("c", councilId).param("s", stallId).query(String.class).optional();
     }
 
+    UUID marketOf(UUID councilId, UUID stallId) {
+        return jdbc.sql("select market_id from stall where council_id = :c and id = :s")
+                .param("c", councilId).param("s", stallId).query(UUID.class).single();
+    }
+
     Optional<String> stallCode(UUID councilId, UUID stallId) {
         return jdbc.sql("select code from stall where council_id = :c and id = :s")
                 .param("c", councilId).param("s", stallId).query(String.class).optional();

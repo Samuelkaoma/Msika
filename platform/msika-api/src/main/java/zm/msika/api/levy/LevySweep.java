@@ -60,16 +60,18 @@ public class LevySweep implements DepositEventsHub.Part, PaymentOutcomes {
     private final WalletRegistry wallets;
     private final PaymentsPort payments;
     private final LevyAuthorityPort authority;
+    private final LevyAccounts accounts;
     private final Clock clock;
 
     LevySweep(JdbcClient jdbc, TenantContext tenant, PaymentRequestRepository requests, WalletRegistry wallets,
-            PaymentsPort payments, LevyAuthorityPort authority, Clock clock) {
+            PaymentsPort payments, LevyAuthorityPort authority, LevyAccounts accounts, Clock clock) {
         this.jdbc = jdbc;
         this.tenant = tenant;
         this.requests = requests;
         this.wallets = wallets;
         this.payments = payments;
         this.authority = authority;
+        this.accounts = accounts;
         this.clock = clock;
     }
 
@@ -216,23 +218,12 @@ public class LevySweep implements DepositEventsHub.Part, PaymentOutcomes {
     }
 
     private boolean tellAuthority(Open o) {
-        String accountId = tenant.inCouncil(o.councilId(), () -> jdbc.sql("select account_id from levy_account_link "
-                        + "where council_id = :c and trader_id = :t and market_id = :m")
-                .param("c", o.councilId()).param("t", o.traderId()).param("m", o.marketId())
-                .query(String.class).optional()).orElse(null);
+        String accountId;
         try {
-            if (accountId == null) {
-                long daily = tenant.inCouncil(o.councilId(), () -> jdbc.sql("select amount_ngwee from levy_charge "
-                                + "where council_id = :c and settled_by_instruction_id = :i order by business_date desc limit 1")
-                        .param("c", o.councilId()).param("i", o.id()).query(Long.class).single());
-                String opened = authority.openAccount(o.councilId().toString(), o.marketId().toString(),
-                        o.traderId().toString(), daily);
-                tenant.inCouncil(o.councilId(), () -> jdbc.sql("insert into levy_account_link (council_id, trader_id, "
-                                + "market_id, account_id, created_at) values (:c, :t, :m, :a, :at) on conflict do nothing")
-                        .param("c", o.councilId()).param("t", o.traderId()).param("m", o.marketId()).param("a", opened)
-                        .param("at", utc(clock.instant())).update());
-                accountId = opened;
-            }
+            long daily = tenant.inCouncil(o.councilId(), () -> jdbc.sql("select amount_ngwee from levy_charge "
+                            + "where council_id = :c and settled_by_instruction_id = :i order by business_date desc limit 1")
+                    .param("c", o.councilId()).param("i", o.id()).query(Long.class).single());
+            accountId = accounts.ensure(o.councilId(), o.traderId(), o.marketId(), daily);
             authority.topUp(accountId, "msika-levy-" + o.paymentsTxn(), o.amountNgwee(), "msika levy " + o.id());
         } catch (LevyAuthorityUnavailableException e) {
             note(o, e.getMessage());

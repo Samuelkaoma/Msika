@@ -54,10 +54,15 @@ tasks.register("printVerifySealsCommand") {
 // and talk to it over HTTP, exactly like a real payments system.
 evaluationDependsOn(":zamsim")
 val zamsimJar = project(":zamsim").tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar")
+// The levy tests (card M-25) run the real elevysim the same way.
+evaluationDependsOn(":elevysim")
+val elevysimJar = project(":elevysim").tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar")
 tasks.named<Test>("integrationTest") {
-    dependsOn(zamsimJar)
+    dependsOn(zamsimJar, elevysimJar)
     val jarFile = zamsimJar.flatMap { it.archiveFile }
+    val elevysimFile = elevysimJar.flatMap { it.archiveFile }
     doFirst {
         systemProperty("zamsim.jar", jarFile.get().asFile.absolutePath)
+        systemProperty("elevysim.jar", elevysimFile.get().asFile.absolutePath)
     }
 }
