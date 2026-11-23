@@ -254,7 +254,7 @@ with and without Msika.
 - Do: ARCHITECTURE §6, elevysim. Accounts, top-ups, daily charge, arrears.
 - Done: tests for charge with enough balance, charge into arrears, and a top-up clearing arrears.
 
-**☐ M-23 Levy rules** · MP + WM · M-07 · `feature/M-23-levy-rules`
+**☑ M-23 Levy rules** · MP + WM · M-07 · `feature/M-23-levy-rules` · code done; **real amounts still to research** (`docs/research/levy.md` §1)
 - Do: MP and WM find out the real daily levy amounts for Lusaka markets and stall classes and write
   them up in `docs/research/levy.md` with sources. TM or an assistant builds `levy_rule` and the
   daily `levy_charge` job from them.
