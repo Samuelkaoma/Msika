@@ -159,3 +159,4 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Proxy** | A server that forwards requests to another; the console's dev server forwards `/api` and `/zamsim`. |
 | **Arrears** | Levy that was due and not paid. A top-up pays arrears before anything goes to the balance. |
 | **Self-invocation** | A method calling another method of the same Spring bean, which skips the proxy that adds transactions. |
+| **Levy rule** | The daily levy for one stall class in one market, from a start date. Never edited; a change is a new rule. |
