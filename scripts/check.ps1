@@ -27,6 +27,9 @@ Step "Web: install and typecheck"
 Run "pnpm" @("install", "--frozen-lockfile")
 Run "pnpm" @("-r", "--if-present", "typecheck")
 
+Step "Web: unit tests"
+Run "pnpm" @("-r", "--if-present", "test")
+
 if (-not $fast) {
     Step "Java: integration tests and full build"
     Run ".\gradlew.bat" @("build")

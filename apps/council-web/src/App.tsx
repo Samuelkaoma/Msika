@@ -259,9 +259,10 @@ function AddMarket({ councilId, onDone }: { councilId: string; onDone: () => voi
 }
 
 function Coming({ what }: { what: string }) {
+  const location = useLocation();
   return (
     <section>
-      <h1>{PAGES.find((p) => window.location.pathname.endsWith(p.path))?.label ?? "Coming soon"}</h1>
+      <h1>{PAGES.find((p) => p.path === location.pathname)?.label ?? "Coming soon"}</h1>
       <p className="muted">{what}. This page is built in card M-27.</p>
     </section>
   );

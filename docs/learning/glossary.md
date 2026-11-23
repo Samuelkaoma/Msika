@@ -163,3 +163,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Levy sweep** | Paying a trader's unpaid levy days out of a confirmed deposit, with their consent, wallet to wallet. |
 | **State machine** | A record that moves through named states (PENDING, SENT, MOVED, DONE) by fixed steps, each safe to repeat. |
 | **System of record** | The system whose figures count when two disagree. For levy, that is the authority (eLevy), not Msika. |
+| **OpenAPI** | A JSON description of every endpoint of an API. Ours is generated from the Java code and turned into TypeScript types. |
+| **Component test** | A test that renders part of the web app in an imitation browser and clicks and types like a person. |

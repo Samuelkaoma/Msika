@@ -39,7 +39,7 @@ which runs the fast checks before every push. To run the checks yourself, use
 | Msika API | `./gradlew :msika-api:bootRun` | http://localhost:8080/health |
 | Zamtel Money simulator | `./gradlew :zamsim:bootRun` | http://localhost:8081/health |
 | eLevy simulator | `./gradlew :elevysim:bootRun` | http://localhost:8082/health |
-| Council dashboard | `pnpm --filter council-web dev` | http://localhost:5173 |
+| Council dashboard | `pnpm --filter council-web dev` (forwards `/api` to port 8080) | http://localhost:5173 |
 | Simulator console | `pnpm --filter sim-console dev` | http://localhost:5174 |
 
 Each health endpoint answers `{"status":"UP", ...}` and lists its database under `components`.
@@ -76,6 +76,17 @@ and switches on the payments system's faults.
    to 8081 (change them with `MSIKA_API_URL` and `ZAMSIM_URL`).
 4. Create a council, market, stalls, a trader, an agent and their wallets (card M-28 will do this in one command),
    then text `DEP B114 450` from the agent's phone and `TODAY` from the trader's.
+
+## Changing the API
+
+The dashboard's types come from the API's OpenAPI description. After changing an endpoint:
+
+```bash
+./gradlew :msika-api:integrationTest --tests '*OpenApiSpecTest' -PupdateOpenApi   # rewrites docs/api/openapi.json
+pnpm --filter council-web gen:api                                                  # rewrites src/api/schema.ts
+```
+
+The checks fail if either file is out of date.
 
 ## Layout
 

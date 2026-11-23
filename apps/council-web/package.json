@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "typecheck": "tsc --noEmit",
+    "gen:api": "node scripts/gen-api.mjs",
+    "typecheck": "node scripts/gen-api.mjs --check && tsc --noEmit",
+    "test": "vitest run",
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {

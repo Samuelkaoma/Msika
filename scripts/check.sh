@@ -21,6 +21,9 @@ step "Web: install and typecheck"
 pnpm install --frozen-lockfile
 pnpm -r --if-present typecheck
 
+step "Web: unit tests"
+pnpm -r --if-present test
+
 if [ "$fast" -eq 0 ]; then
   step "Java: integration tests and full build"
   ./gradlew build
