@@ -258,6 +258,19 @@
         },
         "type" : "object"
       },
+      "DayAmount" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "depositedNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "DayCloseRequest" : {
         "properties" : {
           "through" : {
@@ -501,6 +514,55 @@
         },
         "type" : "object"
       },
+      "Hit" : {
+        "properties" : {
+          "marketId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "stallCode" : {
+            "type" : "string"
+          },
+          "stallId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "traderId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "traderName" : {
+            "type" : "string"
+          },
+          "traderPhone" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Holder" : {
+        "properties" : {
+          "from" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "to" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "traderId" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ImportResponse" : {
         "properties" : {
           "created" : {
@@ -624,6 +686,39 @@
         },
         "type" : "object"
       },
+      "MarketStatus" : {
+        "properties" : {
+          "counts" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "levyCounts" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "quietDays" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stalls" : {
+            "items" : {
+              "$ref" : "#/components/schemas/StallStatus"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "MeResponse" : {
         "properties" : {
           "councilId" : {
@@ -639,6 +734,72 @@
           "userId" : {
             "format" : "uuid",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Panel" : {
+        "properties" : {
+          "aisle" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "depositedTodayNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "history" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Holder"
+            },
+            "type" : "array"
+          },
+          "holder" : {
+            "$ref" : "#/components/schemas/Holder"
+          },
+          "lastSevenDays" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DayAmount"
+            },
+            "type" : "array"
+          },
+          "marketCode" : {
+            "type" : "string"
+          },
+          "marketId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "openDisputes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "position" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "side" : {
+            "type" : "string"
+          },
+          "stallClass" : {
+            "type" : "string"
+          },
+          "stallId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "unpaidLevyDays" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "unpaidLevyNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -1060,6 +1221,51 @@
           },
           "status" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "StallStatus" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "depositedTodayNgwee" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "lastActivity" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "levy" : {
+            "enum" : [ "PAID_UP", "OWED_1_TO_7", "OWED_OVER_7", "NONE" ],
+            "type" : "string"
+          },
+          "openDisputes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stallClass" : {
+            "type" : "string"
+          },
+          "stallId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "state" : {
+            "enum" : [ "FREE", "ACTIVE", "QUIET", "SUSPENDED" ],
+            "type" : "string"
+          },
+          "traderName" : {
+            "type" : "string"
+          },
+          "traderPhone" : {
+            "type" : "string"
+          },
+          "unpaidLevyDays" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -1837,6 +2043,49 @@
           }
         },
         "tags" : [ "levy-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/markets/{marketId}/map-status" : {
+      "get" : {
+        "operationId" : "mapStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MarketStatus"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "map-status-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/markets/{marketId}/plan" : {
@@ -2683,6 +2932,43 @@
         "tags" : [ "seal-controller" ]
       }
     },
+    "/api/v1/councils/{councilId}/search" : {
+      "get" : {
+        "operationId" : "search",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "q",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/Hit"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "map-status-controller" ]
+      }
+    },
     "/api/v1/councils/{councilId}/stalls/{stallId}/allocation" : {
       "delete" : {
         "operationId" : "free",
@@ -2752,6 +3038,49 @@
           }
         },
         "tags" : [ "council-admin-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/stalls/{stallId}/panel" : {
+      "get" : {
+        "operationId" : "panel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "stallId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Panel"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "map-status-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/traders" : {

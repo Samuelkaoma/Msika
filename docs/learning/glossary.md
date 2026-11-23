@@ -167,3 +167,4 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Component test** | A test that renders part of the web app in an imitation browser and clicks and types like a person. |
 | **Market plan** | One version of a market's drawing: sections, aisles, features and stall footprints. Frozen once published. |
 | **Footprint** | A stall's shape on the plan, with its address (aisle, side, position) and where the shape came from. |
+| **Query plan** | How Postgres will run a query (EXPLAIN ANALYZE shows it, with times). Read it before guessing why a query is slow. |

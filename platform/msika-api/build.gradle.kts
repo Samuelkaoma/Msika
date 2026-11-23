@@ -66,6 +66,7 @@ tasks.named<Test>("integrationTest") {
     val elevysimFile = elevysimJar.flatMap { it.archiveFile }
     // -PupdateOpenApi rewrites docs/api/openapi.json from the code (see OpenApiSpecTest).
     systemProperty("msika.updateOpenApi", project.hasProperty("updateOpenApi").toString())
+    systemProperty("msika.explain", project.hasProperty("explain").toString())
     doFirst {
         systemProperty("zamsim.jar", jarFile.get().asFile.absolutePath)
         systemProperty("elevysim.jar", elevysimFile.get().asFile.absolutePath)

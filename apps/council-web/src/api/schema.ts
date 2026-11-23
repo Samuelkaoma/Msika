@@ -93,6 +93,11 @@ export interface CreateUserRequest {
   role?: string;
 }
 
+export interface DayAmount {
+  date?: string; // date
+  depositedNgwee?: number; // int64
+}
+
 export interface DayCloseRequest {
   through?: string; // date
 }
@@ -168,6 +173,23 @@ export interface FootprintBody {
   uncertaintyMm?: number; // int32
 }
 
+export interface Hit {
+  marketId?: string; // uuid
+  stallCode?: string;
+  stallId?: string; // uuid
+  traderId?: string; // uuid
+  traderName?: string;
+  traderPhone?: string;
+}
+
+export interface Holder {
+  from?: string; // date-time
+  name?: string;
+  phone?: string;
+  to?: string; // date-time
+  traderId?: string; // uuid
+}
+
 export interface ImportResponse {
   created?: number; // int32
 }
@@ -212,11 +234,38 @@ export interface MarketResponse {
   name?: string;
 }
 
+export interface MarketStatus {
+  counts?: Record<string, number>;
+  date?: string; // date
+  levyCounts?: Record<string, number>;
+  quietDays?: number; // int32
+  stalls?: Array<StallStatus>;
+}
+
 export interface MeResponse {
   councilId?: string; // uuid
   email?: string;
   role?: string;
   userId?: string; // uuid
+}
+
+export interface Panel {
+  aisle?: string;
+  code?: string;
+  depositedTodayNgwee?: number; // int64
+  history?: Array<Holder>;
+  holder?: Holder;
+  lastSevenDays?: Array<DayAmount>;
+  marketCode?: string;
+  marketId?: string; // uuid
+  openDisputes?: number; // int32
+  position?: number; // int32
+  side?: string;
+  stallClass?: string;
+  stallId?: string; // uuid
+  status?: string;
+  unpaidLevyDays?: number; // int32
+  unpaidLevyNgwee?: number; // int64
 }
 
 export interface PlanBody {
@@ -359,6 +408,20 @@ export interface StallResponse {
   qrToken?: string;
   stallClass?: string;
   status?: string;
+}
+
+export interface StallStatus {
+  code?: string;
+  depositedTodayNgwee?: number; // int64
+  lastActivity?: string; // date
+  levy?: "PAID_UP" | "OWED_1_TO_7" | "OWED_OVER_7" | "NONE";
+  openDisputes?: number; // int32
+  stallClass?: string;
+  stallId?: string; // uuid
+  state?: "FREE" | "ACTIVE" | "QUIET" | "SUSPENDED";
+  traderName?: string;
+  traderPhone?: string;
+  unpaidLevyDays?: number; // int32
 }
 
 export interface StartDepositRequest {
@@ -541,6 +604,14 @@ export interface Paths {
       response: LevyRule;
     };
   };
+  "/api/v1/councils/{councilId}/markets/{marketId}/map-status": {
+    get: {
+      path: { councilId: string; marketId: string };
+      query: { date?: string };
+      body: never;
+      response: MarketStatus;
+    };
+  };
   "/api/v1/councils/{councilId}/markets/{marketId}/plan": {
     get: {
       path: { councilId: string; marketId: string };
@@ -711,6 +782,14 @@ export interface Paths {
       response: SealResponse;
     };
   };
+  "/api/v1/councils/{councilId}/search": {
+    get: {
+      path: { councilId: string };
+      query: { q: string };
+      body: never;
+      response: Array<Hit>;
+    };
+  };
   "/api/v1/councils/{councilId}/stalls/{stallId}/allocation": {
     put: {
       path: { councilId: string; stallId: string };
@@ -723,6 +802,14 @@ export interface Paths {
       query: never;
       body: never;
       response: void;
+    };
+  };
+  "/api/v1/councils/{councilId}/stalls/{stallId}/panel": {
+    get: {
+      path: { councilId: string; stallId: string };
+      query: { date?: string };
+      body: never;
+      response: Panel;
     };
   };
   "/api/v1/councils/{councilId}/traders": {
