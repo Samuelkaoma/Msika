@@ -157,3 +157,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Single-page app** | A web page that downloads once and then draws itself with JavaScript, asking the servers for data. |
 | **Polling** | Asking a server again every few seconds whether anything changed. |
 | **Proxy** | A server that forwards requests to another; the console's dev server forwards `/api` and `/zamsim`. |
+| **Arrears** | Levy that was due and not paid. A top-up pays arrears before anything goes to the balance. |
+| **Self-invocation** | A method calling another method of the same Spring bean, which skips the proxy that adds transactions. |

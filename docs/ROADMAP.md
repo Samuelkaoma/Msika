@@ -250,7 +250,7 @@ Goal: traders and agents do everything in SMS-PROTOCOL.md from a phone.
 Goal: levy is charged daily and paid automatically from deposits, and the demo can show arrears
 with and without Msika.
 
-**☐ M-22 elevysim** · KK · M-04 · `feature/M-22-elevysim`
+**☑ M-22 elevysim** · KK · M-04 · `feature/M-22-elevysim`
 - Do: ARCHITECTURE §6, elevysim. Accounts, top-ups, daily charge, arrears.
 - Done: tests for charge with enough balance, charge into arrears, and a top-up clearing arrears.
 

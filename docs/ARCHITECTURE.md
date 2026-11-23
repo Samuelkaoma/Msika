@@ -245,7 +245,12 @@ levy is deducted from it. If the balance does not cover it, arrears build up.
 | `POST /v1/levy-accounts` | Open an account for a trader at a market |
 | `POST /v1/levy-accounts/{id}/top-ups` | Credit the account (Msika calls this after the money has moved in zamsim) |
 | `GET /v1/levy-accounts/{id}` | Balance and arrears |
+| `GET /v1/levy-accounts?market=&trader=` | Find a trader's account at a market (or `?council=` to list) |
+| `GET /v1/levy-accounts/{id}/movements` | Every top-up and charge, with the balance and arrears after it |
 | `POST /v1/admin/run-daily-charge` | Deduct one day's levy from every account (scheduled, and callable in demos) |
+
+- A top-up pays arrears first. One charge per account per trading day, however often the charge runs.
+  Top-ups carry an `Idempotency-Key`. Movements are append-only.
 
 This lets the demo show the before and after side by side: without Msika the account drifts into
 arrears, with Msika it stays at zero arrears.
