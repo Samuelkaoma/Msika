@@ -16,6 +16,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.apache.pdfbox:pdfbox:3.0.8")
     implementation("com.google.zxing:core:3.5.4")
+    // The OpenAPI description of the API, generated from the code (card M-26): the dashboard's typed client is
+    // generated from it, so the browser and the server cannot drift apart unnoticed.
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.1")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
@@ -61,6 +64,8 @@ tasks.named<Test>("integrationTest") {
     dependsOn(zamsimJar, elevysimJar)
     val jarFile = zamsimJar.flatMap { it.archiveFile }
     val elevysimFile = elevysimJar.flatMap { it.archiveFile }
+    // -PupdateOpenApi rewrites docs/api/openapi.json from the code (see OpenApiSpecTest).
+    systemProperty("msika.updateOpenApi", project.hasProperty("updateOpenApi").toString())
     doFirst {
         systemProperty("zamsim.jar", jarFile.get().asFile.absolutePath)
         systemProperty("elevysim.jar", elevysimFile.get().asFile.absolutePath)
