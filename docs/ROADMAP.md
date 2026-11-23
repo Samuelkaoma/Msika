@@ -303,7 +303,7 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
   an `UPDATE` on a published footprint failing at the database, and a generated plan for a
   300-stall market with every stall placed, no overlaps and no duplicate addresses.
 
-**☐ M-49 Map status** · SK · M-48, M-15, M-24 · `feature/M-49-map-status`
+**☑ M-49 Map status** · SK · M-48, M-15, M-24 · `feature/M-49-map-status`
 - Do: MARKET-MAP §7 and the `map-status`, `panel` and `search` endpoints in §11. States worked out
   from the register and activity, never stored. Trader names and phones shown by role (officers see
   masked phones).
