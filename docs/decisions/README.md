@@ -11,6 +11,8 @@ asking.
 | [0003](0003-money-as-long-ngwee.md) | Money is a `long` number of ngwee | Accepted |
 | [0004](0004-append-only-ledger.md) | The ledger is append-only | Accepted |
 | [0005](0005-row-level-security-for-tenancy.md) | Row-level security keeps councils apart | Accepted |
+| [0006](0006-plan-geometry-in-millimetres.md) | Market plans are integer millimetres on a local flat plane | Accepted |
+| [0007](0007-no-postgis.md) | Plain Postgres for plan geometry, no PostGIS for now | Accepted |
 
 ## How to add one
 

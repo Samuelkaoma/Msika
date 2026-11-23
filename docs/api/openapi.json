@@ -62,6 +62,21 @@
         },
         "type" : "object"
       },
+      "AisleBody" : {
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "pathMm" : {
+            "items" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "AllocateRequest" : {
         "properties" : {
           "traderId" : {
@@ -160,6 +175,31 @@
           "traderId" : {
             "format" : "uuid",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ConfigBody" : {
+        "properties" : {
+          "aisleWidthMm" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "sectionGapMm" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stallDepthMm" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stallWidthMm" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stallsPerSide" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -368,6 +408,99 @@
         },
         "type" : "object"
       },
+      "EditRequest" : {
+        "properties" : {
+          "aisles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AisleBody"
+            },
+            "type" : "array"
+          },
+          "features" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FeatureBody"
+            },
+            "type" : "array"
+          },
+          "footprints" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FootprintBody"
+            },
+            "type" : "array"
+          },
+          "notes" : {
+            "type" : "string"
+          },
+          "sections" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SectionBody"
+            },
+            "type" : "array"
+          },
+          "unmappedStallIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "FeatureBody" : {
+        "properties" : {
+          "kind" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "shapeMm" : {
+            "items" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "FootprintBody" : {
+        "properties" : {
+          "aisle" : {
+            "type" : "string"
+          },
+          "polygonMm" : {
+            "items" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "array"
+          },
+          "position" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "provenance" : {
+            "type" : "string"
+          },
+          "side" : {
+            "type" : "string"
+          },
+          "stallCode" : {
+            "type" : "string"
+          },
+          "stallId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "uncertaintyMm" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "ImportResponse" : {
         "properties" : {
           "created" : {
@@ -506,6 +639,84 @@
           "userId" : {
             "format" : "uuid",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PlanBody" : {
+        "properties" : {
+          "aisles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AisleBody"
+            },
+            "type" : "array"
+          },
+          "features" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FeatureBody"
+            },
+            "type" : "array"
+          },
+          "footprints" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FootprintBody"
+            },
+            "type" : "array"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "marketId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "notes" : {
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "sections" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SectionBody"
+            },
+            "type" : "array"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "unmappedStallIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PlanSummary" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -805,6 +1016,21 @@
         },
         "type" : "object"
       },
+      "SectionBody" : {
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "polygonMm" : {
+            "items" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "SetActiveRequest" : {
         "properties" : {
           "active" : {
@@ -850,6 +1076,14 @@
           },
           "stallId" : {
             "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "StartRequest" : {
+        "properties" : {
+          "from" : {
             "type" : "string"
           }
         },
@@ -1151,7 +1385,7 @@
         "tags" : [ "deposit-controller" ]
       },
       "post" : {
-        "operationId" : "start",
+        "operationId" : "start_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "councilId",
@@ -1446,6 +1680,84 @@
         "tags" : [ "council-admin-controller" ]
       }
     },
+    "/api/v1/councils/{councilId}/markets/{marketId}/layout-config" : {
+      "get" : {
+        "operationId" : "config",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConfigBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      },
+      "put" : {
+        "operationId" : "setConfig",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConfigBody"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConfigBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      }
+    },
     "/api/v1/councils/{councilId}/markets/{marketId}/levy-rules" : {
       "get" : {
         "operationId" : "rules",
@@ -1525,6 +1837,122 @@
           }
         },
         "tags" : [ "levy-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/markets/{marketId}/plan" : {
+      "get" : {
+        "operationId" : "current",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/markets/{marketId}/plans" : {
+      "get" : {
+        "operationId" : "versions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/PlanSummary"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      },
+      "post" : {
+        "operationId" : "start",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StartRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanBody"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "plan-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/markets/{marketId}/plates.pdf" : {
@@ -1645,6 +2073,119 @@
           }
         },
         "tags" : [ "council-admin-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/plans/{planId}" : {
+      "get" : {
+        "operationId" : "plan",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "planId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      },
+      "put" : {
+        "operationId" : "edit",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "planId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EditRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/plans/{planId}/publish" : {
+      "post" : {
+        "operationId" : "publish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "planId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanBody"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "plan-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/reconciliation/{date}" : {
