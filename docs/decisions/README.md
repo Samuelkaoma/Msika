@@ -13,6 +13,7 @@ asking.
 | [0005](0005-row-level-security-for-tenancy.md) | Row-level security keeps councils apart | Accepted |
 | [0006](0006-plan-geometry-in-millimetres.md) | Market plans are integer millimetres on a local flat plane | Accepted |
 | [0007](0007-no-postgis.md) | Plain Postgres for plan geometry, no PostGIS for now | Accepted |
+| [0008](0008-svg-plans-without-a-map-library.md) | Market plans drawn as SVG without a map library | Accepted |
 
 ## How to add one
 

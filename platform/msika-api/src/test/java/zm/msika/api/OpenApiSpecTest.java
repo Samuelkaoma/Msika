@@ -38,7 +38,8 @@ class OpenApiSpecTest extends ApiTest {
         ((tools.jackson.databind.node.ObjectNode) spec).remove("servers");
         // Endpoints that exist only in test sources are not part of the API.
         ((tools.jackson.databind.node.ObjectNode) spec.path("paths")).remove("/api/v1/internal/no-rule");
-        String current = JSON.writeValueAsString(JSON.treeToValue(spec, Object.class)) + "\n";
+        // The pretty printer uses the platform's line ending; git keeps the file with \n. Compare and write with \n.
+        String current = JSON.writeValueAsString(JSON.treeToValue(spec, Object.class)).replace("\r\n", "\n") + "\n";
 
         assertThat(spec.path("paths").has("/api/v1/auth/login")).isTrue();
         if (Boolean.getBoolean("msika.updateOpenApi")) {
@@ -46,7 +47,7 @@ class OpenApiSpecTest extends ApiTest {
             Files.writeString(COMMITTED, current, StandardCharsets.UTF_8);
         }
         assertThat(Files.exists(COMMITTED)).as(COMMITTED + " exists (run with -PupdateOpenApi to create it)").isTrue();
-        assertThat(Files.readString(COMMITTED, StandardCharsets.UTF_8))
+        assertThat(Files.readString(COMMITTED, StandardCharsets.UTF_8).replace("\r\n", "\n"))
                 .as("docs/api/openapi.json is out of date: run ./gradlew :msika-api:integrationTest "
                         + "--tests '*OpenApiSpecTest' -PupdateOpenApi, then pnpm --filter council-web gen:api")
                 .isEqualTo(current);

@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 /**
  * Lays out a plan from stall codes alone (MARKET-MAP section 5.1). {@code SOW-B-114} is section {@code B}, number
  * {@code 114}. Within each section, numbers run along aisles: the first {@code stallsPerSide} on the left of aisle 1,
- * the next on its right, then aisle 2, and so on. Sections are placed side by side. Every footprint is
+ * the next on its right, then aisle 2, and so on. Sections are placed in rows, about as many to a row as there are
+ * rows, so a market with many sections comes out roughly square rather than as one long strip. Every footprint is
  * {@link MarketPlan.Provenance#GENERATED}: a schematic, which the map draws dashed and labels as not measured.
  *
  * <p>A stall whose code does not follow the market's pattern cannot be placed; it is listed as unmapped.
@@ -71,15 +72,26 @@ public final class LayoutGenerator {
         List<MarketPlan.Section> sections = new ArrayList<>();
         List<MarketPlan.Aisle> aisles = new ArrayList<>();
         List<MarketPlan.Footprint> footprints = new ArrayList<>();
+        int perRow = Math.max(1, (int) Math.ceil(Math.sqrt(bySection.size())));
         int sectionX = 0;
+        int rowY = 0;
+        int rowHeight = 0;
+        int inRow = 0;
         for (Map.Entry<String, TreeMap<Integer, UUID>> section : bySection.entrySet()) {
+            if (inRow == perRow) {
+                sectionX = 0;
+                rowY += rowHeight + config.sectionGapMm();
+                rowHeight = 0;
+                inRow = 0;
+            }
+            inRow++;
             List<UUID> ordered = new ArrayList<>(section.getValue().values());
             int perAisle = 2 * config.stallsPerSide();
             int aisleCount = (ordered.size() + perAisle - 1) / perAisle;
             int longest = Math.min(config.stallsPerSide(), ordered.size());
             int sectionWidth = longest * w;
             for (int k = 0; k < aisleCount; k++) {
-                int y0 = k * (stripHeight + a);
+                int y0 = rowY + k * (stripHeight + a);
                 String aisleName = section.getKey() + "-" + (k + 1);
                 int aisleY = y0 + d + a / 2;
                 aisles.add(new MarketPlan.Aisle(aisleName, List.of(new PointMm(sectionX, aisleY),
@@ -96,8 +108,9 @@ public final class LayoutGenerator {
                 }
             }
             int sectionHeight = aisleCount * stripHeight + Math.max(0, aisleCount - 1) * a;
-            sections.add(new MarketPlan.Section(section.getKey(), PolygonMm.rectangle(sectionX, 0, sectionWidth,
+            sections.add(new MarketPlan.Section(section.getKey(), PolygonMm.rectangle(sectionX, rowY, sectionWidth,
                     sectionHeight)));
+            rowHeight = Math.max(rowHeight, sectionHeight);
             sectionX += sectionWidth + config.sectionGapMm();
         }
         footprints.sort(Comparator.comparing(MarketPlan.Footprint::aisle).thenComparing(MarketPlan.Footprint::side)

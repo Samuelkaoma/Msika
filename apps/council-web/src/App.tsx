@@ -3,11 +3,13 @@ import { BrowserRouter, MemoryRouter, Navigate, NavLink, Outlet, Route, Routes, 
 import { api, ApiError } from "./api/client";
 import type { MarketResponse } from "./api/schema";
 import { AuthProvider, useAuth } from "./auth";
+import { MarketMapPage } from "./map/MarketMapPage";
 import { Agents, ArrearsPage, Collections, Occupancy, Seals } from "./pages";
 
 /** The pages, in the order of the navigation. */
 const PAGES = [
   { path: "/", label: "Overview" },
+  { path: "/map", label: "Market map" },
   { path: "/markets", label: "Markets" },
   { path: "/collections", label: "Collections" },
   { path: "/arrears", label: "Arrears" },
@@ -32,6 +34,7 @@ function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
           <Route index element={<Overview />} />
+          <Route path="map" element={<MarketMapPage />} />
           <Route path="markets" element={<Markets />} />
           <Route path="collections" element={<Collections />} />
           <Route path="arrears" element={<ArrearsPage />} />
