@@ -267,3 +267,30 @@ td {
     overflow-x: auto;
   }
 }
+
+h2 {
+  font-size: 1.05rem;
+  margin: 24px 0 8px;
+}
+
+.filters label {
+  margin-bottom: 0;
+}
+
+.filters {
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+tfoot th {
+  border-top: 2px solid var(--line);
+}
+
+tr.flag td {
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+.ok {
+  color: var(--accent);
+  font-weight: 600;
+}

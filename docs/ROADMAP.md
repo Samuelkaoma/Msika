@@ -281,7 +281,7 @@ Goal: a council officer sees their markets, and the full story can be shown in 7
   OpenAPI spec of `msika-api`.
 - Done: sign in, sign out, an expired session goes back to sign-in, an officer sees no edit buttons.
 
-**☐ M-27 Collections and occupancy** · TM · M-26, M-24 · `feature/M-27-collections`
+**☑ M-27 Collections and occupancy** · TM · M-26, M-24 · `feature/M-27-collections`
 - Do: pages for markets (stalls vacant, allocated and active today), collections (deposits and levy
   per day and per market), arrears, agents (deposits, disputes, reconciliation differences), and
   the daily seals with a "verify" button.

@@ -3,8 +3,9 @@ import { BrowserRouter, MemoryRouter, Navigate, NavLink, Outlet, Route, Routes, 
 import { api, ApiError } from "./api/client";
 import type { MarketResponse } from "./api/schema";
 import { AuthProvider, useAuth } from "./auth";
+import { Agents, ArrearsPage, Collections, Occupancy, Seals } from "./pages";
 
-/** The pages, in the order of the navigation. M-27 fills in the ones marked as coming. */
+/** The pages, in the order of the navigation. */
 const PAGES = [
   { path: "/", label: "Overview" },
   { path: "/markets", label: "Markets" },
@@ -32,10 +33,10 @@ function AppRoutes() {
         <Route element={<Layout />}>
           <Route index element={<Overview />} />
           <Route path="markets" element={<Markets />} />
-          <Route path="collections" element={<Coming what="Deposits and levy per day and per market" />} />
-          <Route path="arrears" element={<Coming what="Traders in levy arrears" />} />
-          <Route path="agents" element={<Coming what="Agents: deposits, disputes and reconciliation differences" />} />
-          <Route path="seals" element={<Coming what="The daily seals, each with a verify button" />} />
+          <Route path="collections" element={<Collections />} />
+          <Route path="arrears" element={<ArrearsPage />} />
+          <Route path="agents" element={<Agents />} />
+          <Route path="seals" element={<Seals />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -196,6 +197,9 @@ function Markets() {
         )}
       </div>
       {adding && <AddMarket councilId={councilId} onDone={() => (setAdding(false), load())} />}
+      <h2>Stalls</h2>
+      <Occupancy />
+      <h2>All markets</h2>
       {error && <p className="error">{error}</p>}
       {markets && markets.length === 0 && <p className="muted">No markets yet.</p>}
       {markets && markets.length > 0 && (
@@ -255,16 +259,6 @@ function AddMarket({ councilId, onDone }: { councilId: string; onDone: () => voi
         </button>
       </div>
     </form>
-  );
-}
-
-function Coming({ what }: { what: string }) {
-  const location = useLocation();
-  return (
-    <section>
-      <h1>{PAGES.find((p) => p.path === location.pathname)?.label ?? "Coming soon"}</h1>
-      <p className="muted">{what}. This page is built in card M-27.</p>
-    </section>
   );
 }
 
