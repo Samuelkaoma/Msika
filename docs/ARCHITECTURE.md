@@ -142,6 +142,11 @@ owns the merchant wallet.
   amount from the trader's wallet to the council's collection wallet, then tells `elevysim` to credit
   the trader's levy account. The trader agreed to this once, at registration, and that consent is
   stored with a timestamp.
+- How it runs (card M-24): the confirmed deposit reserves the oldest unpaid levy days it covers, **whole days only**
+  (a deposit smaller than one day's levy pays nothing), in a `payment_instruction`. A worker sends the transfer;
+  its callback records `LEVY_PAYMENT` (VERIFIED); the worker then tops up the eLevy account, keyed by the payments
+  transaction. A failed transfer frees the days again. An authority that is down after the money moved is retried;
+  nothing is paid twice.
 - The trader's levy account never goes into arrears while they deposit. If they do not deposit,
   arrears build up and the dashboard shows them.
 

@@ -44,6 +44,8 @@ services:
       # The payments system (card M-14): zamsim on the internal network. Empty secret: every callback is refused.
       MSIKA_PAYMENTS_ZAMSIM_BASE_URL: ${MSIKA_PAYMENTS_ZAMSIM_BASE_URL:-http://zamsim:8081}
       MSIKA_PAYMENTS_CALLBACK_SECRET: ${MSIKA_PAYMENTS_CALLBACK_SECRET:-}
+      # The levy authority (card M-24): elevysim on the internal network.
+      MSIKA_LEVY_ELEVYSIM_BASE_URL: ${MSIKA_LEVY_ELEVYSIM_BASE_URL:-http://elevysim:8082}
       # The SMS gateway's signing secret (card M-18). Empty: every inbound text from a gateway is refused.
       MSIKA_SMS_GATEWAY_SECRET: ${MSIKA_SMS_GATEWAY_SECRET:-}
       # The sim console's fake phones (card M-20). On for this local stack; never on in a pilot.

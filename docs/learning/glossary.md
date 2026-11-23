@@ -160,3 +160,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Arrears** | Levy that was due and not paid. A top-up pays arrears before anything goes to the balance. |
 | **Self-invocation** | A method calling another method of the same Spring bean, which skips the proxy that adds transactions. |
 | **Levy rule** | The daily levy for one stall class in one market, from a start date. Never edited; a change is a new rule. |
+| **Levy sweep** | Paying a trader's unpaid levy days out of a confirmed deposit, with their consent, wallet to wallet. |
+| **State machine** | A record that moves through named states (PENDING, SENT, MOVED, DONE) by fixed steps, each safe to repeat. |

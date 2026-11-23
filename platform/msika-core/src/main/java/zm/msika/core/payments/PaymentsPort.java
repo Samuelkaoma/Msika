@@ -34,6 +34,15 @@ public interface PaymentsPort {
     String cashIn(String idempotencyKey, String agentWalletId, String customerWalletId, Money amount, String reference);
 
     /**
+     * Moves money from one wallet to another (a levy payment from the trader's wallet to the council's). The same
+     * key moves the money once. The outcome arrives by callback, like a cash-in.
+     *
+     * @return the payments system's id for the transaction
+     * @throws PaymentsUnavailableException if the system could not be reached or answered with an error
+     */
+    String transfer(String idempotencyKey, String fromWalletId, String toWalletId, Money amount, String reference);
+
+    /**
      * Looks up one wallet: its kind and the phone number it is registered to. Used to check that a wallet a
      * council registers really belongs to that trader or agent.
      *

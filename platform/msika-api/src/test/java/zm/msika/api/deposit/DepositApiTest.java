@@ -44,6 +44,11 @@ class DepositApiTest extends ApiTest {
 
     /** Stands in for the payments system: records every call, and can be told to be unreachable. */
     static final class ScriptedPayments implements PaymentsPort {
+        @Override
+        public String transfer(String key, String from, String to, Money amount, String reference) {
+            throw new UnsupportedOperationException("no transfers in this test");
+        }
+
         record Call(String key, String agentWallet, String customerWallet, long amount, String reference) {}
 
         final List<Call> calls = Collections.synchronizedList(new ArrayList<>());

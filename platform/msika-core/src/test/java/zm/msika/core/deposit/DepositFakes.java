@@ -113,6 +113,12 @@ public final class DepositFakes {
         }
 
         @Override
+        public Optional<WalletOwner> ofCouncil(UUID councilId) {
+            return all.stream().filter(w -> w.councilId().equals(councilId) && w.role() == WalletOwner.Role.COUNCIL)
+                    .findFirst();
+        }
+
+        @Override
         public List<WalletOwner> list(UUID councilId) {
             return all.stream().filter(w -> w.councilId().equals(councilId)).toList();
         }

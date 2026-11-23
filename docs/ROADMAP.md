@@ -260,7 +260,7 @@ with and without Msika.
   daily `levy_charge` job from them.
 - Done: charges for a seeded market match a table worked out by hand in the research note.
 
-**☐ M-24 Levy sweep** · SK · M-15, M-22, M-23 · `feature/M-24-levy-sweep`
+**☑ M-24 Levy sweep** · SK · M-15, M-22, M-23 · `feature/M-24-levy-sweep`
 - Do: ARCHITECTURE §4.3. On a confirmed deposit, pay outstanding levy: transfer in zamsim, then
   top-up in elevysim, both through ports and `payment_instruction` rows with idempotency keys.
   Only for traders who gave consent.

@@ -26,5 +26,8 @@ public interface WalletRegistry {
 
     Optional<WalletOwner> ofAgent(UUID councilId, UUID agentId);
 
+    /** The council's collection wallet, which levy is paid into. */
+    Optional<WalletOwner> ofCouncil(UUID councilId);
+
     List<WalletOwner> list(UUID councilId);
 }

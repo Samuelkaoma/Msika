@@ -19,9 +19,9 @@ public record PaymentsWallet(String walletId, Kind kind, String msisdn, Long bal
         this(walletId, kind, msisdn, null);
     }
 
-    /** The kinds Msika cares about. Anything else (a council, lender or issuer wallet) is {@link #OTHER}. */
+    /** The kinds Msika cares about. Anything else (a lender or issuer wallet) is {@link #OTHER}. */
     public enum Kind {
-        TRADER, MERCHANT, AGENT, SUPPLIER, OTHER
+        TRADER, MERCHANT, AGENT, SUPPLIER, COUNCIL, OTHER
     }
 
     public PaymentsWallet {

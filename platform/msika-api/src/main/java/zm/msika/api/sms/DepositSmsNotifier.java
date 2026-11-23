@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.util.Locale;
 import org.springframework.stereotype.Component;
 import zm.msika.core.deposit.Deposit;
-import zm.msika.core.deposit.DepositEvents;
 import zm.msika.core.sms.SmsFormat;
 import zm.msika.core.sms.SmsTemplate;
 
@@ -15,7 +14,7 @@ import zm.msika.core.sms.SmsTemplate;
  * saved.
  */
 @Component
-class DepositSmsNotifier implements DepositEvents {
+class DepositSmsNotifier implements zm.msika.api.deposit.DepositEventsHub.Part {
 
     private final SmsQueries queries;
     private final SmsStore store;
