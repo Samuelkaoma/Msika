@@ -42,6 +42,9 @@ class SecurityConfiguration {
                 .authorizeHttpRequests(a -> a
                         // The framework's own error page is reachable after a controller error.
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        // A server-sent event stream (M-51) is completed on an async dispatch, after the request that
+                        // opened it was already authorised.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/health", "/health/**").permitAll()
                         // The API's description: public on purpose, the code it describes is public too.
                         .requestMatchers(HttpMethod.GET, "/v3/api-docs", "/v3/api-docs/**").permitAll()

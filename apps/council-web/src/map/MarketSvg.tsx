@@ -20,6 +20,9 @@ export type MarketSvgProps = {
   highlighted: Set<string>;
   selected: string | null;
   onSelect: (stallId: string) => void;
+  /** An agent's round tonight (M-51): stalls done, and held stalls in their aisles not reached yet. */
+  roundDone?: Set<string>;
+  roundNotReached?: Set<string>;
 };
 
 /** Groups footprints by style and builds one path for each group. Exported for the tests. */
@@ -48,7 +51,7 @@ function fit(box: Box): View {
 }
 
 export const MarketSvg = memo(function MarketSvg(props: MarketSvgProps) {
-  const { footprints, sections, status, layer, visible, highlighted, selected, onSelect } = props;
+  const { footprints, sections, status, layer, visible, highlighted, selected, onSelect, roundDone, roundNotReached } = props;
   const box = useMemo(() => union(footprints.map((f) => boundsOf(f.polygon)).concat(sections.map((s) => boundsOf(s.polygon)))), [footprints, sections]);
   const home = useMemo(() => fit(box), [box]);
   const [view, setView] = useState<View>(home);
@@ -123,6 +126,10 @@ export const MarketSvg = memo(function MarketSvg(props: MarketSvgProps) {
   }, [footprints, view]);
 
   const highlightPath = footprints.filter((f) => highlighted.has(f.stallId)).map((f) => pathOf(f.polygon)).join("");
+  const roundDonePath = roundDone ? footprints.filter((f) => roundDone.has(f.stallId)).map((f) => pathOf(f.polygon)).join("") : "";
+  const roundLeftPath = roundNotReached
+    ? footprints.filter((f) => roundNotReached.has(f.stallId)).map((f) => pathOf(f.polygon)).join("")
+    : "";
   const selectedPath = footprints.filter((f) => f.stallId === selected).map((f) => pathOf(f.polygon)).join("");
   const stroke = Math.max(view.w / 1_500, 20);
 
@@ -175,6 +182,10 @@ export const MarketSvg = memo(function MarketSvg(props: MarketSvgProps) {
         <path d={drawn.solid} className="outline" strokeWidth={stroke} />
         <path d={drawn.dashed} className="outline" strokeWidth={stroke} strokeDasharray={`${stroke * 4} ${stroke * 3}`} data-testid="generated-outlines" />
         {highlightPath && <path d={highlightPath} className="highlight" strokeWidth={stroke * 5} data-testid="highlight" data-codes={footprints.filter((f) => highlighted.has(f.stallId)).map((f) => f.code).join(" ")} />}
+        {roundDonePath && <path d={roundDonePath} className="round-done" strokeWidth={stroke * 4} data-testid="round-done" />}
+        {roundLeftPath && (
+          <path d={roundLeftPath} className="round-left" strokeWidth={stroke * 4} strokeDasharray={`${stroke * 6} ${stroke * 4}`} data-testid="round-left" />
+        )}
         {selectedPath && <path d={selectedPath} className="selected" strokeWidth={stroke * 4} />}
         {sections.map((s) => {
           const b = boundsOf(s.polygon);

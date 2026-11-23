@@ -47,6 +47,7 @@ Audience: someone who wants to understand the system well enough to rebuild it, 
 | M-48 | [M-48-market-plans.md](M-48-market-plans.md) | written |
 | M-49 | [M-49-map-status.md](M-49-map-status.md) | written |
 | M-50 | [M-50-market-map.md](M-50-market-map.md) | written |
+| M-51 | [M-51-live-closing.md](M-51-live-closing.md) | written |
 | R-01 | [R-01-review-fixes.md](R-01-review-fixes.md) | written (fixes from the first review, not a card) |
 
 Lessons are added as cards are built. Use [_template.md](_template.md) for new ones.

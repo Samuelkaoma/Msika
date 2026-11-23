@@ -1030,6 +1030,39 @@
         },
         "type" : "object"
       },
+      "Round" : {
+        "properties" : {
+          "agentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "aisles" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "done" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "notReached" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "RuleRequest" : {
         "properties" : {
           "amountNgwee" : {
@@ -1196,6 +1229,15 @@
         "properties" : {
           "active" : {
             "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "SseEmitter" : {
+        "properties" : {
+          "timeout" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -1515,6 +1557,57 @@
           }
         },
         "tags" : [ "people-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/agents/{agentId}/round" : {
+      "get" : {
+        "operationId" : "round",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "agentId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Round"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "live-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/day-close" : {
@@ -2043,6 +2136,41 @@
           }
         },
         "tags" : [ "levy-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/markets/{marketId}/map-events" : {
+      "get" : {
+        "operationId" : "mapEvents",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "marketId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SseEmitter"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "live-controller" ]
       }
     },
     "/api/v1/councils/{councilId}/markets/{marketId}/map-status" : {

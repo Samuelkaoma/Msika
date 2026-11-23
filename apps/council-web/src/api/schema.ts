@@ -341,6 +341,14 @@ export interface ReportBody {
   ranBy?: string;
 }
 
+export interface Round {
+  agentId?: string; // uuid
+  aisles?: Array<string>;
+  date?: string; // date
+  done?: Array<string>;
+  notReached?: Array<string>;
+}
+
 export interface RuleRequest {
   amountNgwee?: number; // int64
   stallClass?: string;
@@ -399,6 +407,10 @@ export interface SectionBody {
 
 export interface SetActiveRequest {
   active?: boolean;
+}
+
+export interface SseEmitter {
+  timeout?: number; // int64
 }
 
 export interface StallResponse {
@@ -498,6 +510,14 @@ export interface Paths {
       query: never;
       body: RegisterAgentRequest;
       response: AgentResponse;
+    };
+  };
+  "/api/v1/councils/{councilId}/agents/{agentId}/round": {
+    get: {
+      path: { councilId: string; agentId: string };
+      query: { marketId: string; date?: string };
+      body: never;
+      response: Round;
     };
   };
   "/api/v1/councils/{councilId}/day-close": {
@@ -602,6 +622,14 @@ export interface Paths {
       query: never;
       body: RuleRequest;
       response: LevyRule;
+    };
+  };
+  "/api/v1/councils/{councilId}/markets/{marketId}/map-events": {
+    get: {
+      path: { councilId: string; marketId: string };
+      query: never;
+      body: never;
+      response: SseEmitter;
     };
   };
   "/api/v1/councils/{councilId}/markets/{marketId}/map-status": {

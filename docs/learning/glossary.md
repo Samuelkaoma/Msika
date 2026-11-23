@@ -169,3 +169,4 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Footprint** | A stall's shape on the plan, with its address (aisle, side, position) and where the shape came from. |
 | **Query plan** | How Postgres will run a query (EXPLAIN ANALYZE shows it, with times). Read it before guessing why a query is slow. |
 | **viewBox** | The part of an SVG drawing's own coordinate space that the screen shows. Panning moves it; zooming resizes it. |
+| **Server-sent events** | One long HTTP response the server keeps writing small messages to, so a page hears of changes at once. |
