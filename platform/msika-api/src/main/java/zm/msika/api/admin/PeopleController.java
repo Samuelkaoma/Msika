@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import zm.msika.api.security.CurrentUser;
 import zm.msika.core.agent.Agent;
 import zm.msika.core.trader.Trader;
 
 /**
  * Traders, agents and stall plates, for a council's admins (and read-only for its officers).
  *
- * <p>Responses carry the full phone number because the council registered it and needs to see it. The
- * number is never written to a log in full (see {@link PeopleAdminService}).
+ * <p>Phone numbers are shown in full to the council's admins and masked for read-only officers. The number is never written to a log in full (see {@link PeopleAdminService}).
  */
 @RestController
 class PeopleController {
@@ -44,7 +44,7 @@ class PeopleController {
             UUID id, UUID councilId, String phone, String displayName, String language,
             Instant consentLevySweepAt, Instant consentDataAt) {
         static TraderResponse of(Trader t) {
-            return new TraderResponse(t.id(), t.councilId(), t.phone().e164(), t.displayName(),
+            return new TraderResponse(t.id(), t.councilId(), CurrentUser.showPhone(t.phone()), t.displayName(),
                     t.language().code(), t.consentLevySweepAt(), t.consentDataAt());
         }
     }
@@ -60,7 +60,7 @@ class PeopleController {
 
     record AgentResponse(UUID id, UUID councilId, String phone, String displayName, boolean active) {
         static AgentResponse of(Agent a) {
-            return new AgentResponse(a.id(), a.councilId(), a.phone().e164(), a.displayName(), a.active());
+            return new AgentResponse(a.id(), a.councilId(), CurrentUser.showPhone(a.phone()), a.displayName(), a.active());
         }
     }
 

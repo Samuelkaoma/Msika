@@ -179,7 +179,12 @@ class SmsCommands implements SmsCommandHandler {
         } else {
             List<UUID> councilIds = new ArrayList<>();
             List<SmsQueries.StallRef> found = queries.findStallAnywhere(r.stallCode(), councilIds::add);
-            if (found.size() != 1) {
+            if (found.size() > 1) {
+                // Stall codes are unique within a council, not across them: Msika must not guess which one is meant.
+                return Result.reply("STALL_IN_TWO_COUNCILS",
+                        Reply.of(from, SmsTemplate.STALL_IN_TWO_COUNCILS, "STALL", r.stallCode()));
+            }
+            if (found.isEmpty()) {
                 return Result.reply("STALL_NOT_FOUND", Reply.of(from, SmsTemplate.STALL_NOT_FOUND, "STALL", r.stallCode()));
             }
             councilId = councilIds.get(0);
