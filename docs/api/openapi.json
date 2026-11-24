@@ -147,6 +147,24 @@
         },
         "type" : "object"
       },
+      "AuditRow" : {
+        "properties" : {
+          "action" : {
+            "type" : "string"
+          },
+          "actor" : {
+            "type" : "string"
+          },
+          "at" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ChargeRow" : {
         "properties" : {
           "amountNgwee" : {
@@ -248,6 +266,14 @@
         "properties" : {
           "email" : {
             "type" : "string"
+          },
+          "marketIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
           },
           "password" : {
             "type" : "string"
@@ -514,6 +540,21 @@
         },
         "type" : "object"
       },
+      "GrantBody" : {
+        "properties" : {
+          "marketIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "role" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "Hit" : {
         "properties" : {
           "marketId" : {
@@ -728,8 +769,17 @@
           "email" : {
             "type" : "string"
           },
-          "role" : {
-            "type" : "string"
+          "permissions" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "roles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/GrantBody"
+            },
+            "type" : "array"
           },
           "userId" : {
             "format" : "uuid",
@@ -1025,6 +1075,22 @@
             "type" : "string"
           },
           "ranBy" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RoleBody" : {
+        "properties" : {
+          "marketIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "role" : {
             "type" : "string"
           }
         },
@@ -1383,8 +1449,11 @@
             "format" : "uuid",
             "type" : "string"
           },
-          "role" : {
-            "type" : "string"
+          "roles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RoleBody"
+            },
+            "type" : "array"
           }
         },
         "type" : "object"
@@ -1610,6 +1679,36 @@
         "tags" : [ "live-controller" ]
       }
     },
+    "/api/v1/councils/{councilId}/audit-log" : {
+      "get" : {
+        "operationId" : "auditLog",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AuditRow"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "audit-log-controller" ]
+      }
+    },
     "/api/v1/councils/{councilId}/day-close" : {
       "post" : {
         "operationId" : "closeDays",
@@ -1649,7 +1748,7 @@
     },
     "/api/v1/councils/{councilId}/deposits" : {
       "get" : {
-        "operationId" : "list",
+        "operationId" : "list_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "councilId",
@@ -2635,7 +2734,7 @@
     },
     "/api/v1/councils/{councilId}/registrations" : {
       "get" : {
-        "operationId" : "list_1",
+        "operationId" : "list_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "councilId",
@@ -3277,6 +3376,34 @@
       }
     },
     "/api/v1/councils/{councilId}/users" : {
+      "get" : {
+        "operationId" : "list",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-admin-controller" ]
+      },
       "post" : {
         "operationId" : "create",
         "parameters" : [ {
@@ -3343,6 +3470,93 @@
           },
           "required" : true
         },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-admin-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/users/{userId}/roles" : {
+      "post" : {
+        "operationId" : "grant",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RoleBody"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-admin-controller" ]
+      }
+    },
+    "/api/v1/councils/{councilId}/users/{userId}/roles/{role}" : {
+      "delete" : {
+        "operationId" : "revoke",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "councilId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "role",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {

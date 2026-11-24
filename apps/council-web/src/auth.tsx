@@ -15,9 +15,9 @@ type Auth = {
 
 const AuthContext = createContext<Auth | null>(null);
 
-/** Officers read; only council admins and operators change things (ARCHITECTURE.md section 9). */
+/** What the user may do comes from the server (card M-61); the server checks it again on every call. */
 function withRights(me: MeResponse): Me {
-  return { ...me, canEdit: me.role !== "COUNCIL_OFFICER" };
+  return { ...me, canEdit: me.permissions?.includes("MANAGE_MARKETS") ?? false };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

@@ -36,11 +36,4 @@ public enum Role {
         return marketScoped;
     }
 
-    /**
-     * True for every role but the operator and the admin, until each endpoint checks its own permission: a new role
-     * must never gain a right by default.
-     */
-    public boolean isReadOnly() {
-        return this != MSIKA_OPERATOR && this != COUNCIL_ADMIN;
-    }
 }

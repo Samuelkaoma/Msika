@@ -27,7 +27,7 @@ public final class CurrentUser {
 
     /** True if the current user may see phone numbers in full. */
     public static boolean seesFullPhones() {
-        return !require().role().isReadOnly();
+        return zm.msika.core.user.Permissions.allows(require().grants(), zm.msika.core.user.Permission.SEE_PHONES, null);
     }
 
     /** The current user's id as text, for the audit log. */

@@ -32,7 +32,10 @@ class AuthController {
 
     record LoginResponse(String token, String tokenType, Instant expiresAt) {}
 
-    record MeResponse(UUID userId, UUID councilId, String role, String email) {}
+    record GrantBody(String role, java.util.List<UUID> marketIds) {}
+
+    /** {@code permissions} is what the user may do somewhere; a market role may do it only in its markets. */
+    record MeResponse(UUID userId, UUID councilId, java.util.List<GrantBody> roles, java.util.List<String> permissions, String email) {}
 
     /** Wrong password, unknown email and deactivated user all answer the same 401. */
     @PostMapping("/api/v1/auth/login")
@@ -45,6 +48,9 @@ class AuthController {
     @GetMapping("/api/v1/auth/me")
     MeResponse me() {
         MsikaPrincipal user = CurrentUser.require();
-        return new MeResponse(user.userId(), user.councilId(), user.role().name(), user.email());
+        return new MeResponse(user.userId(), user.councilId(), user.grants().stream()
+                .map(g -> new GrantBody(g.role().name(), g.marketIds().stream().sorted().toList())).toList(),
+                user.grants().stream().flatMap(g -> zm.msika.core.user.Permissions.of(g.role()).stream()).map(Enum::name)
+                        .distinct().sorted().toList(), user.email());
     }
 }

@@ -52,6 +52,13 @@ export interface Arrears {
   unpaidNgwee?: number; // int64
 }
 
+export interface AuditRow {
+  action?: string;
+  actor?: string;
+  at?: string; // date-time
+  target?: string;
+}
+
 export interface ChargeRow {
   amountNgwee?: number; // int64
   businessDate?: string; // date
@@ -89,6 +96,7 @@ export interface CreateMarketRequest {
 
 export interface CreateUserRequest {
   email?: string;
+  marketIds?: Array<string>;
   password?: string;
   role?: string;
 }
@@ -173,6 +181,11 @@ export interface FootprintBody {
   uncertaintyMm?: number; // int32
 }
 
+export interface GrantBody {
+  marketIds?: Array<string>;
+  role?: string;
+}
+
 export interface Hit {
   marketId?: string; // uuid
   stallCode?: string;
@@ -245,7 +258,8 @@ export interface MarketStatus {
 export interface MeResponse {
   councilId?: string; // uuid
   email?: string;
-  role?: string;
+  permissions?: Array<string>;
+  roles?: Array<GrantBody>;
   userId?: string; // uuid
 }
 
@@ -339,6 +353,11 @@ export interface ReportBody {
   paymentsCount?: number; // int32
   ranAt?: string; // date-time
   ranBy?: string;
+}
+
+export interface RoleBody {
+  marketIds?: Array<string>;
+  role?: string;
 }
 
 export interface Round {
@@ -461,7 +480,7 @@ export interface UserResponse {
   councilId?: string; // uuid
   email?: string;
   id?: string; // uuid
-  role?: string;
+  roles?: Array<RoleBody>;
 }
 
 export interface WalletResponse {
@@ -518,6 +537,14 @@ export interface Paths {
       query: { marketId: string; date?: string };
       body: never;
       response: Round;
+    };
+  };
+  "/api/v1/councils/{councilId}/audit-log": {
+    get: {
+      path: { councilId: string };
+      query: never;
+      body: never;
+      response: Array<AuditRow>;
     };
   };
   "/api/v1/councils/{councilId}/day-close": {
@@ -855,6 +882,12 @@ export interface Paths {
     };
   };
   "/api/v1/councils/{councilId}/users": {
+    get: {
+      path: { councilId: string };
+      query: never;
+      body: never;
+      response: Array<UserResponse>;
+    };
     post: {
       path: { councilId: string };
       query: never;
@@ -867,6 +900,22 @@ export interface Paths {
       path: { councilId: string; userId: string };
       query: never;
       body: SetActiveRequest;
+      response: UserResponse;
+    };
+  };
+  "/api/v1/councils/{councilId}/users/{userId}/roles": {
+    post: {
+      path: { councilId: string; userId: string };
+      query: never;
+      body: RoleBody;
+      response: UserResponse;
+    };
+  };
+  "/api/v1/councils/{councilId}/users/{userId}/roles/{role}": {
+    delete: {
+      path: { councilId: string; userId: string; role: string };
+      query: never;
+      body: never;
       response: UserResponse;
     };
   };

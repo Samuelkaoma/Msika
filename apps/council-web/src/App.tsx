@@ -17,6 +17,15 @@ const PAGES = [
   { path: "/seals", label: "Daily seals" },
 ];
 
+const ROLE_NAMES: Record<string, string> = {
+  COUNCIL_ADMIN: "Council admin",
+  MARKET_MASTER: "Market master",
+  REVENUE_OFFICER: "Revenue officer",
+  ENFORCEMENT_OFFICER: "Enforcement officer",
+  COUNCIL_OFFICER: "Officer (read only)",
+  AUDITOR: "Auditor (read only)",
+};
+
 export default function App({ initialPath }: { initialPath?: string }) {
   const routes = (
     <AuthProvider>
@@ -136,7 +145,7 @@ function Layout() {
         </div>
         <div className="who">
           <span>{me?.email}</span>
-          <span className="role">{me?.role === "COUNCIL_OFFICER" ? "Officer (read only)" : "Council admin"}</span>
+          <span className="role">{(me?.roles ?? []).map((r) => ROLE_NAMES[r.role ?? ""] ?? r.role).join(", ")}</span>
           <button onClick={signOut}>Sign out</button>
         </div>
       </header>

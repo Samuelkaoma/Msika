@@ -12,7 +12,7 @@ The cards that build it are M-61 to M-70 in `docs/ROADMAP.md`. The rules in `AGE
 
 ## 1. What exists today, and what this adds
 
-Built so far (cards M-09 and on):
+What was built before M-61 (cards M-09 and on):
 
 - Three roles: `MSIKA_OPERATOR` (manages councils, belongs to none), `COUNCIL_ADMIN` (may change
   everything in their council) and `COUNCIL_OFFICER` (read-only). One role per user.

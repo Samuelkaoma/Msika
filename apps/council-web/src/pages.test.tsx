@@ -16,7 +16,7 @@ function fake(routes: Record<string, unknown>) {
     vi.fn(async (url: string) => {
       seen.push(url);
       const path = url.split("?")[0];
-      const body = path === "/api/v1/auth/me" ? { councilId: C, role: "COUNCIL_OFFICER", email: "o@example.test" } : routes[path];
+      const body = path === "/api/v1/auth/me" ? { councilId: C, roles: [{ role: "COUNCIL_OFFICER", marketIds: [] }], permissions: ["READ"], email: "o@example.test" } : routes[path];
       return body === undefined
         ? new Response(JSON.stringify({ message: "not found" }), { status: 404 })
         : new Response(JSON.stringify(body), { status: 200 });
