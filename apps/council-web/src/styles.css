@@ -517,3 +517,80 @@ tr.flag td {
 .live.reconnecting {
   color: #b7791f;
 }
+
+/* ------------------------------------------------------------------ the inbox (card M-63) */
+
+textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tabs [aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.requests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.requests .card {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  color: var(--ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 1px 8px;
+  margin-right: 6px;
+  font-size: 0.8rem;
+}
+
+.badge.late {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 16px;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.history li {
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}

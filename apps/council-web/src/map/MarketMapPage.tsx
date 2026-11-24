@@ -3,6 +3,7 @@
 // thousands of stalls is not usable on a phone.
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router";
 import { api } from "../api/client";
 import type { AgentResponse, Hit, MarketResponse, MarketStatus, Panel, PlanBody, StallStatus } from "../api/schema";
 import { useAuth } from "../auth";
@@ -28,13 +29,17 @@ function useNarrow(): boolean {
 export function MarketMapPage() {
   const councilId = useAuth().me!.councilId!;
   const [markets, setMarkets] = useState<MarketResponse[] | null>(null);
+  // A link from a request names the market and the stall to show (card M-63).
+  const [params] = useSearchParams();
+  const wantedMarket = params.get("market");
+  const wantedStall = params.get("stall");
   const [marketId, setMarketId] = useState<string | null>(null);
   useEffect(() => {
     api("get", "/api/v1/councils/{councilId}/markets", { path: { councilId } }).then((m) => {
       setMarkets(m);
-      if (m.length > 0) setMarketId((cur) => cur ?? m[0].id ?? null);
+      if (m.length > 0) setMarketId((cur) => cur ?? m.find((x) => x.id === wantedMarket)?.id ?? m[0].id ?? null);
     });
-  }, [councilId]);
+  }, [councilId, wantedMarket]);
   return (
     <section>
       <div className="heading">
@@ -50,12 +55,19 @@ export function MarketMapPage() {
         )}
       </div>
       {markets && markets.length === 0 && <p className="muted">No markets yet.</p>}
-      {marketId && <MarketMap key={marketId} councilId={councilId} marketId={marketId} />}
+      {marketId && (
+        <MarketMap
+          key={marketId}
+          councilId={councilId}
+          marketId={marketId}
+          initialStall={marketId === wantedMarket ? wantedStall : null}
+        />
+      )}
     </section>
   );
 }
 
-export function MarketMap({ councilId, marketId }: { councilId: string; marketId: string }) {
+export function MarketMap({ councilId, marketId, initialStall = null }: { councilId: string; marketId: string; initialStall?: string | null }) {
   const narrow = useNarrow();
   const [plan, setPlan] = useState<PlanBody | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
@@ -64,7 +76,7 @@ export function MarketMap({ councilId, marketId }: { councilId: string; marketId
   const [filters, setFilters] = useState({ section: "", stallClass: "", state: "" });
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(initialStall);
   const [day, setDay] = useState(today());
   const [reloads, setReloads] = useState(0);
   const [live, setLive] = useState<LiveState>("connecting");
