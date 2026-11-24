@@ -350,7 +350,7 @@ person (never the one who raised it), and changes the register only when approve
   row cannot be updated or deleted, an overdue request escalates, and a council cannot loosen a
   policy below its minimum.
 
-**☐ M-63 The inbox page** · TM · M-62, M-26 · `feature/M-63-inbox`
+**☑ M-63 The inbox page** · TM · M-62, M-26 · `feature/M-63-inbox`
 - Do: COUNCIL-ADMIN §4.5 in `council-web`: my queue, raised by me, overdue, the request page with the
   proposed effect in words, evidence linking to the market map, and decisions with reasons.
 - Done: component tests for each view; a rejection cannot be sent without a reason; works at phone

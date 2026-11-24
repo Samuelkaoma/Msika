@@ -3,12 +3,14 @@ import { BrowserRouter, MemoryRouter, Navigate, NavLink, Outlet, Route, Routes, 
 import { api, ApiError } from "./api/client";
 import type { MarketResponse } from "./api/schema";
 import { AuthProvider, useAuth } from "./auth";
+import { Inbox, RequestPage, useWaiting } from "./inbox";
 import { MarketMapPage } from "./map/MarketMapPage";
 import { Agents, ArrearsPage, Collections, Occupancy, Seals } from "./pages";
 
 /** The pages, in the order of the navigation. */
 const PAGES = [
   { path: "/", label: "Overview" },
+  { path: "/inbox", label: "Inbox" },
   { path: "/map", label: "Market map" },
   { path: "/markets", label: "Markets" },
   { path: "/collections", label: "Collections" },
@@ -43,6 +45,8 @@ function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
           <Route index element={<Overview />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="inbox/:id" element={<RequestPage />} />
           <Route path="map" element={<MarketMapPage />} />
           <Route path="markets" element={<Markets />} />
           <Route path="collections" element={<Collections />} />
@@ -165,6 +169,7 @@ function Layout() {
 
 function Overview() {
   const { me } = useAuth();
+  const waiting = useWaiting(me!.councilId!);
   return (
     <section>
       <h1>Overview</h1>
@@ -174,7 +179,7 @@ function Overview() {
       <div className="tiles">
         {PAGES.slice(1).map((p) => (
           <NavLink key={p.path} to={p.path} className="tile">
-            {p.label}
+            {p.path === "/inbox" && waiting ? `Inbox (${waiting} waiting)` : p.label}
           </NavLink>
         ))}
       </div>

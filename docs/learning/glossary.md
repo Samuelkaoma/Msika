@@ -174,3 +174,4 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Separation of duties** | Splitting a job so one person cannot do two parts that should check each other, such as finding an offence and taking the fine. |
 | **Effect** | What an approved request does to the register. It runs in the same transaction as the approval. |
 | **Escalation** | An overdue request being opened to a more senior role. |
+| **Deep link** | An address that opens the app at one exact thing, such as one stall on the map. |
