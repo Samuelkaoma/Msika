@@ -340,7 +340,7 @@ person (never the one who raised it), and changes the register only when approve
   everything and change nothing, a user cannot change their own roles, an enforcement officer
   cannot be given the revenue role, and an endpoint with no mapping fails the build.
 
-**☐ M-62 The request engine** · SK · M-61 · `feature/M-62-requests`
+**☑ M-62 The request engine** · SK · M-61 · `feature/M-62-requests`
 - Do: COUNCIL-ADMIN §4.1, §4.3, §4.4 and §8. Requests, evidence, policies with code minimums,
   append-only decisions, effects run in the deciding transaction, deadlines, escalation and
   hand-over, bulk decisions with sampling. Start with two kinds to prove it (stall change, agent

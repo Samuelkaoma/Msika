@@ -75,6 +75,9 @@ public enum SmsTemplate {
     STARTED("Msika: daily summaries are on again. Send STOP to stop them."),
     DEPOSIT_CONFIRMED("Msika: {AMOUNT} deposited at {STALL} by agent {NAME}. Ref {REF}. Reply NO {REF} if this is wrong."),
     DEPOSIT_CANCELLED_TRADER("Msika: deposit {REF} of {AMOUNT} at {STALL} was cancelled by the agent. Nothing was recorded."),
+    STALL_SUSPENDED("Msika: stall {STALL} is suspended by the council. Please visit your market office."),
+    STALL_REINSTATED("Msika: stall {STALL} is back in use. Questions? Call your market office."),
+    STALL_CLASS_CHANGED("Msika: stall {STALL} is now class {CLASS}. Questions? Call your market office."),
     LEVY_RECEIPT("Msika: levy paid {FROMDATE} to {DATE} at {STALL}: {AMOUNT}. Arrears {AMOUNT2}. Thank you."),
 
     // ---------------------------------------------------------------------------------------------------------
@@ -85,6 +88,8 @@ public enum SmsTemplate {
     DEPOSIT_UNAVAILABLE("Msika: payments are not answering. Deposit for {STALL} NOT sent. Try again in a few minutes."),
     UNDO_DONE("Msika: deposit {REF} cancelled. The trader has been told."),
     UNDO_REFUSED("Msika: deposit {REF} cannot be cancelled: {REASON}."),
+    AGENT_SUSPENDED("Msika: you can no longer use agent commands. Please call your market office."),
+    AGENT_REINSTATED("Msika: you can use agent commands again. Send HELP for the list."),
     ROUND("Msika agent {NAME} today: {COUNT} deposits, {AMOUNT}. Float {AMOUNT2}.");
 
     /** The kinds of value a placeholder can hold, each with the longest it can be. */
@@ -96,6 +101,8 @@ public enum SmsTemplate {
         /** {@code SOWET-ABCD-12345}: a market code of 5, a section of 4 and a number of 5. */
         STALL(16, false),
         REF(4, false),
+        /** A stall class, 1 to 20 capitals, digits or underscores. */
+        CLASS(20, false),
         /** {@code 30 Sep}. */
         DATE(6, false),
         FROMDATE(6, false),

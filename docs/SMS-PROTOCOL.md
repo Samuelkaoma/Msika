@@ -78,6 +78,16 @@ Agents are registered by the council. An agent's number can only use agent comma
 Phone numbers are normalised to E.164 (`+260...`) before any lookup. `0977...` and `260977...` are
 both accepted.
 
+## Messages sent when the council decides something (card M-62)
+
+| When | Sent to | Message |
+|---|---|---|
+| A stall is suspended | The trader who holds it | `Msika: stall SOW-B-114 is suspended by the council. Please visit your market office.` |
+| A stall is reinstated | The trader who holds it | `Msika: stall SOW-B-114 is back in use. Questions? Call your market office.` |
+| A stall's class changes | The trader who holds it | `Msika: stall SOW-B-114 is now class LARGE. Questions? Call your market office.` |
+| An agent is suspended | The agent | `Msika: you can no longer use agent commands. Please call your market office.` |
+| An agent may work again | The agent | `Msika: you can use agent commands again. Send HELP for the list.` |
+
 ## How the commands behave (card M-19)
 
 - **Short stall codes.** An agent may send `DEP B114 450` or `DEP SOW-B-114 450`. `B114` (or `B-114`) matches

@@ -339,7 +339,8 @@ permissions, an audit row for every change, checking the user row on every reque
   may do is a matrix in code, and every endpoint needs a permission listed in `EndpointPermissions`:
   one that is not listed is refused, and fails the build. Duties are kept apart by the use case and by
   a database trigger.
-- Every council decision will go through one approvals inbox (M-62).
+- Council decisions go through one request engine (M-62): the raiser cannot decide, decisions are
+  append-only, and the effect runs in the transaction of the last approval.
 - Traders and agents are identified by phone number on SMS. A phone number that is not registered
   gets a registration reply and nothing else.
 - Webhooks (SMS gateway, payment callbacks) are checked with HMAC signatures and a timestamp no older
