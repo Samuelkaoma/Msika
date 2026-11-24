@@ -59,6 +59,17 @@ export interface AuditRow {
   target?: string;
 }
 
+export interface BulkRequest {
+  reason?: string;
+  requestIds?: Array<string>;
+}
+
+export interface BulkResult {
+  problem?: string;
+  requestId?: string; // uuid
+  status?: string;
+}
+
 export interface ChargeRow {
   amountNgwee?: number; // int64
   businessDate?: string; // date
@@ -125,6 +136,22 @@ export interface DayCollections {
   marketId?: string; // uuid
 }
 
+export interface Decision {
+  at?: string; // date-time
+  corrects?: string; // uuid
+  decidedBy?: string; // uuid
+  decidedByEmail?: string;
+  decision?: string;
+  id?: string; // uuid
+  reason?: string;
+}
+
+export interface DecisionRequest {
+  correctsDecisionId?: string; // uuid
+  decision?: string;
+  reason?: string;
+}
+
 export interface DepositResponse {
   agentId?: string; // uuid
   amountNgwee?: number; // int64
@@ -139,6 +166,12 @@ export interface DepositResponse {
   status?: "PENDING" | "CONFIRMED" | "FAILED" | "CANCELLED" | "DISPUTED";
   statusReason?: string;
   updatedAt?: string; // date-time
+}
+
+export interface Detail {
+  decisions?: Array<Decision>;
+  evidence?: Array<Evidence>;
+  request?: Item;
 }
 
 export interface DifferenceBody {
@@ -164,6 +197,12 @@ export interface EditRequest {
   unmappedStallIds?: Array<string>;
 }
 
+export interface Evidence {
+  id?: string;
+  note?: string;
+  type?: string;
+}
+
 export interface FeatureBody {
   kind?: string;
   label?: string;
@@ -186,6 +225,14 @@ export interface GrantBody {
   role?: string;
 }
 
+export interface HandOverRequest {
+  toUserId?: string; // uuid
+}
+
+export interface HandOverResponse {
+  moved?: number; // int32
+}
+
 export interface Hit {
   marketId?: string; // uuid
   stallCode?: string;
@@ -205,6 +252,29 @@ export interface Holder {
 
 export interface ImportResponse {
   created?: number; // int32
+}
+
+export interface Item {
+  approvals?: number; // int32
+  createdAt?: string; // date-time
+  dueAt?: string; // date-time
+  effect?: string;
+  escalated?: boolean;
+  handedToMe?: boolean;
+  id?: string; // uuid
+  kind?: "STALL_CLASS" | "STALL_REINSTATE" | "STALL_SUSPEND" | "AGENT_SUSPENSION";
+  marketId?: string; // uuid
+  overdue?: boolean;
+  policy?: RequestPolicy;
+  problem?: string;
+  raisedByEmail?: string;
+  raisedById?: string;
+  raisedByType?: string;
+  reason?: string;
+  refusal?: string;
+  status?: string;
+  subjectId?: string; // uuid
+  subjectType?: string;
 }
 
 export interface LevyRule {
@@ -303,6 +373,27 @@ export interface PlanSummary {
   version?: number; // int32
 }
 
+export interface PolicyRequest {
+  bulkAllowed?: boolean;
+  deadlineDays?: number; // int32
+  sampleRate?: number; // int32
+  steps?: Array<Array<"MSIKA_OPERATOR" | "COUNCIL_ADMIN" | "MARKET_MASTER" | "REVENUE_OFFICER" | "ENFORCEMENT_OFFICER" | "COUNCIL_OFFICER" | "AUDITOR">>;
+}
+
+export interface PolicyResponse {
+  kind?: "STALL_CLASS" | "STALL_REINSTATE" | "STALL_SUSPEND" | "AGENT_SUSPENSION";
+  minimum?: RequestPolicy;
+  policy?: RequestPolicy;
+}
+
+export interface RaiseRequest {
+  effect?: Record<string, string>;
+  evidence?: Array<Evidence>;
+  kind?: string;
+  reason?: string;
+  subjectId?: string; // uuid
+}
+
 export interface ReconciliationDay {
   businessDate?: string; // date
   differenceCount?: number; // int32
@@ -353,6 +444,13 @@ export interface ReportBody {
   paymentsCount?: number; // int32
   ranAt?: string; // date-time
   ranBy?: string;
+}
+
+export interface RequestPolicy {
+  bulkAllowed?: boolean;
+  deadlineDays?: number; // int32
+  sampleRate?: number; // int32
+  steps?: Array<Array<"MSIKA_OPERATOR" | "COUNCIL_ADMIN" | "MARKET_MASTER" | "REVENUE_OFFICER" | "ENFORCEMENT_OFFICER" | "COUNCIL_OFFICER" | "AUDITOR">>;
 }
 
 export interface RoleBody {
@@ -593,6 +691,14 @@ export interface Paths {
       response: DepositResponse;
     };
   };
+  "/api/v1/councils/{councilId}/inbox": {
+    get: {
+      path: { councilId: string };
+      query: { queue?: string };
+      body: never;
+      response: Array<Item>;
+    };
+  };
   "/api/v1/councils/{councilId}/levy-charges": {
     get: {
       path: { councilId: string };
@@ -735,6 +841,22 @@ export interface Paths {
       response: PlanBody;
     };
   };
+  "/api/v1/councils/{councilId}/policies": {
+    get: {
+      path: { councilId: string };
+      query: never;
+      body: never;
+      response: Array<PolicyResponse>;
+    };
+  };
+  "/api/v1/councils/{councilId}/policies/{kind}": {
+    put: {
+      path: { councilId: string; kind: string };
+      query: never;
+      body: PolicyRequest;
+      response: PolicyResponse;
+    };
+  };
   "/api/v1/councils/{councilId}/reconciliation/{date}": {
     get: {
       path: { councilId: string; date: string };
@@ -827,6 +949,54 @@ export interface Paths {
       query: never;
       body: never;
       response: SealCheck;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests": {
+    post: {
+      path: { councilId: string };
+      query: never;
+      body: RaiseRequest;
+      response: Detail;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests/bulk-decisions": {
+    post: {
+      path: { councilId: string };
+      query: never;
+      body: BulkRequest;
+      response: Array<BulkResult>;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests/hand-over": {
+    post: {
+      path: { councilId: string };
+      query: never;
+      body: HandOverRequest;
+      response: HandOverResponse;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests/{id}": {
+    get: {
+      path: { councilId: string; id: string };
+      query: never;
+      body: never;
+      response: Detail;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests/{id}/decisions": {
+    post: {
+      path: { councilId: string; id: string };
+      query: never;
+      body: DecisionRequest;
+      response: Detail;
+    };
+  };
+  "/api/v1/councils/{councilId}/requests/{id}/withdraw": {
+    post: {
+      path: { councilId: string; id: string };
+      query: never;
+      body: never;
+      response: Detail;
     };
   };
   "/api/v1/councils/{councilId}/seals/{date}": {

@@ -17,11 +17,12 @@ public final class Permissions {
 
     static {
         // Operators do everything until support access (M-70) takes council data away from them.
-        MATRIX.put(Role.MSIKA_OPERATOR, EnumSet.allOf(Permission.class));
+        MATRIX.put(Role.MSIKA_OPERATOR, EnumSet.complementOf(
+                EnumSet.of(Permission.USE_INBOX, Permission.MANAGE_POLICIES))); // the council's decisions are never Msika's
         MATRIX.put(Role.COUNCIL_ADMIN, EnumSet.complementOf(
                 EnumSet.of(Permission.CLOSE_DAYS, Permission.CREATE_COUNCILS, Permission.SIMULATE)));
         MATRIX.put(Role.MARKET_MASTER, EnumSet.of(Permission.READ, Permission.DECIDE_REGISTRATIONS,
-                Permission.ALLOCATE_STALLS, Permission.MANAGE_PLANS, Permission.SETTLE_DEPOSITS));
+                Permission.ALLOCATE_STALLS, Permission.MANAGE_PLANS, Permission.SETTLE_DEPOSITS, Permission.USE_INBOX));
         MATRIX.put(Role.REVENUE_OFFICER, EnumSet.of(Permission.READ));
         MATRIX.put(Role.ENFORCEMENT_OFFICER, EnumSet.of(Permission.READ));
         MATRIX.put(Role.COUNCIL_OFFICER, EnumSet.of(Permission.READ));
@@ -41,6 +42,7 @@ public final class Permissions {
     public static boolean allows(Collection<RoleGrant> grants, Permission permission, UUID marketId) {
         return grants.stream().anyMatch(g -> MATRIX.get(g.role()).contains(permission)
                 && (!g.role().marketScoped() || permission == Permission.READ
+                        || permission == Permission.USE_INBOX // the request engine checks the market
                         || (marketId != null && g.marketIds().contains(marketId))));
     }
 }

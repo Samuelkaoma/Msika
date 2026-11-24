@@ -172,3 +172,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Server-sent events** | One long HTTP response the server keeps writing small messages to, so a page hears of changes at once. |
 | **Permission matrix** | The table of which role may do which action. Ours is in code (`Permissions`), so it is reviewed and tested like code. |
 | **Separation of duties** | Splitting a job so one person cannot do two parts that should check each other, such as finding an offence and taking the fine. |
+| **Effect** | What an approved request does to the register. It runs in the same transaction as the approval. |
+| **Escalation** | An overdue request being opened to a more senior role. |

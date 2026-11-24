@@ -15,6 +15,7 @@ asking.
 | [0007](0007-no-postgis.md) | Plain Postgres for plan geometry, no PostGIS for now | Accepted |
 | [0008](0008-svg-plans-without-a-map-library.md) | Market plans drawn as SVG without a map library | Accepted |
 | [0009](0009-market-scoped-roles.md) | Several roles per user, scoped to markets, with the matrix in code | Accepted |
+| [0010](0010-one-request-engine.md) | One request engine for every council decision | Accepted |
 
 ## How to add one
 

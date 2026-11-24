@@ -7,6 +7,7 @@ import static zm.msika.core.user.Permission.DECIDE_REGISTRATIONS;
 import static zm.msika.core.user.Permission.MANAGE_LEVY;
 import static zm.msika.core.user.Permission.MANAGE_MARKETS;
 import static zm.msika.core.user.Permission.MANAGE_PLANS;
+import static zm.msika.core.user.Permission.MANAGE_POLICIES;
 import static zm.msika.core.user.Permission.MANAGE_USERS;
 import static zm.msika.core.user.Permission.MANAGE_WALLETS;
 import static zm.msika.core.user.Permission.READ;
@@ -16,6 +17,7 @@ import static zm.msika.core.user.Permission.RUN_RECONCILIATION;
 import static zm.msika.core.user.Permission.SETTLE_DEPOSITS;
 import static zm.msika.core.user.Permission.SIMULATE;
 import static zm.msika.core.user.Permission.START_DEPOSITS;
+import static zm.msika.core.user.Permission.USE_INBOX;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +64,7 @@ public final class EndpointPermissions {
     }
 
     static {
-        read("/agents", "/agents/{agentId}/round", "/deposits", "/deposits/{id}", "/levy-charges", "/markets",
+        read("/agents", "/agents/{agentId}/round", "/inbox", "/policies", "/requests/{id}", "/deposits", "/deposits/{id}", "/levy-charges", "/markets",
                 "/markets/{marketId}/layout-config", "/markets/{marketId}/levy-rules", "/markets/{marketId}/map-status",
                 "/markets/{marketId}/map-events", "/markets/{marketId}/plan", "/markets/{marketId}/plans",
                 "/markets/{marketId}/plates.pdf", "/markets/{marketId}/stalls", "/plans/{planId}", "/reconciliation/{date}",
@@ -70,6 +72,12 @@ public final class EndpointPermissions {
                 "/reports/reconciliation", "/reports/seals", "/reports/seals/verification", "/seals/{date}", "/search",
                 "/stalls/{stallId}/panel", "/traders", "/wallets");
         rule("GET /api/v1/seals/{date}", READ, MarketFrom.NONE);
+        rule("POST " + C + "/requests", USE_INBOX, MarketFrom.NONE);
+        rule("POST " + C + "/requests/{id}/decisions", USE_INBOX, MarketFrom.NONE);
+        rule("POST " + C + "/requests/{id}/withdraw", USE_INBOX, MarketFrom.NONE);
+        rule("POST " + C + "/requests/bulk-decisions", USE_INBOX, MarketFrom.NONE);
+        rule("POST " + C + "/requests/hand-over", USE_INBOX, MarketFrom.NONE);
+        rule("PUT " + C + "/policies/{kind}", MANAGE_POLICIES, MarketFrom.NONE);
         rule("GET " + C + "/audit-log", READ_AUDIT, MarketFrom.NONE);
         rule("GET " + C + "/users", MANAGE_USERS, MarketFrom.NONE);
         rule("POST " + C + "/users", MANAGE_USERS, MarketFrom.NONE);

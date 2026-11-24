@@ -20,6 +20,7 @@ class SmsTemplateTest {
             case AMOUNT -> "-K9,999,999.99" + "9";
             case STALL -> "SOWET-ABCD-12345";
             case REF -> "WWWW";
+            case CLASS -> "W".repeat(20);
             case DATE, FROMDATE -> "30 Sep";
             case MONTH -> "Sep";
             case MONTHNAME -> "September";
