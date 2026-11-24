@@ -1,10 +1,11 @@
 // The live closing view in the browser (card M-51): reading the event stream, recolouring a stall, and reconnecting
 // after the server restarts without reloading the page.
 
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { endSession, startSession } from "../api/client";
 import { parseSse } from "./live";
+import { today } from "../pages";
 import { MarketMap } from "./MarketMapPage";
 
 const C = "11111111-1111-1111-1111-111111111111";
@@ -99,20 +100,33 @@ it("a confirmed deposit recolours its stall; when the server restarts the page r
   expect(screen.getByRole("img")).toBe(map);
 }, 20_000);
 
-it("does not listen when looking at a past day", async () => {
-  // Rendered for today by default; this checks the stream is not opened twice and stops when unmounted.
-  const opened: string[] = [];
+it("stops listening when a past day is chosen, and when the page is left", async () => {
+  const signals: AbortSignal[] = [];
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (url: string) => {
-      opened.push(url.split("?")[0]);
-      if (url.includes("map-events")) return new Response(stream([], false), { status: 200 });
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.includes("map-events")) {
+        signals.push(init!.signal!);
+        return new Response(stream([], false), { status: 200 });
+      }
       if (url.includes("/plan")) return new Response(JSON.stringify({ sections: [], footprints: [] }), { status: 200 });
       if (url.includes("map-status")) return new Response(JSON.stringify({ stalls: [] }), { status: 200 });
       return new Response("[]", { status: 200 });
     }),
   );
   const { unmount } = render(<MarketMap councilId={C} marketId={M} />);
-  await waitFor(() => expect(opened.filter((u) => u.endsWith("map-events"))).toHaveLength(1));
+  const day = await screen.findByLabelText(/^Day/);
+  await waitFor(() => expect(signals).toHaveLength(1));
+  expect(signals[0].aborted).toBe(false);
+
+  fireEvent.change(day, { target: { value: "2026-01-05" } });
+
+  await waitFor(() => expect(signals[0].aborted).toBe(true));
+  expect(screen.queryByRole("status", { name: "Live updates" })).toBeNull();
+  expect(signals).toHaveLength(1);
+
+  fireEvent.change(day, { target: { value: today() } });
+  await waitFor(() => expect(signals).toHaveLength(2));
   unmount();
+  expect(signals[1].aborted).toBe(true);
 });
