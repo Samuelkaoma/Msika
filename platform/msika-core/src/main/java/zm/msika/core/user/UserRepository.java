@@ -1,13 +1,22 @@
 package zm.msika.core.user;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /** Where users are kept. Implemented in msika-api. */
 public interface UserRepository {
 
-    /** Adds a council user. Operators cannot be added here. */
-    void add(CouncilUser user);
+    /** Adds a council user with their roles. Operators cannot be added here. */
+    void add(CouncilUser user, String grantedBy);
+
+    void grant(UUID councilId, UUID userId, RoleGrant grant, String by);
+
+    /** @return false if the user does not hold the role */
+    boolean revoke(UUID councilId, UUID userId, Role role, String by);
+
+    /** The council's users, by email. */
+    List<CouncilUser> list(UUID councilId);
 
     /**
      * Finds a user by sign-in email in ANY council, because the sign-in form does not say which

@@ -30,7 +30,9 @@ import zm.msika.core.user.Role;
  */
 class AuthApiTest extends ApiTest {
 
-    record MeBody(UUID userId, UUID councilId, String role, String email) {}
+    record GrantBody(String role) {}
+
+    record MeBody(UUID userId, UUID councilId, java.util.List<GrantBody> roles, String email) {}
 
     record ErrorBody(String error, String message) {}
 
@@ -69,7 +71,7 @@ class AuthApiTest extends ApiTest {
         assertThat(me.status()).isEqualTo(200);
         assertThat(me.body().userId()).isEqualTo(council.adminId());
         assertThat(me.body().councilId()).isEqualTo(council.councilId());
-        assertThat(me.body().role()).isEqualTo("COUNCIL_ADMIN");
+        assertThat(me.body().roles()).containsExactly(new GrantBody("COUNCIL_ADMIN"));
 
         String payload = new String(Base64.getUrlDecoder().decode(login.body().token().split("\\.")[1]),
                 StandardCharsets.UTF_8);

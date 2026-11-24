@@ -1,6 +1,5 @@
 package zm.msika.api.security;
 
-import java.util.List;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -14,7 +13,7 @@ public class MsikaAuthentication extends AbstractAuthenticationToken {
     private final transient Jwt token;
 
     MsikaAuthentication(MsikaPrincipal principal, Jwt token) {
-        super(List.of(new SimpleGrantedAuthority("ROLE_" + principal.role().name())));
+        super(principal.grants().stream().map(g -> new SimpleGrantedAuthority("ROLE_" + g.role().name())).distinct().toList());
         this.principal = principal;
         this.token = token;
         setAuthenticated(true);

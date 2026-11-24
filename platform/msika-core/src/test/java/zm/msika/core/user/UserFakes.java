@@ -31,8 +31,30 @@ final class UserFakes {
         final Map<UUID, CouncilUser> byId = new HashMap<>();
 
         @Override
-        public void add(CouncilUser user) {
+        public void add(CouncilUser user, String grantedBy) {
             byId.put(user.id(), user);
+        }
+
+        @Override
+        public void grant(UUID councilId, UUID userId, RoleGrant grant, String by) {
+            byId.computeIfPresent(userId, (id, u) -> with(u, java.util.stream.Stream.concat(u.grants().stream(),
+                    java.util.stream.Stream.of(grant)).toList()));
+        }
+
+        @Override
+        public boolean revoke(UUID councilId, UUID userId, Role role, String by) {
+            boolean held = byId.get(userId).holds(role);
+            byId.computeIfPresent(userId, (id, u) -> with(u, u.grants().stream().filter(g -> g.role() != role).toList()));
+            return held;
+        }
+
+        @Override
+        public java.util.List<CouncilUser> list(UUID councilId) {
+            return byId.values().stream().filter(u -> councilId.equals(u.councilId())).toList();
+        }
+
+        private static CouncilUser with(CouncilUser u, java.util.List<RoleGrant> grants) {
+            return new CouncilUser(u.id(), u.councilId(), u.email(), u.passwordHash(), grants, u.active(), u.createdAt());
         }
 
         @Override

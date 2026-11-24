@@ -20,7 +20,7 @@ public abstract class ApiTest extends PostgresIntegrationTest {
 
     public record CouncilBody(UUID id, String name, String timezone) {}
 
-    public record UserBody(UUID id, UUID councilId, String email, String role, boolean active) {}
+    public record UserBody(UUID id, UUID councilId, String email, boolean active) {}
 
     /** A council with a signed-in admin and officer. */
     public record Fixture(UUID councilId, String adminEmail, String adminToken, UUID adminId,

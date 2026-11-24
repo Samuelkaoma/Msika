@@ -170,3 +170,5 @@ Plain-words definitions. New terms are added when a lesson first uses them.
 | **Query plan** | How Postgres will run a query (EXPLAIN ANALYZE shows it, with times). Read it before guessing why a query is slow. |
 | **viewBox** | The part of an SVG drawing's own coordinate space that the screen shows. Panning moves it; zooming resizes it. |
 | **Server-sent events** | One long HTTP response the server keeps writing small messages to, so a page hears of changes at once. |
+| **Permission matrix** | The table of which role may do which action. Ours is in code (`Permissions`), so it is reviewed and tested like code. |
+| **Separation of duties** | Splitting a job so one person cannot do two parts that should check each other, such as finding an offence and taking the fine. |

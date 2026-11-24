@@ -1,6 +1,7 @@
 package zm.msika.core.user;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -32,10 +33,10 @@ public final class CreateUser {
      * @throws InvalidInputException if the role is not a council role, or the email or password is bad
      * @throws ConflictException if the email is already used
      */
-    public CouncilUser execute(UUID councilId, String email, String password, Role role) {
+    public CouncilUser execute(UUID councilId, String email, String password, RoleGrant grant, String by) {
         councils.find(councilId).orElseThrow(() -> new NotFoundException("council not found"));
-        if (role == null || !role.belongsToCouncil()) {
-            throw new InvalidInputException("role must be COUNCIL_ADMIN or COUNCIL_OFFICER");
+        if (grant == null || !grant.role().belongsToCouncil()) {
+            throw new InvalidInputException("role must be a council role, like COUNCIL_OFFICER");
         }
         PasswordPolicy.check(password);
         String normalised = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
@@ -43,8 +44,8 @@ public final class CreateUser {
             throw new ConflictException("a user with this email already exists");
         }
         CouncilUser user = new CouncilUser(
-                UUID.randomUUID(), councilId, normalised, hasher.hash(password), role, true, clock.instant());
-        users.add(user);
+                UUID.randomUUID(), councilId, normalised, hasher.hash(password), List.of(grant), true, clock.instant());
+        users.add(user, by);
         return user;
     }
 }

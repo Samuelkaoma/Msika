@@ -27,7 +27,7 @@ function fakeApi(role: Role, expiresInMs = 15 * 60_000) {
         return json(200, { token: "t-1", tokenType: "Bearer", expiresAt: new Date(Date.now() + expiresInMs).toISOString() });
       }
       if (state.revoked) return json(401, { error: "unauthenticated", message: "token" });
-      if (url === "/api/v1/auth/me") return json(200, { userId: "u-1", councilId: COUNCIL, role, email: "user@example.test" });
+      if (url === "/api/v1/auth/me") return json(200, { userId: "u-1", councilId: COUNCIL, roles: [{ role, marketIds: [] }], permissions: role === "COUNCIL_ADMIN" ? ["READ", "MANAGE_MARKETS"] : ["READ"], email: "user@example.test" });
       if (url === `/api/v1/councils/${COUNCIL}/markets`) {
         return json(200, [{ id: "m-1", councilId: COUNCIL, code: "SOW", name: "Soweto Market", location: "Lusaka" }]);
       }

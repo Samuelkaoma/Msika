@@ -62,7 +62,8 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/seal-key").permitAll()
                         // A council user reads their own council's seal without naming the council.
                         .requestMatchers(HttpMethod.GET, "/api/v1/seals/*")
-                        .hasAnyRole(Role.COUNCIL_ADMIN.name(), Role.COUNCIL_OFFICER.name())
+                        .access((authentication, context) -> new AuthorizationDecision(
+                                authentication.get() instanceof MsikaAuthentication m && m.getPrincipal().councilId() != null))
                         // The sim console's fake phones (card M-20): development and demos only, operators only.
                         .requestMatchers("/api/v1/sim/**").hasRole(Role.MSIKA_OPERATOR.name())
                         // Everything inside a council: see councilScope.
@@ -99,8 +100,8 @@ class SecurityConfiguration {
 
     /**
      * The rule for {@code /api/v1/councils/{councilId}/...}. Allowed when:
-     * an operator (any council, any method); or a user of THAT council, who may read (GET, HEAD,
-     * OPTIONS) whatever their role and change things only if they are not read-only.
+     * an operator (any council); or a user of THAT council. What they may do there is checked next, by
+     * {@link PermissionInterceptor}.
      */
     static AuthorizationManager<RequestAuthorizationContext> councilScope() {
         return (authentication, context) -> {
@@ -108,16 +109,12 @@ class SecurityConfiguration {
                 return new AuthorizationDecision(false);
             }
             MsikaPrincipal user = signedIn.getPrincipal();
-            if (user.role() == Role.MSIKA_OPERATOR) {
+            if (user.isOperator()) {
                 return new AuthorizationDecision(true);
             }
-            String method = context.getRequest().getMethod();
-            boolean reading = HttpMethod.GET.matches(method)
-                    || HttpMethod.HEAD.matches(method)
-                    || HttpMethod.OPTIONS.matches(method);
             boolean ownCouncil = user.councilId() != null
                     && user.councilId().toString().equals(context.getVariables().get("councilId"));
-            return new AuthorizationDecision(ownCouncil && (reading || !user.role().isReadOnly()));
+            return new AuthorizationDecision(ownCouncil);
         };
     }
 }

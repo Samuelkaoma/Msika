@@ -38,7 +38,7 @@ class UserUseCasesTest {
     }
 
     private CouncilUser admin() {
-        return createUser.execute(council.id(), "Admin@Example.Test", GOOD_PASSWORD, Role.COUNCIL_ADMIN);
+        return createUser.execute(council.id(), "Admin@Example.Test", GOOD_PASSWORD, RoleGrant.councilWide(Role.COUNCIL_ADMIN), "test");
     }
 
     @Nested
@@ -128,9 +128,9 @@ class UserUseCasesTest {
         @Test
         @DisplayName("an operator cannot be created through the API")
         void noOperators() {
-            assertThatThrownBy(() -> createUser.execute(council.id(), "op@example.test", GOOD_PASSWORD, Role.MSIKA_OPERATOR))
+            assertThatThrownBy(() -> createUser.execute(council.id(), "op@example.test", GOOD_PASSWORD, RoleGrant.councilWide(Role.MSIKA_OPERATOR), "test"))
                     .isInstanceOf(InvalidInputException.class);
-            assertThatThrownBy(() -> createUser.execute(council.id(), "op@example.test", GOOD_PASSWORD, null))
+            assertThatThrownBy(() -> createUser.execute(council.id(), "op@example.test", GOOD_PASSWORD, null, "test"))
                     .isInstanceOf(InvalidInputException.class);
         }
 
@@ -139,14 +139,14 @@ class UserUseCasesTest {
         void duplicateEmail() {
             admin();
 
-            assertThatThrownBy(() -> createUser.execute(council.id(), "ADMIN@EXAMPLE.TEST", GOOD_PASSWORD, Role.COUNCIL_OFFICER))
+            assertThatThrownBy(() -> createUser.execute(council.id(), "ADMIN@EXAMPLE.TEST", GOOD_PASSWORD, RoleGrant.councilWide(Role.COUNCIL_OFFICER), "test"))
                     .isInstanceOf(ConflictException.class);
         }
 
         @Test
         @DisplayName("a user in a council that does not exist is not found")
         void unknownCouncil() {
-            assertThatThrownBy(() -> createUser.execute(UUID.randomUUID(), "a@example.test", GOOD_PASSWORD, Role.COUNCIL_ADMIN))
+            assertThatThrownBy(() -> createUser.execute(UUID.randomUUID(), "a@example.test", GOOD_PASSWORD, RoleGrant.councilWide(Role.COUNCIL_ADMIN), "test"))
                     .isInstanceOf(NotFoundException.class);
         }
 
@@ -154,7 +154,7 @@ class UserUseCasesTest {
         @DisplayName("a bad email is refused")
         void badEmail() {
             for (String bad : new String[] {"", "not-an-email", "a@b", "a b@example.test", "@example.test"}) {
-                assertThatThrownBy(() -> createUser.execute(council.id(), bad, GOOD_PASSWORD, Role.COUNCIL_ADMIN))
+                assertThatThrownBy(() -> createUser.execute(council.id(), bad, GOOD_PASSWORD, RoleGrant.councilWide(Role.COUNCIL_ADMIN), "test"))
                         .as(bad).isInstanceOf(InvalidInputException.class);
             }
         }
@@ -215,9 +215,8 @@ class UserUseCasesTest {
         @Test
         @DisplayName("only the officer is read-only, and only the operator has no council")
         void roleFacts() {
-            assertThat(Role.COUNCIL_OFFICER.isReadOnly()).isTrue();
-            assertThat(Role.COUNCIL_ADMIN.isReadOnly()).isFalse();
-            assertThat(Role.MSIKA_OPERATOR.isReadOnly()).isFalse();
+            assertThat(Permissions.of(Role.COUNCIL_OFFICER)).containsExactly(Permission.READ);
+            assertThat(Permissions.of(Role.COUNCIL_ADMIN)).contains(Permission.MANAGE_USERS);
             assertThat(Role.MSIKA_OPERATOR.belongsToCouncil()).isFalse();
             assertThat(Role.COUNCIL_ADMIN.belongsToCouncil()).isTrue();
         }

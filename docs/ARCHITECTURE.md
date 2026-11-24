@@ -335,9 +335,11 @@ permissions, an audit row for every change, checking the user row on every reque
 
 - Council users sign in with email and password (BCrypt) and get a short-lived JWT. The user row is
   re-read on every request, so deactivating a user takes effect at once.
-- Roles: `COUNCIL_ADMIN`, `COUNCIL_OFFICER` (read-only), `MSIKA_OPERATOR` (manages councils). Every
-  endpoint is denied unless a rule allows it. M-61 adds market-scoped roles and separation of duties,
-  and every council decision goes through one approvals inbox: see `docs/COUNCIL-ADMIN.md`.
+- A user holds one or more roles, some scoped to named markets (`docs/COUNCIL-ADMIN.md` §3). What a role
+  may do is a matrix in code, and every endpoint needs a permission listed in `EndpointPermissions`:
+  one that is not listed is refused, and fails the build. Duties are kept apart by the use case and by
+  a database trigger.
+- Every council decision will go through one approvals inbox (M-62).
 - Traders and agents are identified by phone number on SMS. A phone number that is not registered
   gets a registration reply and nothing else.
 - Webhooks (SMS gateway, payment callbacks) are checked with HMAC signatures and a timestamp no older

@@ -1,24 +1,29 @@
 package zm.msika.core.user;
 
-/**
- * What a signed-in user may do (ARCHITECTURE.md section 9). Every endpoint is denied unless a rule
- * allows the user's role.
- */
+/** A role a user can hold (COUNCIL-ADMIN.md section 3.1). What each may do is in {@link Permissions}. */
 public enum Role {
 
     /** Msika staff. Manages councils. Belongs to no council. */
-    MSIKA_OPERATOR(false),
-
-    /** A council's administrator. May read and change everything in their own council. */
-    COUNCIL_ADMIN(true),
-
-    /** A council officer. May read their own council's data and change nothing. */
-    COUNCIL_OFFICER(true);
+    MSIKA_OPERATOR(false, false),
+    /** Runs the council's side: users, policies, rules. */
+    COUNCIL_ADMIN(true, false),
+    /** In charge of the markets named in the grant, and no others. */
+    MARKET_MASTER(true, true),
+    /** The council's revenue section. */
+    REVENUE_OFFICER(true, false),
+    /** Inspects the markets named in the grant. Never handles the money from what they find. */
+    ENFORCEMENT_OFFICER(true, true),
+    /** Any other council staff: reads, changes nothing. */
+    COUNCIL_OFFICER(true, false),
+    /** Reads everything in the council, the audit log included, and changes nothing. */
+    AUDITOR(true, false);
 
     private final boolean belongsToCouncil;
+    private final boolean marketScoped;
 
-    Role(boolean belongsToCouncil) {
+    Role(boolean belongsToCouncil, boolean marketScoped) {
         this.belongsToCouncil = belongsToCouncil;
+        this.marketScoped = marketScoped;
     }
 
     /** True for the roles that belong to one council. False only for the operator. */
@@ -26,8 +31,9 @@ public enum Role {
         return belongsToCouncil;
     }
 
-    /** True if this role may only read. */
-    public boolean isReadOnly() {
-        return this == COUNCIL_OFFICER;
+    /** True if the role is held for named markets. */
+    public boolean marketScoped() {
+        return marketScoped;
     }
+
 }
