@@ -412,7 +412,10 @@ class SmsCommandsApiTest extends ApiTest {
 
         assertThat(templates(newcomer)).containsExactly("REG_SENT", "REG_SENT");
         assertThat(outbox(newcomer).get(0)).isEqualTo("Msika: request sent for stall " + code + ". The market office will confirm.");
-        RegistrationBody[] pending = api().get(council.officerToken(),
+        RegistrationBody[] masked = api().get(council.officerToken(),
+                "/api/v1/councils/" + council.councilId() + "/registrations", RegistrationBody[].class).body();
+        assertThat(masked[0].phone()).contains("***").isNotEqualTo(newcomer);
+        RegistrationBody[] pending = api().get(council.adminToken(),
                 "/api/v1/councils/" + council.councilId() + "/registrations", RegistrationBody[].class).body();
         assertThat(pending).hasSize(1);
         assertThat(pending[0].status()).isEqualTo("PENDING");
@@ -454,6 +457,23 @@ class SmsCommandsApiTest extends ApiTest {
         assertThat(templates(newcomer)).containsExactly("REG_SENT", "REG_REJECTED");
         assertThat(ownerJdbc().sql("select status from stall where id = :s").param("s", vacantStallId)
                 .query(String.class).single()).isEqualTo("VACANT");
+        // The same code in another council: Msika says so instead of "no such stall", and raises nothing anywhere.
+        Fixture other = newCouncil();
+        tenant.inCouncil(other.councilId(), () -> {
+            UUID m = UUID.randomUUID();
+            jdbc.sql("insert into market (id, council_id, code, name, day_close_time, created_at) "
+                            + "values (:id, :c, :code, 'Same Code', '20:00', now())")
+                    .param("id", m).param("c", other.councilId()).param("code", marketCode).update();
+            jdbc.sql("insert into stall (id, council_id, market_id, code, stall_class, status, qr_token) "
+                            + "values (:id, :c, :m, :code, 'STANDARD', 'VACANT', :t)")
+                    .param("id", UUID.randomUUID()).param("c", other.councilId()).param("m", m)
+                    .param("code", marketCode + "-B-115").param("t", UUID.randomUUID().toString().replace("-", "")).update();
+        });
+        String stranger = phone("+260955");
+        text(stranger, "REG " + marketCode + "-B-115");
+        assertThat(templates(stranger)).containsExactly("STALL_IN_TWO_COUNCILS");
+        assertThat(ownerJdbc().sql("select count(*) from registration_request where msisdn = :p").param("p", stranger)
+                .query(Long.class).single()).isZero();
         text(newcomer, "REG ZZZ-Q-1");
         assertThat(templates(newcomer)).last().isEqualTo("STALL_NOT_FOUND");
         assertThat(ownerJdbc().sql("select outcome from sms_inbound where from_msisdn = :p order by stored_at desc limit 1")

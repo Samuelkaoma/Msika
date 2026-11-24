@@ -144,6 +144,14 @@ class PeopleApiTest extends ApiTest {
         Fixture council = newCouncil();
         String officer = council.officerToken();
 
+        api().post(council.adminToken(), base(council) + "/traders", new TraderRequest("0977555666", "Masked", "en"), Void.class);
+        api().post(council.adminToken(), base(council) + "/agents", new AgentRequest("0966555777", "Masked"), Void.class);
+        for (String list : List.of("/traders", "/agents")) {
+            String full = api().get(council.adminToken(), base(council) + list, String.class).body();
+            String masked = api().get(officer, base(council) + list, String.class).body();
+            assertThat(full).as(list).contains("555");
+            assertThat(masked).as(list + " for an officer").contains("***").doesNotContain("555");
+        }
         assertThat(api().get(officer, base(council) + "/traders", Void.class).status()).isEqualTo(200);
         assertThat(api().get(officer, base(council) + "/agents", Void.class).status()).isEqualTo(200);
         assertThat(api().post(officer, base(council) + "/traders", new TraderRequest("0977000739", "Mary", "en"),

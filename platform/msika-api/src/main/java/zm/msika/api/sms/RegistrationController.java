@@ -18,6 +18,7 @@ import zm.msika.core.audit.AuditLog;
 import zm.msika.core.common.ConflictException;
 import zm.msika.core.common.InvalidInputException;
 import zm.msika.core.common.NotFoundException;
+import zm.msika.core.phone.PhoneNumber;
 import zm.msika.core.sms.SmsTemplate;
 import zm.msika.core.stall.AllocateStall;
 import zm.msika.core.trader.RegisterTrader;
@@ -67,7 +68,8 @@ class RegistrationController {
                         + "join stall s on s.id = r.stall_id where r.council_id = :c order by r.created_at desc limit 500")
                 .param("c", councilId)
                 .query((rs, n) -> new RegistrationBody(rs.getObject("id", UUID.class), rs.getObject("stall_id", UUID.class),
-                        rs.getString("code"), rs.getString("msisdn"), rs.getString("status"),
+                        rs.getString("code"),
+                        CurrentUser.showPhone(new PhoneNumber(rs.getString("msisdn"))), rs.getString("status"),
                         rs.getObject("trader_id", UUID.class),
                         rs.getObject("created_at", OffsetDateTime.class).toInstant(),
                         rs.getObject("decided_at", OffsetDateTime.class) == null ? null

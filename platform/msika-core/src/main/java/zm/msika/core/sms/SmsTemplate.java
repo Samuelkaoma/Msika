@@ -42,6 +42,7 @@ public enum SmsTemplate {
     STALL_NOT_FOUND("Msika: no stall {STALL} in your markets. Check the number on the stall plate."),
     REF_NOT_FOUND("Msika: no deposit {REF} found for you this week. Check the ref in the SMS."),
     STALL_AMBIGUOUS("Msika: {STALL} matches more than one stall. Send the full number from the plate, like SOW-B-114."),
+    STALL_IN_TWO_COUNCILS("Msika: more than one council has a stall {STALL}. Please ask your market office to register you."),
     NO_STALL("Msika: you have no stall at the moment. Please call your market office."),
     NOT_DONE("Msika: not done: {REASON}. Nothing was recorded."),
     HELP_TRADER("Msika: SALE 120, TODAY, BAL, LEVY, MONTH, NO + ref, STOP. Questions? Call your market office."),

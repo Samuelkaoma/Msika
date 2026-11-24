@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import zm.msika.api.security.CurrentUser;
 import zm.msika.core.council.CouncilRepository;
 import zm.msika.core.map.StallState;
-import zm.msika.core.user.Role;
 
 /** The map's live data (card M-49): status per stall, the stall panel, and search. Reads, for every user of the council. */
 @RestController
@@ -31,7 +30,7 @@ class MapStatusController {
 
     /** Officers read only, so they see phone numbers masked; admins and operators see them in full. */
     private static boolean fullPhones() {
-        return CurrentUser.require().role() != Role.COUNCIL_OFFICER;
+        return CurrentUser.seesFullPhones();
     }
 
     private LocalDate today(UUID councilId) {
