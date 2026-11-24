@@ -331,7 +331,7 @@ active, quiet or suspended, can find any trader on it, and can watch the closing
 Goal: every decision a council makes waits in one inbox with its evidence, is decided by the right
 person (never the one who raised it), and changes the register only when approved.
 
-**☐ M-61 Roles, market scopes and separation of duties** · KK · M-09 · `feature/M-61-roles`
+**◐ M-61 Roles, market scopes and separation of duties** · KK · M-09 · `feature/M-61-roles`
 - Do: COUNCIL-ADMIN §3 and the `user_role` table in §9. Several roles per user, market scopes, the
   new roles, the permission matrix in code re-seeded on start, the test that every endpoint has a
   permission mapped, the rules in §3.3, and a migration that moves each existing user's role across.
